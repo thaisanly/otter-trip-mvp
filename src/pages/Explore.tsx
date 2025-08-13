@@ -9,7 +9,7 @@ import InterestTag from '../components/ui/InterestTag';
 // Tours by category moved to mock file
 // Avatar images for the talents
 // Avatars moved to mock file
-import { categories, toursByCategory, avatars } from '../mock/categories';
+import { categories, toursByCategory } from '../mock/categories';
 const Explore = () => {
   const { category } = useParams();
   const navigate = useNavigate();
@@ -105,7 +105,7 @@ const Explore = () => {
         {/* Tours Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredTours.map((tour) => (
-            <TourCard key={tour.id} tour={tour} onFavorite={handleFavorite} avatars={avatars} />
+            <TourCard key={tour.id} tour={tour} onFavorite={handleFavorite} />
           ))}
         </div>
         {filteredTours.length === 0 && (

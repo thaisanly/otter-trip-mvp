@@ -12,11 +12,14 @@ interface TourCardProps {
     rating: number;
     reviews: number;
     talents?: number;
+    guide?: {
+      name: string;
+      image: string;
+    };
   };
   onFavorite?: (id: string) => void;
-  avatars?: string[];
 }
-const TourCard: React.FC<TourCardProps> = ({ tour, onFavorite, avatars = [] }) => {
+const TourCard: React.FC<TourCardProps> = ({ tour, onFavorite }) => {
   const [isFavorite, setIsFavorite] = useState(false);
   const handleFavoriteClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -59,19 +62,14 @@ const TourCard: React.FC<TourCardProps> = ({ tour, onFavorite, avatars = [] }) =
               <div className="text-gray-900 font-bold">{tour.price}</div>
               <div className="text-gray-500 text-xs">per person</div>
             </div>
-            {tour.talents && avatars.length > 0 && (
+            {tour.guide && (
               <div className="flex items-center">
-                <div className="flex -space-x-2 mr-2">
-                  {avatars.slice(0, 3).map((avatar, index) => (
-                    <img
-                      key={index}
-                      src={avatar}
-                      alt="Tour guide"
-                      className="w-6 h-6 rounded-full border border-white"
-                    />
-                  ))}
-                </div>
-                <span className="text-xs text-gray-600">{tour.talents}+ guides</span>
+                <img
+                  src={tour.guide.image}
+                  alt={tour.guide.name}
+                  className="w-6 h-6 rounded-full mr-2 object-cover"
+                />
+                <span className="text-xs text-gray-600">{tour.guide.name}</span>
               </div>
             )}
           </div>

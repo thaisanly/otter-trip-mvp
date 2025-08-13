@@ -18,6 +18,10 @@ export interface CategoryTour {
   rating: number;
   reviews: number;
   talents: number;
+  guide?: {
+    name: string;
+    image: string;
+  };
 }
 
 export const categories: Record<string, Category> = {
@@ -73,10 +77,3 @@ export const toursByCategory: Record<string, CategoryTour[]> = {
     return getToursByCategoryForListing('food');
   },
 };
-
-export const avatars = [
-  'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.0.3&auto=format&fit=crop&w=128&q=80',
-  'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=128&q=80',
-  'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&auto=format&fit=crop&w=128&q=80',
-  'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-4.0.3&auto=format&fit=crop&w=128&q=80',
-];

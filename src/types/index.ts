@@ -386,7 +386,6 @@ export interface InterestTagProps {
 export interface TourCardProps {
   tour: Tour;
   onFavorite?: (id: string) => void;
-  avatars?: string[];
 }
 
 /**

@@ -9,7 +9,6 @@ import type { TourDetail } from './tours';
 import type { TourLeader } from './tourLeaders';
 
 // Import data from mock files
-import { categories } from './categories';
 import { experts } from './experts';
 import { tours } from './tours';
 import { tourLeaders } from './tourLeaders';
@@ -30,6 +29,10 @@ export function convertTourDetailToCategoryTour(tour: TourDetail): CategoryTour 
     rating: tour.rating,
     reviews: tour.reviewCount,
     talents: tour.totalJoined,
+    guide: {
+      name: tour.guide.name,
+      image: tour.guide.image,
+    },
   };
 }
 

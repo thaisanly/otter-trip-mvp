@@ -370,41 +370,51 @@ const TourDetail = () => {
                   <span className="font-medium">{tour.rating}</span>
                 </div>
               </div>
-              <div className="mb-6">
-                <h3 className="font-medium text-gray-900 mb-3">Select a date:</h3>
-                <div className="space-y-2 max-h-[220px] overflow-y-auto pr-2">
-                  {(showAllDates ? tour.dates : tour.dates.slice(0, 3)).map((dateOption) => (
-                    <button
-                      key={dateOption.id}
-                      className={`w-full flex items-center justify-between p-3 border rounded-lg text-left ${selectedDate === dateOption.id ? 'border-blue-600 bg-blue-50' : 'border-gray-200 hover:border-gray-300'}`}
-                      onClick={() => handleDateSelect(dateOption.id)}
-                    >
-                      <div>
-                        <div className="font-medium text-gray-900">{dateOption.date}</div>
-                        <div
-                          className={`text-sm ${dateOption.spotsLeft <= 3 ? 'text-red-600 font-medium' : 'text-gray-500'}`}
-                        >
-                          {dateOption.spotsLeft} spots left
+              {tour.dates && tour.dates.length > 0 && (
+                <div className="mb-6">
+                  <h3 className="font-medium text-gray-900 mb-3">Select a date:</h3>
+                  <div className="space-y-2 max-h-[220px] overflow-y-auto pr-2">
+                    {(showAllDates ? tour.dates : tour.dates.slice(0, 3)).map((dateOption) => (
+                      <button
+                        key={dateOption.id}
+                        className={`w-full flex items-center justify-between p-3 border rounded-lg text-left ${selectedDate === dateOption.id ? 'border-blue-600 bg-blue-50' : 'border-gray-200 hover:border-gray-300'}`}
+                        onClick={() => handleDateSelect(dateOption.id)}
+                      >
+                        <div>
+                          <div className="font-medium text-gray-900">{dateOption.date}</div>
+                          <div
+                            className={`text-sm ${dateOption.spotsLeft <= 3 ? 'text-red-600 font-medium' : 'text-gray-500'}`}
+                          >
+                            {dateOption.spotsLeft} spots left
+                          </div>
                         </div>
-                      </div>
-                      <div className="font-bold text-gray-900">{dateOption.price}</div>
+                        <div className="font-bold text-gray-900">{dateOption.price}</div>
+                      </button>
+                    ))}
+                  </div>
+                  {tour.dates.length > 3 && (
+                    <button
+                      className="text-blue-600 hover:text-blue-800 text-sm font-medium mt-2"
+                      onClick={() => setShowAllDates(!showAllDates)}
+                    >
+                      {showAllDates ? 'Show less dates' : `Show all dates (${tour.dates.length})`}
                     </button>
-                  ))}
+                  )}
                 </div>
-                {tour.dates.length > 3 && (
-                  <button
-                    className="text-blue-600 hover:text-blue-800 text-sm font-medium mt-2"
-                    onClick={() => setShowAllDates(!showAllDates)}
-                  >
-                    {showAllDates ? 'Show less dates' : `Show all dates (${tour.dates.length})`}
-                  </button>
-                )}
-              </div>
+              )}
               <button
-                className={`w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg mb-4 transition-colors ${!selectedDate ? 'opacity-50 cursor-not-allowed' : ''}`}
-                disabled={!selectedDate}
+                className={`w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg mb-4 transition-colors ${
+                  !tour.dates || tour.dates.length === 0 || !selectedDate
+                    ? 'opacity-50 cursor-not-allowed'
+                    : ''
+                }`}
+                disabled={!tour.dates || tour.dates.length === 0 || !selectedDate}
               >
-                {selectedDate ? 'Book Now' : 'Select a date to book'}
+                {!tour.dates || tour.dates.length === 0
+                  ? 'No dates available'
+                  : selectedDate
+                    ? 'Book Now'
+                    : 'Select a date to book'}
               </button>
               <button
                 className={`w-full flex items-center justify-center font-medium py-3 px-4 rounded-lg border transition-colors ${isWishlisted ? 'bg-red-50 text-red-600 border-red-200' : 'border-gray-300 text-gray-700 hover:bg-gray-50'}`}
