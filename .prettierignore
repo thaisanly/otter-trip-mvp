@@ -1,0 +1,35 @@
+# Dependencies
+node_modules/
+.yarn/
+
+# Production
+dist/
+build/
+
+# Environment files
+.env
+.env.local
+.env.production
+
+# IDE
+.vscode/
+.idea/
+
+# Firebase
+.firebase/
+firebase-debug.log
+
+# Package manager files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Coverage
+coverage/
+
+# Cache
+.cache/
+.parcel-cache/
+
+# Logs
+*.log

@@ -1,7 +1,7 @@
 // Firebase Firestore Schema Types for Otter Trip Travel Platform
 // Optimized for read efficiency with denormalized data where appropriate
 
-import { Timestamp, GeoPoint } from "firebase/firestore";
+import { Timestamp, GeoPoint } from 'firebase/firestore';
 
 // ============================================================================
 // USER TYPES
@@ -20,7 +20,7 @@ export interface FirebaseUser {
   bio?: string;
   travelStyle: string[]; // ['adventure', 'cultural', 'relaxation', 'food']
   interests: string[]; // ['hiking', 'photography', 'history']
-  budgetPreference?: "budget" | "mid-range" | "luxury";
+  budgetPreference?: 'budget' | 'mid-range' | 'luxury';
   accessibilityNeeds?: string[];
   preferredLanguages?: string[];
   emailVerified: boolean;
@@ -41,7 +41,7 @@ export interface FirebaseUser {
 export interface TourLeader {
   id: string;
   userId?: string; // Reference to user if they have an account
-  leaderType: "leader" | "expert" | "manager";
+  leaderType: 'leader' | 'expert' | 'manager';
   displayName: string;
   profileImage?: string;
   location: string;
@@ -68,7 +68,7 @@ export interface TourLeader {
   // Ratings (denormalized)
   averageRating: number;
   totalReviews: number;
-  
+
   // Rating breakdown (denormalized for display)
   ratingBreakdown?: {
     5: number;
@@ -77,7 +77,7 @@ export interface TourLeader {
     2: number;
     1: number;
   };
-  
+
   // Average ratings by category (denormalized)
   categoryRatings?: {
     communication: number;
@@ -106,14 +106,14 @@ export interface TourLeader {
   isActive: boolean;
   createdAt: Timestamp;
   updatedAt: Timestamp;
-  
+
   // Reviews are stored as subcollection: tourLeaders/{leaderId}/reviews/{reviewId}
 }
 
 interface Language {
   code: string; // 'en', 'es', 'fr'
   name: string; // 'English', 'Spanish', 'French'
-  proficiencyLevel: "basic" | "conversational" | "fluent" | "native";
+  proficiencyLevel: 'basic' | 'conversational' | 'fluent' | 'native';
 }
 
 interface Certification {
@@ -121,7 +121,7 @@ interface Certification {
   issuer: string;
   issueDate?: Date;
   expiryDate?: Date;
-  iconType?: "award" | "shield" | "check";
+  iconType?: 'award' | 'shield' | 'check';
   isVerified: boolean;
 }
 
@@ -170,14 +170,14 @@ export interface Tour {
   leaderImage?: string; // Denormalized for display
   title: string;
   slug: string;
-  
+
   // Tour Overview Section
   overview: {
     description: string; // Main tour description
     highlights: string[]; // List of tour highlights
     gallery: string[]; // List of image URLs for gallery
   };
-  
+
   description: string; // Brief description for cards/lists
   detailedDescription?: string; // Full detailed description
   coverImage?: string;
@@ -193,14 +193,14 @@ export interface Tour {
   };
   minParticipants: number; // Keeping for backward compatibility
   maxParticipants: number; // Keeping for backward compatibility
-  difficultyLevel: "easy" | "moderate" | "challenging" | "extreme";
+  difficultyLevel: 'easy' | 'moderate' | 'challenging' | 'extreme';
 
   // Pricing
   pricePerPerson: number;
   currency: string;
   priceIncludes?: string[]; // Deprecated - use inclusions.included
   priceExcludes?: string[]; // Deprecated - use inclusions.notIncluded
-  
+
   // What's Included Section
   inclusions: {
     included: string[]; // List of what's included
@@ -222,14 +222,7 @@ export interface Tour {
   coordinates?: GeoPoint;
 
   // Categories and tags
-  category:
-    | "adventure"
-    | "cultural"
-    | "relaxation"
-    | "food"
-    | "nature"
-    | "urban"
-    | "luxury";
+  category: 'adventure' | 'cultural' | 'relaxation' | 'food' | 'nature' | 'urban' | 'luxury';
   tags?: string[];
 
   // Itinerary (embedded)
@@ -247,7 +240,7 @@ export interface Tour {
   totalBookings: number;
   totalReviews: number;
   averageRating: number;
-  
+
   // Rating breakdown (denormalized for display)
   ratingBreakdown?: {
     5: number;
@@ -259,7 +252,7 @@ export interface Tour {
 
   createdAt: Timestamp;
   updatedAt: Timestamp;
-  
+
   // Reviews are stored as subcollection: tours/{tourId}/reviews/{reviewId}
 }
 
@@ -268,7 +261,7 @@ interface TourItineraryDay {
   title?: string;
   description?: string;
   activities?: string[];
-  mealsIncluded?: ("breakfast" | "lunch" | "dinner")[];
+  mealsIncluded?: ('breakfast' | 'lunch' | 'dinner')[];
   accommodationType?: string;
 }
 
@@ -276,7 +269,7 @@ interface TourSchedule {
   id: string;
   startDate: Date;
   endDate: Date;
-  status: "scheduled" | "confirmed" | "cancelled" | "completed";
+  status: 'scheduled' | 'confirmed' | 'cancelled' | 'completed';
   currentParticipants: number;
   maxParticipants: number;
 }
@@ -292,7 +285,7 @@ interface DateRange {
 
 export interface Booking {
   id: string;
-  bookingType: "tour" | "consultation";
+  bookingType: 'tour' | 'consultation';
   userId: string;
   userName: string; // Denormalized
   userEmail: string; // Denormalized
@@ -326,8 +319,8 @@ export interface Booking {
   promoCode?: string;
 
   // Status
-  status: "pending" | "confirmed" | "cancelled" | "completed" | "refunded";
-  paymentStatus: "pending" | "paid" | "partial" | "refunded";
+  status: 'pending' | 'confirmed' | 'cancelled' | 'completed' | 'refunded';
+  paymentStatus: 'pending' | 'paid' | 'partial' | 'refunded';
   cancellationReason?: string;
   cancelledAt?: Timestamp;
 
@@ -359,10 +352,10 @@ export interface TourReview {
   reviewerName: string; // Denormalized
   reviewerImage?: string; // Denormalized
   reviewerCountry?: string; // Reviewer's country
-  
+
   bookingId?: string; // Reference to booking if verified purchase
   tourDate?: Date; // When they took the tour
-  
+
   rating: number; // 1-5
   title?: string;
   comment: string;
@@ -378,7 +371,7 @@ export interface TourReview {
 
   // Media
   images?: string[];
-  
+
   // Interaction
   helpfulCount: number;
   notHelpfulCount?: number;
@@ -399,7 +392,7 @@ export interface LeaderReview {
   reviewerId: string;
   reviewerName: string; // Denormalized
   reviewerImage?: string; // Denormalized
-  
+
   tourId?: string; // Which tour they took with this leader
   tourTitle?: string; // Denormalized
   bookingId?: string;
@@ -434,7 +427,7 @@ export interface LeaderReview {
 
 // Keep old Review interface for backward compatibility (deprecated)
 export interface Review extends TourReview {
-  reviewableType?: "tour" | "leader";
+  reviewableType?: 'tour' | 'leader';
   tourId?: string;
   leaderId?: string;
   leaderName?: string;
@@ -467,18 +460,18 @@ export interface LiveStream {
   tourTitle?: string; // Denormalized
 
   streamType:
-    | "tour_preview"
-    | "live_tour"
-    | "q&a"
-    | "destination_guide"
-    | "cultural_event"
-    | "cooking"
-    | "other";
+    | 'tour_preview'
+    | 'live_tour'
+    | 'q&a'
+    | 'destination_guide'
+    | 'cultural_event'
+    | 'cooking'
+    | 'other';
   tags?: string[];
 
-  status: "scheduled" | "live" | "ended" | "cancelled" | "error";
+  status: 'scheduled' | 'live' | 'ended' | 'cancelled' | 'error';
   isFeatured: boolean;
-  visibility: "public" | "followers_only" | "paid" | "private";
+  visibility: 'public' | 'followers_only' | 'paid' | 'private';
 
   // Metrics
   maxConcurrentViewers: number;
@@ -518,22 +511,22 @@ export interface Video {
   tourTitle?: string; // Denormalized
 
   videoType:
-    | "tour_highlight"
-    | "destination_guide"
-    | "tutorial"
-    | "review"
-    | "vlog"
-    | "promotional"
-    | "testimonial"
-    | "other";
+    | 'tour_highlight'
+    | 'destination_guide'
+    | 'tutorial'
+    | 'review'
+    | 'vlog'
+    | 'promotional'
+    | 'testimonial'
+    | 'other';
   tags?: string[];
 
-  sourceType: "uploaded" | "live_stream_recording" | "external";
+  sourceType: 'uploaded' | 'live_stream_recording' | 'external';
   liveStreamId?: string;
 
-  status: "processing" | "published" | "unlisted" | "private" | "deleted";
+  status: 'processing' | 'published' | 'unlisted' | 'private' | 'deleted';
   isFeatured: boolean;
-  visibility: "public" | "followers_only" | "paid" | "private";
+  visibility: 'public' | 'followers_only' | 'paid' | 'private';
 
   // Metrics
   viewCount: number;
@@ -660,28 +653,28 @@ export interface TourCategory {
 export interface Expert {
   id: string;
   userId?: string; // Reference to user account if they have one
-  
+
   // Basic Info
   name: string;
   slug: string; // URL-friendly identifier like 'sarah-chen'
   displayName: string;
   image: string; // Profile image
   coverImage?: string; // Cover/banner image
-  
+
   // Location
   location: string; // City/Region
   countryCode: string; // ISO country code
   countryFlag?: string; // Emoji flag like '🇸🇬'
   coordinates?: GeoPoint;
   timezone?: string;
-  
+
   // Professional Info
   bio: string; // Detailed bio/description
   experienceYears: number;
   languages: string[]; // Languages spoken
   specialties: string[]; // Areas of expertise
   personalityTraits?: string[];
-  
+
   // Verification & Badges
   verified: boolean;
   verifiedAt?: Timestamp;
@@ -691,7 +684,7 @@ export interface Expert {
     isNewJoined?: boolean;
     isFeatured?: boolean;
   };
-  
+
   // Stats (denormalized for display)
   stats: {
     rating: number;
@@ -703,11 +696,11 @@ export interface Expert {
     tours: number;
     totalToursConducted?: number;
   };
-  
+
   // Live Status
   isLive: boolean;
   currentStreamId?: string;
-  
+
   // Social Media Links
   socialLinks: {
     instagram?: string;
@@ -718,28 +711,28 @@ export interface Expert {
     tiktok?: string;
     website?: string;
   };
-  
+
   // Consultation Settings
   offersConsultations: boolean;
   consultationPrice?: number;
   consultationCurrency?: string;
   consultationDuration?: number; // in minutes
   consultationAvailability?: string; // e.g., "Available", "Busy", "Away"
-  
+
   // Featured Content (denormalized for quick access)
   featuredTours?: FeaturedTour[]; // Top 2-3 tours
   upcomingStreams?: UpcomingStream[]; // Next scheduled streams
   latestVideos?: LatestVideo[]; // Recent video content
-  
+
   // Settings
   isActive: boolean;
   acceptsBookings: boolean;
   responseTime?: string; // e.g., "Within 24 hours"
   cancellationPolicy?: string;
-  
+
   createdAt: Timestamp;
   updatedAt: Timestamp;
-  
+
   // Reviews are stored as subcollection: experts/{expertId}/reviews/{reviewId}
   // Tours are referenced from main tours collection with expertId field
   // Videos/Streams can be subcollections or separate collections
@@ -787,15 +780,15 @@ export interface ExpertReview {
   reviewerName: string;
   reviewerImage?: string;
   reviewerCountry?: string;
-  
+
   tourId?: string; // Which tour they took (if applicable)
   tourTitle?: string;
   consultationId?: string; // If reviewing a consultation
-  
+
   rating: number; // 1-5
   title?: string;
   comment: string;
-  
+
   // Detailed ratings
   ratings?: {
     communication?: number;
@@ -804,14 +797,14 @@ export interface ExpertReview {
     professionalism?: number;
     value?: number;
   };
-  
+
   verifiedBooking: boolean;
   helpfulCount: number;
   images?: string[];
-  
+
   responseFromExpert?: string;
   responseDate?: Timestamp;
-  
+
   createdAt: Timestamp;
   updatedAt: Timestamp;
 }
@@ -859,7 +852,7 @@ export interface TravelStory {
   likeCount: number;
   shareCount: number;
 
-  status: "draft" | "published" | "archived";
+  status: 'draft' | 'published' | 'archived';
   isFeatured: boolean;
 
   publishedAt?: Timestamp;
@@ -877,7 +870,7 @@ export interface Message {
   senderName: string; // Denormalized
   senderImage?: string; // Denormalized
   recipientId: string;
-  recipientType: "user" | "leader";
+  recipientType: 'user' | 'leader';
   bookingId?: string;
   subject?: string;
   content: string;
@@ -929,14 +922,14 @@ export interface PromoCode {
   id: string;
   code: string;
   description?: string;
-  discountType: "percentage" | "fixed";
+  discountType: 'percentage' | 'fixed';
   discountValue: number;
   minimumAmount?: number;
   maxUses?: number;
   usesCount: number;
   validFrom: Timestamp;
   validUntil?: Timestamp;
-  applicableTo: "all" | "tours" | "consultations";
+  applicableTo: 'all' | 'tours' | 'consultations';
   isActive: boolean;
   createdAt: Timestamp;
 }
@@ -947,36 +940,36 @@ export interface PromoCode {
 
 export const COLLECTIONS = {
   // Main collections
-  USERS: "users",
-  TOUR_LEADERS: "tourLeaders",
-  TOURS: "tours",
-  DESTINATIONS: "destinations",
-  BOOKINGS: "bookings",
-  REVIEWS: "reviews", // Deprecated - reviews are now subcollections
-  EXPERTS: "experts",
+  USERS: 'users',
+  TOUR_LEADERS: 'tourLeaders',
+  TOURS: 'tours',
+  DESTINATIONS: 'destinations',
+  BOOKINGS: 'bookings',
+  REVIEWS: 'reviews', // Deprecated - reviews are now subcollections
+  EXPERTS: 'experts',
 
   // Content collections
-  LIVE_STREAMS: "liveStreams",
-  VIDEOS: "videos",
-  TRAVEL_STORIES: "travelStories",
+  LIVE_STREAMS: 'liveStreams',
+  VIDEOS: 'videos',
+  TRAVEL_STORIES: 'travelStories',
 
   // Communication
-  MESSAGES: "messages",
-  NOTIFICATIONS: "notifications",
+  MESSAGES: 'messages',
+  NOTIFICATIONS: 'notifications',
 
   // Master data collections
-  PERSONALITY_TYPES: "personalityTypes",
-  PROMO_CODES: "promoCodes",
-  TRAVEL_STYLES: "travelStyles",
-  INTERESTS: "interests",
-  SPECIALTIES: "specialties",
-  LANGUAGES: "languages",
-  ACTIVITIES: "activities",
-  TOUR_CATEGORIES: "tourCategories",
+  PERSONALITY_TYPES: 'personalityTypes',
+  PROMO_CODES: 'promoCodes',
+  TRAVEL_STYLES: 'travelStyles',
+  INTERESTS: 'interests',
+  SPECIALTIES: 'specialties',
+  LANGUAGES: 'languages',
+  ACTIVITIES: 'activities',
+  TOUR_CATEGORIES: 'tourCategories',
 
   // Analytics
-  SEARCH_HISTORY: "searchHistory",
-  POPULAR_SEARCHES: "popularSearches",
+  SEARCH_HISTORY: 'searchHistory',
+  POPULAR_SEARCHES: 'popularSearches',
 } as const;
 
 // ============================================================================
@@ -985,15 +978,15 @@ export const COLLECTIONS = {
 
 export const SUBCOLLECTIONS = {
   // Tour subcollections
-  TOUR_REVIEWS: "reviews", // tours/{tourId}/reviews
-  TOUR_QUESTIONS: "questions", // tours/{tourId}/questions
-  
-  // Leader subcollections  
-  LEADER_REVIEWS: "reviews", // tourLeaders/{leaderId}/reviews
-  LEADER_CERTIFICATIONS: "certifications", // tourLeaders/{leaderId}/certifications
-  
+  TOUR_REVIEWS: 'reviews', // tours/{tourId}/reviews
+  TOUR_QUESTIONS: 'questions', // tours/{tourId}/questions
+
+  // Leader subcollections
+  LEADER_REVIEWS: 'reviews', // tourLeaders/{leaderId}/reviews
+  LEADER_CERTIFICATIONS: 'certifications', // tourLeaders/{leaderId}/certifications
+
   // Expert subcollections
-  EXPERT_REVIEWS: "reviews", // experts/{expertId}/reviews
+  EXPERT_REVIEWS: 'reviews', // experts/{expertId}/reviews
 } as const;
 
 // ============================================================================
@@ -1006,21 +999,21 @@ export type SubcollectionName = (typeof SUBCOLLECTIONS)[keyof typeof SUBCOLLECTI
 export interface QueryOptions {
   limit?: number;
   orderBy?: string;
-  orderDirection?: "asc" | "desc";
+  orderDirection?: 'asc' | 'desc';
   startAfter?: unknown;
   where?: Array<{
     field: string;
     operator:
-      | "<"
-      | "<="
-      | "=="
-      | ">"
-      | ">="
-      | "!="
-      | "array-contains"
-      | "array-contains-any"
-      | "in"
-      | "not-in";
+      | '<'
+      | '<='
+      | '=='
+      | '>'
+      | '>='
+      | '!='
+      | 'array-contains'
+      | 'array-contains-any'
+      | 'in'
+      | 'not-in';
     value: unknown;
   }>;
 }

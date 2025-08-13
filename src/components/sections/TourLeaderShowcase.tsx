@@ -1,9 +1,14 @@
 import React from 'react';
 const TourLeaderShowcase = () => {
-  return <div className="relative bg-blue-900 text-white">
+  return (
+    <div className="relative bg-blue-900 text-white">
       {/* Background Image with Overlay */}
       <div className="absolute inset-0 z-0">
-        <img src="https://images.unsplash.com/photo-1506197603052-3cc9c3a201bd?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80" alt="Travel adventure" className="w-full h-full object-cover" />
+        <img
+          src="https://images.unsplash.com/photo-1506197603052-3cc9c3a201bd?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80"
+          alt="Travel adventure"
+          className="w-full h-full object-cover"
+        />
         <div className="absolute inset-0 bg-blue-900/50"></div>
       </div>
       {/* Content */}
@@ -13,8 +18,7 @@ const TourLeaderShowcase = () => {
             Pick the Pro for Your Next Adventure
           </h1>
           <p className="text-xl md:text-2xl mb-8 text-blue-100">
-            Connect with expert local guides who will transform your travel
-            experience
+            Connect with expert local guides who will transform your travel experience
           </p>
         </div>
         {/* Stats cards */}
@@ -48,7 +52,7 @@ const TourLeaderShowcase = () => {
           </div>
         </div>
       </div>
-
-    </div>;
+    </div>
+  );
 };
 export default TourLeaderShowcase;

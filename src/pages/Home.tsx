@@ -6,8 +6,9 @@ import VibeMatchingSection from '../components/sections/VibeMatchingSection';
 import HowItWorks from '../components/sections/HowItWorks';
 const Home = () => {
   const navigate = useNavigate();
-  
-  return <div>
+
+  return (
+    <div>
       {/* Tour Leader Showcase (replaces HeroSection) */}
       <TourLeaderShowcase />
 
@@ -24,19 +25,21 @@ const Home = () => {
             Ready to Connect with Your Perfect Guide?
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8">
-            Join thousands of travelers who have discovered meaningful
-            experiences with guides who match their personality.
+            Join thousands of travelers who have discovered meaningful experiences with guides who
+            match their personality.
           </p>
-          <button 
+          <button
             onClick={() => {
               navigate('/meet-experts');
               window.scrollTo(0, 0);
             }}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-8 rounded-lg">
+            className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-8 rounded-lg"
+          >
             Start Your Journey
           </button>
         </div>
       </div>
-    </div>;
+    </div>
+  );
 };
 export default Home;

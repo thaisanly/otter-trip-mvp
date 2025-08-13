@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
-import { 
-  tourLeaderService, 
-  tourService, 
-  expertService, 
-  bookingService, 
+import {
+  tourLeaderService,
+  tourService,
+  expertService,
+  bookingService,
   reviewService,
   consultationService,
-  messageService 
+  messageService,
 } from '../services/firestore';
 import { TourLeader, Tour, Expert, Booking, Review } from '../types';
 
@@ -72,7 +72,7 @@ export const useTours = (leaderId?: string) => {
     const fetchTours = async () => {
       try {
         setLoading(true);
-        const data = leaderId 
+        const data = leaderId
           ? await tourService.getToursByLeader(leaderId)
           : await tourService.getAllTours();
         setTours(data);
@@ -205,9 +205,10 @@ export const useReviews = (type: 'tour' | 'tourLeader', id: string) => {
     const fetchReviews = async () => {
       try {
         setLoading(true);
-        const data = type === 'tour' 
-          ? await reviewService.getReviewsForTour(id)
-          : await reviewService.getReviewsForTourLeader(id);
+        const data =
+          type === 'tour'
+            ? await reviewService.getReviewsForTour(id)
+            : await reviewService.getReviewsForTourLeader(id);
         setReviews(data);
       } catch (err) {
         setError(err as Error);

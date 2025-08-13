@@ -512,12 +512,7 @@ export interface UserPreferences {
  * Booking status
  * Usage: Booking state management
  */
-export type BookingStatus = 
-  | 'pending'
-  | 'confirmed'
-  | 'cancelled'
-  | 'completed'
-  | 'refunded';
+export type BookingStatus = 'pending' | 'confirmed' | 'cancelled' | 'completed' | 'refunded';
 
 /**
  * Payment method

@@ -1,41 +1,51 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import InterestTag from '../ui/InterestTag';
-const personalityTraits = [{
-  id: 'adventurous',
-  label: 'Adventurous',
-  emoji: '🧗‍♂️'
-}, {
-  id: 'laid-back',
-  label: 'Laid-back',
-  emoji: '🏝️'
-}, {
-  id: 'foodie',
-  label: 'Foodie',
-  emoji: '🍜'
-}, {
-  id: 'cultural',
-  label: 'Cultural',
-  emoji: '🏛️'
-}, {
-  id: 'photography',
-  label: 'Photography',
-  emoji: '📸'
-}, {
-  id: 'nature-focused',
-  label: 'Nature-focused',
-  emoji: '🌿'
-}, {
-  id: 'spiritual',
-  label: 'Spiritual',
-  emoji: '✨'
-}, {
-  id: 'social',
-  label: 'Social',
-  emoji: '👥'
-}];
+const personalityTraits = [
+  {
+    id: 'adventurous',
+    label: 'Adventurous',
+    emoji: '🧗‍♂️',
+  },
+  {
+    id: 'laid-back',
+    label: 'Laid-back',
+    emoji: '🏝️',
+  },
+  {
+    id: 'foodie',
+    label: 'Foodie',
+    emoji: '🍜',
+  },
+  {
+    id: 'cultural',
+    label: 'Cultural',
+    emoji: '🏛️',
+  },
+  {
+    id: 'photography',
+    label: 'Photography',
+    emoji: '📸',
+  },
+  {
+    id: 'nature-focused',
+    label: 'Nature-focused',
+    emoji: '🌿',
+  },
+  {
+    id: 'spiritual',
+    label: 'Spiritual',
+    emoji: '✨',
+  },
+  {
+    id: 'social',
+    label: 'Social',
+    emoji: '👥',
+  },
+];
 const VibeMatchingSection = () => {
-  return <div className="bg-gray-50 py-16">
+  return (
+    <div className="bg-gray-50 py-16">
       <div className="container mx-auto px-4">
         <div className="max-w-6xl mx-auto">
           <div className="flex flex-col lg:flex-row items-center gap-12">
@@ -44,16 +54,22 @@ const VibeMatchingSection = () => {
                 Find Guides Who Match Your Travel Vibe
               </h2>
               <p className="text-lg text-gray-600 mb-6">
-                Our personality matching algorithm connects you with guides who
-                share your travel style and interests, creating more meaningful
-                and enjoyable experiences.
+                Our personality matching algorithm connects you with guides who share your travel
+                style and interests, creating more meaningful and enjoyable experiences.
               </p>
               <div className="mb-8">
                 <div className="text-lg font-medium text-gray-900 mb-3">
                   Select your travel personality traits:
                 </div>
                 <div className="flex flex-wrap gap-2 mb-4">
-                  {personalityTraits.map(trait => <InterestTag key={trait.id} label={trait.label} icon={<span className="text-lg">{trait.emoji}</span>} onClick={() => console.log('Personality trait selected:', trait.label)} />)}
+                  {personalityTraits.map((trait) => (
+                    <InterestTag
+                      key={trait.id}
+                      label={trait.label}
+                      icon={<span className="text-lg">{trait.emoji}</span>}
+                      onClick={() => console.log('Personality trait selected:', trait.label)}
+                    />
+                  ))}
                 </div>
               </div>
               <div className="bg-blue-50 border border-blue-100 rounded-lg p-5 mb-8">
@@ -62,19 +78,19 @@ const VibeMatchingSection = () => {
                     <span className="text-blue-700 text-xl">💡</span>
                   </div>
                   <div>
-                    <h4 className="font-medium text-gray-900 mb-2">
-                      How Our Matching Works
-                    </h4>
+                    <h4 className="font-medium text-gray-900 mb-2">How Our Matching Works</h4>
                     <p className="text-gray-600">
-                      We analyze both travelers' and guides' preferences,
-                      communication styles, and activity interests to suggest
-                      compatible matches. This leads to more authentic
+                      We analyze both travelers' and guides' preferences, communication styles, and
+                      activity interests to suggest compatible matches. This leads to more authentic
                       connections and personalized experiences.
                     </p>
                   </div>
                 </div>
               </div>
-              <Link to="/search" className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-8 rounded-lg">
+              <Link
+                to="/search"
+                className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-8 rounded-lg"
+              >
                 Find Your Guide Match
               </Link>
             </div>
@@ -92,13 +108,15 @@ const VibeMatchingSection = () => {
                     </div>
                     <div className="flex items-center mb-6">
                       <div className="relative mr-4">
-                        <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.0.3&auto=format&fit=crop&w=128&q=80" alt="Tour guide" className="w-16 h-16 rounded-full object-cover" />
+                        <img
+                          src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.0.3&auto=format&fit=crop&w=128&q=80"
+                          alt="Tour guide"
+                          className="w-16 h-16 rounded-full object-cover"
+                        />
                         <div className="absolute -bottom-1 -right-1 bg-green-500 w-5 h-5 rounded-full border-2 border-white"></div>
                       </div>
                       <div>
-                        <h4 className="font-medium text-gray-900">
-                          Sarah Johnson
-                        </h4>
+                        <h4 className="font-medium text-gray-900">Sarah Johnson</h4>
                         <p className="text-gray-600 text-sm">Bali, Indonesia</p>
                       </div>
                     </div>
@@ -119,20 +137,15 @@ const VibeMatchingSection = () => {
                       </div>
                     </div>
                     <p className="text-gray-600 text-sm">
-                      "Based on your preferences, Sarah's travel style and
-                      personality would be a great match for your adventure in
-                      Bali!"
+                      "Based on your preferences, Sarah's travel style and personality would be a
+                      great match for your adventure in Bali!"
                     </p>
                   </div>
                   <div className="p-6 bg-gray-50">
                     <div className="flex justify-between items-center">
                       <div>
-                        <div className="font-medium text-gray-900">
-                          Waterfall Trek & Photo Tour
-                        </div>
-                        <div className="text-gray-600 text-sm">
-                          Jun 15-17, 2023
-                        </div>
+                        <div className="font-medium text-gray-900">Waterfall Trek & Photo Tour</div>
+                        <div className="text-gray-600 text-sm">Jun 15-17, 2023</div>
                       </div>
                       <div className="font-bold text-lg">$85</div>
                     </div>
@@ -143,6 +156,7 @@ const VibeMatchingSection = () => {
           </div>
         </div>
       </div>
-    </div>;
+    </div>
+  );
 };
 export default VibeMatchingSection;

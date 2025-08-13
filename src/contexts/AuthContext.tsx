@@ -121,9 +121,5 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     loginWithFacebook,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {!loading && children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{!loading && children}</AuthContext.Provider>;
 };

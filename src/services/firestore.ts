@@ -46,7 +46,7 @@ export const userService = {
   async getUser(userId: string) {
     const userRef = doc(db, COLLECTIONS.USERS, userId);
     const userSnap = await getDoc(userRef);
-    return userSnap.exists() ? { id: userSnap.id, ...userSnap.data() } as User : null;
+    return userSnap.exists() ? ({ id: userSnap.id, ...userSnap.data() } as User) : null;
   },
 
   async updateUser(userId: string, updates: Partial<User>) {
@@ -63,13 +63,13 @@ export const tourLeaderService = {
   async getAllTourLeaders() {
     const q = query(collection(db, COLLECTIONS.TOUR_LEADERS));
     const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as TourLeader));
+    return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }) as TourLeader);
   },
 
   async getTourLeader(id: string) {
     const docRef = doc(db, COLLECTIONS.TOUR_LEADERS, id);
     const docSnap = await getDoc(docRef);
-    return docSnap.exists() ? { id: docSnap.id, ...docSnap.data() } as TourLeader : null;
+    return docSnap.exists() ? ({ id: docSnap.id, ...docSnap.data() } as TourLeader) : null;
   },
 
   async searchTourLeaders(filters: {
@@ -80,7 +80,7 @@ export const tourLeaderService = {
     languages?: string[];
   }) {
     const constraints: QueryConstraint[] = [];
-    
+
     if (filters.location) {
       constraints.push(where('location', '==', filters.location));
     }
@@ -99,7 +99,7 @@ export const tourLeaderService = {
 
     const q = query(collection(db, COLLECTIONS.TOUR_LEADERS), ...constraints);
     const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as TourLeader));
+    return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }) as TourLeader);
   },
 
   async createTourLeader(data: Omit<TourLeader, 'id'>) {
@@ -125,22 +125,19 @@ export const tourService = {
   async getAllTours() {
     const q = query(collection(db, COLLECTIONS.TOURS), orderBy('createdAt', 'desc'));
     const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Tour));
+    return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }) as Tour);
   },
 
   async getTour(id: string) {
     const docRef = doc(db, COLLECTIONS.TOURS, id);
     const docSnap = await getDoc(docRef);
-    return docSnap.exists() ? { id: docSnap.id, ...docSnap.data() } as Tour : null;
+    return docSnap.exists() ? ({ id: docSnap.id, ...docSnap.data() } as Tour) : null;
   },
 
   async getToursByLeader(leaderId: string) {
-    const q = query(
-      collection(db, COLLECTIONS.TOURS),
-      where('leaderId', '==', leaderId)
-    );
+    const q = query(collection(db, COLLECTIONS.TOURS), where('leaderId', '==', leaderId));
     const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Tour));
+    return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }) as Tour);
   },
 
   async searchTours(filters: {
@@ -152,7 +149,7 @@ export const tourService = {
     startDate?: Date;
   }) {
     const constraints: QueryConstraint[] = [];
-    
+
     if (filters.category) {
       constraints.push(where('category', '==', filters.category));
     }
@@ -174,7 +171,7 @@ export const tourService = {
 
     const q = query(collection(db, COLLECTIONS.TOURS), ...constraints);
     const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Tour));
+    return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }) as Tour);
   },
 
   async createTour(data: Omit<Tour, 'id'>) {
@@ -204,22 +201,18 @@ export const expertService = {
   async getAllExperts() {
     const q = query(collection(db, COLLECTIONS.EXPERTS));
     const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Expert));
+    return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }) as Expert);
   },
 
   async getExpert(id: string) {
     const docRef = doc(db, COLLECTIONS.EXPERTS, id);
     const docSnap = await getDoc(docRef);
-    return docSnap.exists() ? { id: docSnap.id, ...docSnap.data() } as Expert : null;
+    return docSnap.exists() ? ({ id: docSnap.id, ...docSnap.data() } as Expert) : null;
   },
 
-  async searchExperts(filters: {
-    expertise?: string;
-    location?: string;
-    minRating?: number;
-  }) {
+  async searchExperts(filters: { expertise?: string; location?: string; minRating?: number }) {
     const constraints: QueryConstraint[] = [];
-    
+
     if (filters.expertise) {
       constraints.push(where('expertise', 'array-contains', filters.expertise));
     }
@@ -232,7 +225,7 @@ export const expertService = {
 
     const q = query(collection(db, COLLECTIONS.EXPERTS), ...constraints);
     const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Expert));
+    return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }) as Expert);
   },
 };
 
@@ -251,7 +244,7 @@ export const bookingService = {
   async getBooking(id: string) {
     const docRef = doc(db, COLLECTIONS.BOOKINGS, id);
     const docSnap = await getDoc(docRef);
-    return docSnap.exists() ? { id: docSnap.id, ...docSnap.data() } as Booking : null;
+    return docSnap.exists() ? ({ id: docSnap.id, ...docSnap.data() } as Booking) : null;
   },
 
   async getUserBookings(userId: string) {
@@ -261,7 +254,7 @@ export const bookingService = {
       orderBy('createdAt', 'desc')
     );
     const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Booking));
+    return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }) as Booking);
   },
 
   async updateBookingStatus(id: string, status: Booking['status']) {
@@ -295,7 +288,7 @@ export const reviewService = {
       orderBy('createdAt', 'desc')
     );
     const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Review));
+    return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }) as Review);
   },
 
   async getReviewsForTour(tourId: string) {
@@ -305,7 +298,7 @@ export const reviewService = {
       orderBy('createdAt', 'desc')
     );
     const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Review));
+    return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }) as Review);
   },
 
   async markReviewHelpful(reviewId: string) {
@@ -348,7 +341,7 @@ export const consultationService = {
       orderBy('date', 'asc')
     );
     const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
   },
 
   async updateConsultationStatus(id: string, status: 'scheduled' | 'completed' | 'cancelled') {
@@ -384,7 +377,7 @@ export const messageService = {
       orderBy('createdAt', 'asc')
     );
     const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
   },
 
   async markMessagesAsRead(userId: string, otherUserId: string) {
@@ -395,11 +388,9 @@ export const messageService = {
       where('read', '==', false)
     );
     const snapshot = await getDocs(q);
-    
-    const updates = snapshot.docs.map(doc =>
-      updateDoc(doc.ref, { read: true })
-    );
-    
+
+    const updates = snapshot.docs.map((doc) => updateDoc(doc.ref, { read: true }));
+
     await Promise.all(updates);
   },
 };

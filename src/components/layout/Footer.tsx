@@ -1,25 +1,37 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { FacebookIcon, TwitterIcon, InstagramIcon, YoutubeIcon, MapPinIcon, PhoneIcon, MailIcon, ChevronRightIcon } from 'lucide-react';
+import {
+  FacebookIcon,
+  TwitterIcon,
+  InstagramIcon,
+  YoutubeIcon,
+  MapPinIcon,
+  PhoneIcon,
+  MailIcon,
+  ChevronRightIcon,
+} from 'lucide-react';
 const Footer = () => {
   const currentYear = new Date().getFullYear();
-  return <footer className="bg-gray-900 text-white">
+  return (
+    <footer className="bg-gray-900 text-white">
       <div className="container mx-auto px-4 py-12">
         {/* Newsletter */}
         <div className="bg-gray-800 rounded-xl p-6 mb-12">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
             <div className="md:col-span-2">
-              <h3 className="font-bold text-xl mb-2">
-                Subscribe to Our Newsletter
-              </h3>
+              <h3 className="font-bold text-xl mb-2">Subscribe to Our Newsletter</h3>
               <p className="text-gray-400">
-                Get the latest travel tips, destination guides, and exclusive
-                offers delivered to your inbox.
+                Get the latest travel tips, destination guides, and exclusive offers delivered to
+                your inbox.
               </p>
             </div>
             <div>
               <div className="flex">
-                <input type="email" placeholder="Your email address" className="flex-grow px-4 py-3 rounded-l-lg text-gray-900 focus:outline-none" />
+                <input
+                  type="email"
+                  placeholder="Your email address"
+                  className="flex-grow px-4 py-3 rounded-l-lg text-gray-900 focus:outline-none"
+                />
                 <button className="bg-blue-600 hover:bg-blue-700 px-4 py-3 rounded-r-lg transition-colors">
                   Subscribe
                 </button>
@@ -35,8 +47,8 @@ const Footer = () => {
               <img src="/image.png" alt="OtterTrip" className="h-10" />
             </div>
             <p className="text-gray-400 mb-6">
-              Connecting travelers with expert local guides for authentic and
-              personalized travel experiences around the world.
+              Connecting travelers with expert local guides for authentic and personalized travel
+              experiences around the world.
             </p>
             <div className="flex space-x-4">
               <a href="#" className="text-gray-400 hover:text-white transition-colors">
@@ -58,13 +70,19 @@ const Footer = () => {
             <h3 className="font-bold text-lg mb-4">Quick Links</h3>
             <ul className="space-y-3">
               <li>
-                <Link to="/about" className="text-gray-400 hover:text-white transition-colors flex items-center">
+                <Link
+                  to="/about"
+                  className="text-gray-400 hover:text-white transition-colors flex items-center"
+                >
                   <ChevronRightIcon size={16} className="mr-2" />
                   About Us
                 </Link>
               </li>
               <li>
-                <Link to="/faq" className="text-gray-400 hover:text-white transition-colors flex items-center">
+                <Link
+                  to="/faq"
+                  className="text-gray-400 hover:text-white transition-colors flex items-center"
+                >
                   <ChevronRightIcon size={16} className="mr-2" />
                   FAQs
                 </Link>
@@ -78,9 +96,7 @@ const Footer = () => {
             <ul className="space-y-4">
               <li className="flex items-start">
                 <MapPinIcon size={20} className="text-blue-500 mr-3 mt-1 flex-shrink-0" />
-                <span className="text-gray-400">
-                  123 Travel Street, Kuala Lumpur, Malaysia
-                </span>
+                <span className="text-gray-400">123 Travel Street, Kuala Lumpur, Malaysia</span>
               </li>
               <li className="flex items-center">
                 <PhoneIcon size={20} className="text-blue-500 mr-3 flex-shrink-0" />
@@ -114,6 +130,7 @@ const Footer = () => {
           </div>
         </div>
       </div>
-    </footer>;
+    </footer>
+  );
 };
 export default Footer;

@@ -7,13 +7,7 @@ interface ModalProps {
   children: React.ReactNode;
   size?: 'sm' | 'md' | 'lg' | 'xl';
 }
-const Modal: React.FC<ModalProps> = ({
-  isOpen,
-  onClose,
-  title,
-  children,
-  size = 'md'
-}) => {
+const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children, size = 'md' }) => {
   const modalRef = useRef<HTMLDivElement>(null);
   // Close modal when Escape key is pressed
   useEffect(() => {
@@ -58,16 +52,28 @@ const Modal: React.FC<ModalProps> = ({
         return 'max-w-lg';
     }
   };
-  return <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50" onClick={handleOutsideClick}>
-      <div ref={modalRef} className={`bg-white rounded-xl shadow-xl w-full ${getModalWidth()} max-h-[90vh] overflow-hidden flex flex-col`} onClick={e => e.stopPropagation()}>
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50"
+      onClick={handleOutsideClick}
+    >
+      <div
+        ref={modalRef}
+        className={`bg-white rounded-xl shadow-xl w-full ${getModalWidth()} max-h-[90vh] overflow-hidden flex flex-col`}
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="flex justify-between items-center p-4 border-b border-gray-200">
           <h3 className="text-xl font-semibold text-gray-900">{title}</h3>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-700 focus:outline-none">
+          <button
+            onClick={onClose}
+            className="text-gray-500 hover:text-gray-700 focus:outline-none"
+          >
             <XIcon size={20} />
           </button>
         </div>
         <div className="flex-1 overflow-y-auto p-6">{children}</div>
       </div>
-    </div>;
+    </div>
+  );
 };
 export default Modal;

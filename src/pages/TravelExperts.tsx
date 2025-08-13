@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import {
   FilterIcon,
   SearchIcon,
@@ -10,163 +10,159 @@ import {
   GlobeIcon,
   MapPinIcon,
   StarIcon,
-} from "lucide-react";
-import TourManagerCard from "../components/ui/TourManagerCard";
+} from 'lucide-react';
+import TourManagerCard from '../components/ui/TourManagerCard';
 // Sample tour manager data
 const tourManagers = [
   {
-    id: "sarah-chen",
-    name: "Sarah Chen",
+    id: 'sarah-chen',
+    name: 'Sarah Chen',
     image:
-      "https://images.unsplash.com/photo-1580489944761-15a19d654956?ixlib=rb-4.0.3&auto=format&fit=crop&w=256&q=80",
-    location: "Singapore",
-    countryCode: "🇸🇬",
+      'https://images.unsplash.com/photo-1580489944761-15a19d654956?ixlib=rb-4.0.3&auto=format&fit=crop&w=256&q=80',
+    location: 'Singapore',
+    countryCode: '🇸🇬',
     verified: true,
     rating: 4.9,
     reviews: 127,
     experience: 8,
-    languages: ["English", "Mandarin", "Malay"],
-    specialties: ["Cultural Tours", "Food Tours", "City Exploration"],
+    languages: ['English', 'Mandarin', 'Malay'],
+    specialties: ['Cultural Tours', 'Food Tours', 'City Exploration'],
     pricePerDay: 150,
-    currency: "RM",
+    currency: 'RM',
     featured: true,
     topRated: true,
   },
   {
-    id: "marco-rodriguez",
-    name: "Marco Rodriguez",
+    id: 'marco-rodriguez',
+    name: 'Marco Rodriguez',
     image:
-      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&auto=format&fit=crop&w=256&q=80",
-    location: "Barcelona",
-    countryCode: "🇪🇸",
+      'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&auto=format&fit=crop&w=256&q=80',
+    location: 'Barcelona',
+    countryCode: '🇪🇸',
     verified: true,
     rating: 4.8,
     reviews: 203,
     experience: 12,
-    languages: ["English", "Spanish", "Catalan", "Italian"],
-    specialties: ["Adventure Tours", "Historical Sites", "Local Experiences"],
+    languages: ['English', 'Spanish', 'Catalan', 'Italian'],
+    specialties: ['Adventure Tours', 'Historical Sites', 'Local Experiences'],
     pricePerDay: 180,
-    currency: "RM",
+    currency: 'RM',
     topRated: true,
   },
   {
-    id: "yuki-tanaka",
-    name: "Yuki Tanaka",
+    id: 'yuki-tanaka',
+    name: 'Yuki Tanaka',
     image:
-      "https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-4.0.3&auto=format&fit=crop&w=256&q=80",
-    location: "Tokyo",
-    countryCode: "🇯🇵",
+      'https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-4.0.3&auto=format&fit=crop&w=256&q=80',
+    location: 'Tokyo',
+    countryCode: '🇯🇵',
     verified: true,
     rating: 4.7,
     reviews: 89,
     experience: 6,
-    languages: ["English", "Japanese"],
-    specialties: ["Cultural Tours", "Shopping", "Food Tours"],
+    languages: ['English', 'Japanese'],
+    specialties: ['Cultural Tours', 'Shopping', 'Food Tours'],
     pricePerDay: 200,
-    currency: "RM",
+    currency: 'RM',
   },
   {
-    id: "david-thompson",
-    name: "David Thompson",
+    id: 'david-thompson',
+    name: 'David Thompson',
     image:
-      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=256&q=80",
-    location: "London",
-    countryCode: "🇬🇧",
+      'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=256&q=80',
+    location: 'London',
+    countryCode: '🇬🇧',
     verified: true,
     rating: 4.9,
     reviews: 156,
     experience: 15,
-    languages: ["English", "French", "German"],
-    specialties: ["Historical Tours", "Museum Tours", "Architecture"],
+    languages: ['English', 'French', 'German'],
+    specialties: ['Historical Tours', 'Museum Tours', 'Architecture'],
     pricePerDay: 220,
-    currency: "RM",
+    currency: 'RM',
     featured: true,
   },
   {
-    id: "priya-sharma",
-    name: "Priya Sharma",
+    id: 'priya-sharma',
+    name: 'Priya Sharma',
     image:
-      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.0.3&auto=format&fit=crop&w=256&q=80",
-    location: "Mumbai",
-    countryCode: "🇮🇳",
+      'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.0.3&auto=format&fit=crop&w=256&q=80',
+    location: 'Mumbai',
+    countryCode: '🇮🇳',
     verified: true,
     rating: 4.8,
     reviews: 112,
     experience: 10,
-    languages: ["English", "Hindi", "Marathi"],
-    specialties: ["Heritage Sites", "Spiritual Tours", "Local Culture"],
+    languages: ['English', 'Hindi', 'Marathi'],
+    specialties: ['Heritage Sites', 'Spiritual Tours', 'Local Culture'],
     pricePerDay: 120,
-    currency: "RM",
+    currency: 'RM',
   },
   {
-    id: "ahmed-hassan",
-    name: "Ahmed Hassan",
+    id: 'ahmed-hassan',
+    name: 'Ahmed Hassan',
     image:
-      "https://images.unsplash.com/photo-1566492031773-4f4e44671857?ixlib=rb-4.0.3&auto=format&fit=crop&w=256&q=80",
-    location: "Cairo",
-    countryCode: "🇪🇬",
+      'https://images.unsplash.com/photo-1566492031773-4f4e44671857?ixlib=rb-4.0.3&auto=format&fit=crop&w=256&q=80',
+    location: 'Cairo',
+    countryCode: '🇪🇬',
     verified: true,
     rating: 4.9,
     reviews: 189,
     experience: 20,
-    languages: ["English", "Arabic", "French"],
-    specialties: [
-      "Archaeological Tours",
-      "Historical Sites",
-      "Desert Expeditions",
-    ],
+    languages: ['English', 'Arabic', 'French'],
+    specialties: ['Archaeological Tours', 'Historical Sites', 'Desert Expeditions'],
     pricePerDay: 160,
-    currency: "RM",
+    currency: 'RM',
     topRated: true,
   },
   {
-    id: "emma-wilson",
-    name: "Emma Wilson",
+    id: 'emma-wilson',
+    name: 'Emma Wilson',
     image:
-      "https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?ixlib=rb-4.0.3&auto=format&fit=crop&w=256&q=80",
-    location: "Sydney",
-    countryCode: "🇦🇺",
+      'https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?ixlib=rb-4.0.3&auto=format&fit=crop&w=256&q=80',
+    location: 'Sydney',
+    countryCode: '🇦🇺',
     verified: true,
     rating: 4.7,
     reviews: 76,
     experience: 5,
-    languages: ["English"],
-    specialties: ["Nature Tours", "Wildlife", "Beach Activities"],
+    languages: ['English'],
+    specialties: ['Nature Tours', 'Wildlife', 'Beach Activities'],
     pricePerDay: 170,
-    currency: "RM",
+    currency: 'RM',
     newJoined: true,
   },
   {
-    id: "carlos-santos",
-    name: "Carlos Santos",
+    id: 'carlos-santos',
+    name: 'Carlos Santos',
     image:
-      "https://images.unsplash.com/photo-1552374196-c4e7ffc6e126?ixlib=rb-4.0.3&auto=format&fit=crop&w=256&q=80",
-    location: "Rio de Janeiro",
-    countryCode: "🇧🇷",
+      'https://images.unsplash.com/photo-1552374196-c4e7ffc6e126?ixlib=rb-4.0.3&auto=format&fit=crop&w=256&q=80',
+    location: 'Rio de Janeiro',
+    countryCode: '🇧🇷',
     verified: true,
     rating: 4.8,
     reviews: 103,
     experience: 9,
-    languages: ["English", "Portuguese", "Spanish"],
-    specialties: ["Adventure Tours", "Beach Tours", "Nightlife"],
+    languages: ['English', 'Portuguese', 'Spanish'],
+    specialties: ['Adventure Tours', 'Beach Tours', 'Nightlife'],
     pricePerDay: 140,
-    currency: "RM",
+    currency: 'RM',
   },
   {
-    id: "sofia-martinez",
-    name: "Sofia Martinez",
+    id: 'sofia-martinez',
+    name: 'Sofia Martinez',
     image:
-      "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?ixlib=rb-4.0.3&auto=format&fit=crop&w=256&q=80",
-    location: "Buenos Aires",
-    countryCode: "🇦🇷",
+      'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?ixlib=rb-4.0.3&auto=format&fit=crop&w=256&q=80',
+    location: 'Buenos Aires',
+    countryCode: '🇦🇷',
     verified: true,
     rating: 4.9,
     reviews: 92,
     experience: 7,
-    languages: ["English", "Spanish"],
-    specialties: ["Tango Tours", "Food & Wine", "City Exploration"],
+    languages: ['English', 'Spanish'],
+    specialties: ['Tango Tours', 'Food & Wine', 'City Exploration'],
     pricePerDay: 130,
-    currency: "RM",
+    currency: 'RM',
     newJoined: true,
   },
 ];
@@ -181,17 +177,12 @@ const FilterModal = ({ isOpen, onClose }) => {
       >
         <div className="p-6">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-xl font-bold text-gray-900">
-              Filter Travel Experts
-            </h2>
+            <h2 className="text-xl font-bold text-gray-900">Filter Travel Experts</h2>
             <div className="flex items-center space-x-4">
               <button className="text-blue-600 text-sm font-medium hover:text-blue-800">
                 Reset All
               </button>
-              <button
-                className="text-gray-500 hover:text-gray-700"
-                onClick={onClose}
-              >
+              <button className="text-gray-500 hover:text-gray-700" onClick={onClose}>
                 <XIcon size={20} />
               </button>
             </div>
@@ -199,9 +190,7 @@ const FilterModal = ({ isOpen, onClose }) => {
           <div className="space-y-6">
             {/* Location Filter */}
             <div className="border-b border-gray-200 pb-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">
-                Location
-              </h3>
+              <h3 className="text-lg font-medium text-gray-900 mb-4">Location</h3>
               <div className="mb-4">
                 <div className="relative">
                   <SearchIcon
@@ -264,9 +253,7 @@ const FilterModal = ({ isOpen, onClose }) => {
             </div>
             {/* Languages Filter */}
             <div className="border-b border-gray-200 pb-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">
-                Languages
-              </h3>
+              <h3 className="text-lg font-medium text-gray-900 mb-4">Languages</h3>
               <div className="grid grid-cols-3 gap-3">
                 <label className="flex items-center space-x-2">
                   <input
@@ -317,9 +304,7 @@ const FilterModal = ({ isOpen, onClose }) => {
             </div>
             {/* Specialties Filter */}
             <div className="border-b border-gray-200 pb-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">
-                Specialties
-              </h3>
+              <h3 className="text-lg font-medium text-gray-900 mb-4">Specialties</h3>
               <div className="flex flex-wrap gap-2">
                 <button className="bg-blue-50 text-blue-700 px-3 py-1.5 rounded-full text-sm border border-blue-100">
                   Adventure Tours
@@ -349,9 +334,7 @@ const FilterModal = ({ isOpen, onClose }) => {
             </div>
             {/* Experience Level */}
             <div className="border-b border-gray-200 pb-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">
-                Experience Level
-              </h3>
+              <h3 className="text-lg font-medium text-gray-900 mb-4">Experience Level</h3>
               <div className="space-y-2">
                 <label className="flex items-center space-x-2">
                   <input
@@ -383,17 +366,13 @@ const FilterModal = ({ isOpen, onClose }) => {
                     name="experience"
                     className="w-4 h-4 text-blue-600 focus:ring-blue-500"
                   />
-                  <span className="text-gray-700">
-                    Master Guide (15+ years)
-                  </span>
+                  <span className="text-gray-700">Master Guide (15+ years)</span>
                 </label>
               </div>
             </div>
             {/* Price Range */}
             <div className="border-b border-gray-200 pb-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">
-                Price Range (per day)
-              </h3>
+              <h3 className="text-lg font-medium text-gray-900 mb-4">Price Range (per day)</h3>
               <div className="grid grid-cols-2 gap-4 mb-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -440,9 +419,7 @@ const FilterModal = ({ isOpen, onClose }) => {
             </div>
             {/* Ratings & Reviews */}
             <div className="border-b border-gray-200 pb-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">
-                Ratings & Reviews
-              </h3>
+              <h3 className="text-lg font-medium text-gray-900 mb-4">Ratings & Reviews</h3>
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Minimum Rating
@@ -451,10 +428,7 @@ const FilterModal = ({ isOpen, onClose }) => {
                   <div className="flex">
                     {[1, 2, 3, 4, 5].map((star) => (
                       <button key={star} className="text-yellow-400">
-                        <StarIcon
-                          size={24}
-                          className={star <= 4 ? "fill-current" : ""}
-                        />
+                        <StarIcon size={24} className={star <= 4 ? 'fill-current' : ''} />
                       </button>
                     ))}
                   </div>
@@ -481,9 +455,7 @@ const FilterModal = ({ isOpen, onClose }) => {
             </div>
             {/* Additional Filters */}
             <div>
-              <h3 className="text-lg font-medium text-gray-900 mb-4">
-                Additional Filters
-              </h3>
+              <h3 className="text-lg font-medium text-gray-900 mb-4">Additional Filters</h3>
               <div className="space-y-3">
                 <label className="flex items-center space-x-2">
                   <input
@@ -497,9 +469,7 @@ const FilterModal = ({ isOpen, onClose }) => {
                     type="checkbox"
                     className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500"
                   />
-                  <span className="text-gray-700">
-                    Instant booking available
-                  </span>
+                  <span className="text-gray-700">Instant booking available</span>
                 </label>
                 <label className="flex items-center space-x-2">
                   <input
@@ -519,9 +489,7 @@ const FilterModal = ({ isOpen, onClose }) => {
             </div>
           </div>
           <div className="mt-6 pt-6 border-t border-gray-200 flex items-center justify-between">
-            <button className="text-gray-500 hover:text-gray-700 font-medium">
-              Clear All
-            </button>
+            <button className="text-gray-500 hover:text-gray-700 font-medium">Clear All</button>
             <div className="text-gray-600">
               Showing <span className="font-medium">42</span> experts
             </div>
@@ -538,20 +506,20 @@ const FilterModal = ({ isOpen, onClose }) => {
 const SortDropdown = ({ isOpen, onToggle, onSelect, selectedOption }) => {
   const options = [
     {
-      id: "rating",
-      label: "Rating",
+      id: 'rating',
+      label: 'Rating',
     },
     {
-      id: "experience",
-      label: "Experience",
+      id: 'experience',
+      label: 'Experience',
     },
     {
-      id: "price",
-      label: "Price",
+      id: 'price',
+      label: 'Price',
     },
     {
-      id: "availability",
-      label: "Availability",
+      id: 'availability',
+      label: 'Availability',
     },
   ];
   return (
@@ -561,9 +529,7 @@ const SortDropdown = ({ isOpen, onToggle, onSelect, selectedOption }) => {
         onClick={onToggle}
       >
         <span className="text-sm font-medium">Sort By:</span>
-        <span className="text-sm font-medium text-gray-900">
-          {selectedOption}
-        </span>
+        <span className="text-sm font-medium text-gray-900">{selectedOption}</span>
         <ChevronDownIcon size={16} />
       </button>
       {isOpen && (
@@ -583,11 +549,11 @@ const SortDropdown = ({ isOpen, onToggle, onSelect, selectedOption }) => {
   );
 };
 const TravelExperts = () => {
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState('');
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [isSortDropdownOpen, setIsSortDropdownOpen] = useState(false);
-  const [sortOption, setSortOption] = useState("Rating");
-  const [activeFilter, setActiveFilter] = useState("all");
+  const [sortOption, setSortOption] = useState('Rating');
+  const [activeFilter, setActiveFilter] = useState('all');
   const handleSortSelect = (id, label) => {
     setSortOption(label);
     setIsSortDropdownOpen(false);
@@ -597,9 +563,9 @@ const TravelExperts = () => {
   };
   // Filter tour managers based on active filter
   const filteredManagers = tourManagers.filter((manager) => {
-    if (activeFilter === "top-rated") return manager.topRated;
-    if (activeFilter === "new-joined") return manager.newJoined;
-    if (activeFilter === "premium") return manager.pricePerDay >= 180;
+    if (activeFilter === 'top-rated') return manager.topRated;
+    if (activeFilter === 'new-joined') return manager.newJoined;
+    if (activeFilter === 'premium') return manager.pricePerDay >= 180;
     return true;
   });
   return (
@@ -665,41 +631,41 @@ const TravelExperts = () => {
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 flex">
             <button
               className={`px-4 py-2 text-sm font-medium ${
-                activeFilter === "all"
-                  ? "bg-blue-50 text-blue-600"
-                  : "text-gray-700 hover:bg-gray-50"
+                activeFilter === 'all'
+                  ? 'bg-blue-50 text-blue-600'
+                  : 'text-gray-700 hover:bg-gray-50'
               }`}
-              onClick={() => handleFilterChange("all")}
+              onClick={() => handleFilterChange('all')}
             >
               All Experts
             </button>
             <button
               className={`px-4 py-2 text-sm font-medium ${
-                activeFilter === "top-rated"
-                  ? "bg-blue-50 text-blue-600"
-                  : "text-gray-700 hover:bg-gray-50"
+                activeFilter === 'top-rated'
+                  ? 'bg-blue-50 text-blue-600'
+                  : 'text-gray-700 hover:bg-gray-50'
               }`}
-              onClick={() => handleFilterChange("top-rated")}
+              onClick={() => handleFilterChange('top-rated')}
             >
               Top Rated
             </button>
             <button
               className={`px-4 py-2 text-sm font-medium ${
-                activeFilter === "new-joined"
-                  ? "bg-blue-50 text-blue-600"
-                  : "text-gray-700 hover:bg-gray-50"
+                activeFilter === 'new-joined'
+                  ? 'bg-blue-50 text-blue-600'
+                  : 'text-gray-700 hover:bg-gray-50'
               }`}
-              onClick={() => handleFilterChange("new-joined")}
+              onClick={() => handleFilterChange('new-joined')}
             >
               Newly Joined
             </button>
             <button
               className={`px-4 py-2 text-sm font-medium ${
-                activeFilter === "premium"
-                  ? "bg-blue-50 text-blue-600"
-                  : "text-gray-700 hover:bg-gray-50"
+                activeFilter === 'premium'
+                  ? 'bg-blue-50 text-blue-600'
+                  : 'text-gray-700 hover:bg-gray-50'
               }`}
-              onClick={() => handleFilterChange("premium")}
+              onClick={() => handleFilterChange('premium')}
             >
               Premium Guides
             </button>
@@ -736,16 +702,16 @@ const TravelExperts = () => {
           </div>
         </div>
         {/* Active filters display */}
-        {activeFilter !== "all" && (
+        {activeFilter !== 'all' && (
           <div className="flex items-center mb-6">
             <div className="text-sm text-gray-600 mr-2">Active filters:</div>
             <div className="flex items-center bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-sm">
-              {activeFilter === "top-rated" && "Top Rated"}
-              {activeFilter === "new-joined" && "Newly Joined"}
-              {activeFilter === "premium" && "Premium Guides"}
+              {activeFilter === 'top-rated' && 'Top Rated'}
+              {activeFilter === 'new-joined' && 'Newly Joined'}
+              {activeFilter === 'premium' && 'Premium Guides'}
               <button
                 className="ml-2 text-blue-700 hover:text-blue-800"
-                onClick={() => handleFilterChange("all")}
+                onClick={() => handleFilterChange('all')}
               >
                 <XIcon size={14} />
               </button>
@@ -784,10 +750,7 @@ const TravelExperts = () => {
         </div>
       </div>
       {/* Filter Modal */}
-      <FilterModal
-        isOpen={isFilterModalOpen}
-        onClose={() => setIsFilterModalOpen(false)}
-      />
+      <FilterModal isOpen={isFilterModalOpen} onClose={() => setIsFilterModalOpen(false)} />
     </div>
   );
 };

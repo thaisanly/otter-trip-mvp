@@ -1,5 +1,19 @@
 import React, { useEffect, useState, Fragment } from 'react';
-import { CalendarIcon, ClockIcon, CreditCardIcon, CheckIcon, ChevronLeftIcon, ChevronRightIcon, UserIcon, MailIcon, PhoneIcon, MessageCircleIcon, LockIcon, AlertCircleIcon, CheckCircleIcon } from 'lucide-react';
+import {
+  CalendarIcon,
+  ClockIcon,
+  CreditCardIcon,
+  CheckIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  UserIcon,
+  MailIcon,
+  PhoneIcon,
+  MessageCircleIcon,
+  LockIcon,
+  AlertCircleIcon,
+  CheckCircleIcon,
+} from 'lucide-react';
 import Modal from '../ui/Modal';
 interface ConsultationBookingModalProps {
   isOpen: boolean;
@@ -18,7 +32,7 @@ const ConsultationBookingModal: React.FC<ConsultationBookingModalProps> = ({
   onClose,
   expertName,
   expertImage,
-  price
+  price,
 }) => {
   const [step, setStep] = useState(1);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
@@ -53,12 +67,12 @@ const ConsultationBookingModal: React.FC<ConsultationBookingModalProps> = ({
           date: date.toISOString().split('T')[0],
           day: date.getDate(),
           month: date.toLocaleString('default', {
-            month: 'short'
+            month: 'short',
           }),
           dayName: date.toLocaleString('default', {
-            weekday: 'short'
+            weekday: 'short',
           }),
-          available: Math.random() > 0.3 // Randomly mark some dates as unavailable
+          available: Math.random() > 0.3, // Randomly mark some dates as unavailable
         });
       }
     }
@@ -78,7 +92,7 @@ const ConsultationBookingModal: React.FC<ConsultationBookingModalProps> = ({
         slots.push({
           id: `slot-${hour}`,
           time,
-          available: Math.random() > 0.4 // Randomly mark some slots as unavailable
+          available: Math.random() > 0.4, // Randomly mark some slots as unavailable
         });
       }
     }
@@ -117,12 +131,12 @@ const ConsultationBookingModal: React.FC<ConsultationBookingModalProps> = ({
       weekday: 'long',
       year: 'numeric',
       month: 'long',
-      day: 'numeric'
+      day: 'numeric',
     });
   };
   const getSelectedTimeFormatted = () => {
     if (!selectedTimeSlot) return '';
-    const slot = timeSlots.find(slot => slot.id === selectedTimeSlot);
+    const slot = timeSlots.find((slot) => slot.id === selectedTimeSlot);
     return slot ? slot.time : '';
   };
   const isNextDisabled = () => {
@@ -131,67 +145,120 @@ const ConsultationBookingModal: React.FC<ConsultationBookingModalProps> = ({
     return false;
   };
   const renderStepIndicator = () => {
-    return <div className="flex items-center justify-center mb-6">
-        {[1, 2].map(stepNumber => <Fragment key={stepNumber}>
-            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${stepNumber === step ? 'bg-blue-600 text-white' : stepNumber < step ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-600'}`}>
+    return (
+      <div className="flex items-center justify-center mb-6">
+        {[1, 2].map((stepNumber) => (
+          <Fragment key={stepNumber}>
+            <div
+              className={`w-8 h-8 rounded-full flex items-center justify-center ${stepNumber === step ? 'bg-blue-600 text-white' : stepNumber < step ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-600'}`}
+            >
               {stepNumber < step ? <CheckIcon size={16} /> : stepNumber}
             </div>
-            {stepNumber < 2 && <div className={`w-12 h-1 ${stepNumber < step ? 'bg-green-500' : 'bg-gray-200'}`} />}
-          </Fragment>)}
-      </div>;
+            {stepNumber < 2 && (
+              <div className={`w-12 h-1 ${stepNumber < step ? 'bg-green-500' : 'bg-gray-200'}`} />
+            )}
+          </Fragment>
+        ))}
+      </div>
+    );
   };
   const renderDateSelection = () => {
-    return <div>
+    return (
+      <div>
         <h3 className="text-lg font-medium text-gray-900 mb-4">Select Date</h3>
         <div className="flex overflow-x-auto pb-2 mb-6 space-x-2">
-          {availableDates.map(date => <button key={date.date} onClick={() => date.available && handleDateSelect(date.date)} disabled={!date.available} className={`flex flex-col items-center px-4 py-3 rounded-lg min-w-[80px] transition-colors ${selectedDate === date.date ? 'bg-blue-600 text-white' : date.available ? 'bg-white border border-gray-200 hover:border-blue-500 text-gray-800' : 'bg-gray-100 text-gray-400 cursor-not-allowed'}`}>
+          {availableDates.map((date) => (
+            <button
+              key={date.date}
+              onClick={() => date.available && handleDateSelect(date.date)}
+              disabled={!date.available}
+              className={`flex flex-col items-center px-4 py-3 rounded-lg min-w-[80px] transition-colors ${selectedDate === date.date ? 'bg-blue-600 text-white' : date.available ? 'bg-white border border-gray-200 hover:border-blue-500 text-gray-800' : 'bg-gray-100 text-gray-400 cursor-not-allowed'}`}
+            >
               <span className="text-xs">{date.dayName}</span>
               <span className="text-lg font-bold">{date.day}</span>
               <span className="text-xs">{date.month}</span>
-            </button>)}
+            </button>
+          ))}
         </div>
         <h3 className="text-lg font-medium text-gray-900 mb-4">Select Time</h3>
-        {selectedDate ? <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
-            {timeSlots.map(slot => <button key={slot.id} onClick={() => slot.available && handleTimeSlotSelect(slot.id)} disabled={!slot.available} className={`py-3 px-4 rounded-lg text-center transition-colors ${selectedTimeSlot === slot.id ? 'bg-blue-600 text-white' : slot.available ? 'bg-white border border-gray-200 hover:border-blue-500 text-gray-800' : 'bg-gray-100 text-gray-400 cursor-not-allowed'}`}>
+        {selectedDate ? (
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
+            {timeSlots.map((slot) => (
+              <button
+                key={slot.id}
+                onClick={() => slot.available && handleTimeSlotSelect(slot.id)}
+                disabled={!slot.available}
+                className={`py-3 px-4 rounded-lg text-center transition-colors ${selectedTimeSlot === slot.id ? 'bg-blue-600 text-white' : slot.available ? 'bg-white border border-gray-200 hover:border-blue-500 text-gray-800' : 'bg-gray-100 text-gray-400 cursor-not-allowed'}`}
+              >
                 <div className="flex items-center justify-center">
                   <ClockIcon size={14} className="mr-1" />
                   <span>{slot.time}</span>
                 </div>
-              </button>)}
-          </div> : <div className="text-center py-8 text-gray-500">
+              </button>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-8 text-gray-500">
             Please select a date to view available time slots
-          </div>}
-      </div>;
+          </div>
+        )}
+      </div>
+    );
   };
   const renderContactDetails = () => {
-    return <div>
+    return (
+      <div>
         <h3 className="text-lg font-medium text-gray-900 mb-4">Your Details</h3>
         <div className="space-y-4 mb-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Full Name
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
             <div className="relative">
-              <input type="text" value={name} onChange={e => setName(e.target.value)} className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Your full name" required />
-              <UserIcon size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="Your full name"
+                required
+              />
+              <UserIcon
+                size={16}
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+              />
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Email Address
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
             <div className="relative">
-              <input type="email" value={email} onChange={e => setEmail(e.target.value)} className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Your email address" required />
-              <MailIcon size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="Your email address"
+                required
+              />
+              <MailIcon
+                size={16}
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+              />
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Phone Number
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
             <div className="relative">
-              <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Your phone number" required />
-              <PhoneIcon size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+              <input
+                type="tel"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="Your phone number"
+                required
+              />
+              <PhoneIcon
+                size={16}
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+              />
             </div>
           </div>
           <div>
@@ -199,7 +266,13 @@ const ConsultationBookingModal: React.FC<ConsultationBookingModalProps> = ({
               Message (Optional)
             </label>
             <div className="relative">
-              <textarea value={message} onChange={e => setMessage(e.target.value)} rows={3} className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Any specific topics you'd like to discuss?" />
+              <textarea
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                rows={3}
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="Any specific topics you'd like to discuss?"
+              />
               <MessageCircleIcon size={16} className="absolute left-3 top-3 text-gray-400" />
             </div>
           </div>
@@ -215,13 +288,13 @@ const ConsultationBookingModal: React.FC<ConsultationBookingModalProps> = ({
             </div>
           </div>
         </div>
-      </div>;
+      </div>
+    );
   };
   const renderPaymentDetails = () => {
-    return <div>
-        <h3 className="text-lg font-medium text-gray-900 mb-4">
-          Payment Details
-        </h3>
+    return (
+      <div>
+        <h3 className="text-lg font-medium text-gray-900 mb-4">Payment Details</h3>
         <div className="bg-blue-50 p-4 rounded-lg mb-6">
           <div className="flex items-start">
             <div className="mr-3 mt-1">
@@ -229,9 +302,7 @@ const ConsultationBookingModal: React.FC<ConsultationBookingModalProps> = ({
             </div>
             <div>
               <h4 className="font-medium text-gray-900">Booking Summary</h4>
-              <p className="text-sm text-gray-600 mt-1">
-                60-minute consultation with {expertName}
-              </p>
+              <p className="text-sm text-gray-600 mt-1">60-minute consultation with {expertName}</p>
               <p className="text-sm text-gray-600">
                 {getSelectedDateFormatted()} at {getSelectedTimeFormatted()}
               </p>
@@ -251,19 +322,22 @@ const ConsultationBookingModal: React.FC<ConsultationBookingModalProps> = ({
               <input type="radio" name="paymentMethod" className="mr-3" defaultChecked />
               <div>
                 <div className="font-medium">Credit or Debit Card</div>
-                <div className="text-sm text-gray-500 mt-1">
-                  Visa, Mastercard, American Express
-                </div>
+                <div className="text-sm text-gray-500 mt-1">Visa, Mastercard, American Express</div>
               </div>
             </label>
             <div className="space-y-3">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Card Number
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Card Number</label>
                 <div className="relative">
-                  <input type="text" className="w-full pl-4 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="1234 5678 9012 3456" />
-                  <CreditCardIcon size={18} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                  <input
+                    type="text"
+                    className="w-full pl-4 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="1234 5678 9012 3456"
+                  />
+                  <CreditCardIcon
+                    size={18}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                  />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-3">
@@ -271,13 +345,21 @@ const ConsultationBookingModal: React.FC<ConsultationBookingModalProps> = ({
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Expiration Date
                   </label>
-                  <input type="text" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="MM/YY" />
+                  <input
+                    type="text"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="MM/YY"
+                  />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Security Code
                   </label>
-                  <input type="text" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="CVC" />
+                  <input
+                    type="text"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="CVC"
+                  />
                 </div>
               </div>
             </div>
@@ -312,25 +394,23 @@ const ConsultationBookingModal: React.FC<ConsultationBookingModalProps> = ({
             </span>
           </label>
         </div>
-      </div>;
+      </div>
+    );
   };
   const renderConfirmation = () => {
-    return <div className="text-center py-6">
+    return (
+      <div className="text-center py-6">
         <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
           <CheckCircleIcon size={32} className="text-green-600" />
         </div>
-        <h3 className="text-xl font-bold text-gray-900 mb-2">
-          Booking Confirmed!
-        </h3>
+        <h3 className="text-xl font-bold text-gray-900 mb-2">Booking Confirmed!</h3>
         <p className="text-gray-600 mb-6">
           Your consultation with {expertName} has been successfully booked.
         </p>
         <div className="bg-blue-50 rounded-lg p-6 mb-6 text-left">
           <div className="flex justify-between items-center mb-4">
             <h4 className="font-medium text-gray-900">Booking Details</h4>
-            <span className="text-sm font-medium text-blue-600">
-              Ref: {bookingReference}
-            </span>
+            <span className="text-sm font-medium text-blue-600">Ref: {bookingReference}</span>
           </div>
           <div className="space-y-3">
             <div className="flex">
@@ -353,9 +433,7 @@ const ConsultationBookingModal: React.FC<ConsultationBookingModalProps> = ({
               <MessageCircleIcon size={18} className="text-blue-600 mr-3 flex-shrink-0 mt-0.5" />
               <div>
                 <div className="font-medium">Consultation Type</div>
-                <div className="text-sm text-gray-600">
-                  60-minute video call
-                </div>
+                <div className="text-sm text-gray-600">60-minute video call</div>
               </div>
             </div>
           </div>
@@ -368,10 +446,14 @@ const ConsultationBookingModal: React.FC<ConsultationBookingModalProps> = ({
             You'll receive a calendar invitation and Zoom link for your session.
           </p>
         </div>
-        <button onClick={onClose} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition-colors">
+        <button
+          onClick={onClose}
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition-colors"
+        >
           Done
         </button>
-      </div>;
+      </div>
+    );
   };
   const renderStepContent = () => {
     switch (step) {
@@ -389,27 +471,52 @@ const ConsultationBookingModal: React.FC<ConsultationBookingModalProps> = ({
     if (step === 3) return 'Booking Confirmation';
     return 'Book Consultation';
   };
-  return <Modal isOpen={isOpen} onClose={onClose} title={getModalTitle()} size={step === 3 ? 'lg' : 'xl'}>
+  return (
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title={getModalTitle()}
+      size={step === 3 ? 'lg' : 'xl'}
+    >
       <div>
         {step < 3 && renderStepIndicator()}
         <div className="mb-6">{renderStepContent()}</div>
-        {step < 3 && <div className="flex justify-between">
-            {step > 1 ? <button onClick={handleBack} className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition-colors flex items-center">
+        {step < 3 && (
+          <div className="flex justify-between">
+            {
+              step > 1 ? (
+                <button
+                  onClick={handleBack}
+                  className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition-colors flex items-center"
+                >
                   <ChevronLeftIcon size={16} className="mr-1" />
                   Back
-                </button> : <div></div> // Empty div to maintain flex layout
-        }
-            <button onClick={handleContinue} disabled={isNextDisabled() || isLoading} className={`px-5 py-2 rounded-lg text-white font-medium transition-colors flex items-center ${isNextDisabled() || isLoading ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}`}>
-              {isLoading ? <>
+                </button>
+              ) : (
+                <div></div>
+              ) // Empty div to maintain flex layout
+            }
+            <button
+              onClick={handleContinue}
+              disabled={isNextDisabled() || isLoading}
+              className={`px-5 py-2 rounded-lg text-white font-medium transition-colors flex items-center ${isNextDisabled() || isLoading ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}`}
+            >
+              {isLoading ? (
+                <>
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
                   Processing...
-                </> : <>
+                </>
+              ) : (
+                <>
                   {step === 2 ? 'Complete Booking' : 'Continue'}
                   <ChevronRightIcon size={16} className="ml-1" />
-                </>}
+                </>
+              )}
             </button>
-          </div>}
+          </div>
+        )}
       </div>
-    </Modal>;
+    </Modal>
+  );
 };
 export default ConsultationBookingModal;

@@ -14,7 +14,8 @@ import Explore from './pages/Explore';
 import MeetExperts from './pages/MeetExperts';
 import ExpertDetail from './pages/ExpertDetail';
 export function App() {
-  return <AuthProvider>
+  return (
+    <AuthProvider>
       <Router>
         <div className="flex flex-col min-h-screen bg-gray-50">
           <Header />
@@ -35,5 +36,6 @@ export function App() {
           <Footer />
         </div>
       </Router>
-    </AuthProvider>;
+    </AuthProvider>
+  );
 }
