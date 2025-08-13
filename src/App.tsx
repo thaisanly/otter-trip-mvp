@@ -1,4 +1,3 @@
-import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import Header from './components/layout/Header';
@@ -7,7 +6,6 @@ import Home from './pages/Home';
 import SearchResults from './pages/SearchResults';
 import TourLeaderProfile from './pages/TourLeaderProfile';
 import BookingFlow from './pages/BookingFlow';
-import Dashboard from './pages/Dashboard';
 import TourDetail from './pages/TourDetail';
 import Explore from './pages/Explore';
 import MeetExperts from './pages/MeetExperts';
@@ -24,7 +22,6 @@ export function App() {
               <Route path="/search" element={<SearchResults />} />
               <Route path="/tour-leader/:id" element={<TourLeaderProfile />} />
               <Route path="/booking/:id" element={<BookingFlow />} />
-              <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/tour/:id" element={<TourDetail />} />
               <Route path="/explore/:category" element={<Explore />} />
               <Route path="/meet-experts" element={<MeetExperts />} />
