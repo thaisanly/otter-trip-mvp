@@ -1,23 +1,6 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import {
-  FilterIcon,
-  SearchIcon,
-  ChevronDownIcon,
-  XIcon,
-  SlidersIcon,
-  CheckIcon,
-  GlobeIcon,
-  MapPinIcon,
-  StarIcon,
-  VideoIcon,
-  PlayCircleIcon,
-  RadioIcon,
-  UsersIcon,
-  TrendingUpIcon,
-  BarChartIcon,
-  LayersIcon,
-} from 'lucide-react';
+import { SearchIcon, XIcon } from 'lucide-react';
 import TourExpertCard from '../components/ui/TourExpertCard';
 // Sample expert data
 const experts = [
