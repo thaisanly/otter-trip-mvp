@@ -511,32 +511,6 @@ export const experts: Expert[] = [
   },
 ];
 
-// ===== HELPER FUNCTIONS =====
-
-/**
- * Get expert by ID - returns full expert data for detail page
- * Used by: ExpertDetail.tsx
- */
-export function getExpertById(id: string): Expert | undefined {
-  return experts.find((expert) => expert.id === id);
-}
-
-/**
- * Get experts for listing page - returns only necessary fields
- * Used by: MeetExperts.tsx
- */
-export function getExpertsForListing(): Expert[] {
-  return experts;
-}
-
-/**
- * Get related experts - used for "Similar Experts" sections
- * Used by: ExpertDetail.tsx (sidebar)
- */
-export function getRelatedExperts(currentExpertId: string, limit = 3): Expert[] {
-  return experts.filter((expert) => expert.id !== currentExpertId).slice(0, limit);
-}
-
 // ===== LEGACY EXPORTS FOR BACKWARD COMPATIBILITY =====
 
 // Export as Record for detail page compatibility

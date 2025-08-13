@@ -287,35 +287,7 @@ export const tourLeaders: TourLeader[] = [
         ],
       },
     ],
-    reviews: [
-      {
-        id: 'r1',
-        user: 'Michael T.',
-        avatar:
-          'https://images.unsplash.com/photo-1568602471122-7832951cc4c5?ixlib=rb-4.0.3&auto=format&fit=crop&w=128&q=80',
-        rating: 5,
-        date: 'May 2023',
-        text: "Sarah was an incredible guide! She took us to the most beautiful waterfalls I've ever seen, and they weren't crowded with tourists. Her photography tips were super helpful - I got the best photos of my entire trip. She's also very knowledgeable about Balinese culture and made sure we had an authentic experience. Highly recommend!",
-      },
-      {
-        id: 'r2',
-        user: 'Jessica L.',
-        avatar:
-          'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&auto=format&fit=crop&w=128&q=80',
-        rating: 5,
-        date: 'April 2023',
-        text: 'We did the sunrise volcano hike with Sarah and it was the highlight of our trip! She made the early morning and challenging hike so much fun with her positive energy. The views were breathtaking and Sarah knew all the best spots for photos. The hot springs afterward were the perfect way to relax. Sarah is friendly, professional, and truly passionate about what she does.',
-      },
-      {
-        id: 'r3',
-        user: 'David K.',
-        avatar:
-          'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=128&q=80',
-        rating: 4,
-        date: 'March 2023',
-        text: "Great cultural tour with Sarah! She has deep connections with the local villages and artisans, which gave us access to experiences we couldn't have found on our own. The craft workshop was a highlight - my kids loved making traditional Balinese offerings. Sarah is very knowledgeable and accommodating. The only reason for 4 stars instead of 5 is that the day was quite hot, but that's Bali for you!",
-      },
-    ],
+    reviews: [],
     certifications: [
       {
         id: 'cert1',
@@ -461,24 +433,6 @@ export const languages = [
   'Italian',
   'German',
 ];
-
-// ===== HELPER FUNCTIONS =====
-
-/**
- * Get tour leader by ID - returns full tour leader data for detail page
- * Used by: TourLeaderProfile.tsx
- */
-export function getTourLeaderById(id: string): TourLeader | undefined {
-  return tourLeaders.find((leader) => leader.id === id);
-}
-
-/**
- * Get tour leaders for listing page
- * Used by: SearchResults.tsx
- */
-export function getTourLeadersForListing(): TourLeader[] {
-  return tourLeaders;
-}
 
 // ===== LEGACY EXPORTS FOR BACKWARD COMPATIBILITY =====
 

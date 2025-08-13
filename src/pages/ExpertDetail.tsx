@@ -29,7 +29,8 @@ import {
 } from 'lucide-react';
 import InvitationCodeModal from '../components/booking/InvitationCodeModal';
 import ConsultationBookingModal from '../components/booking/ConsultationBookingModal';
-import { expertsData, getRelatedExperts } from '../mock/experts';
+import { expertsData } from '../mock/experts';
+import { getRelatedExperts } from '../mock/mockUtils';
 const ExpertDetail = () => {
   const { expertId } = useParams();
   const navigate = useNavigate();

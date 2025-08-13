@@ -49,9 +49,11 @@ export interface TourDetail {
   rating: number;
   reviewCount: number;
   location: string;
+  categories: string[]; // Multiple categories for each tour
   overview: string[];
   highlights: string[];
   contentImage: string;
+  videoUrl: string; // URL for tour video
   galleryImages: string[];
   inclusions: string[];
   exclusions: string[];
@@ -62,7 +64,7 @@ export interface TourDetail {
   reviews: TourReview[];
 }
 
-export const adventureTours: Record<string, TourDetail> = {
+export const tours: Record<string, TourDetail> = {
   'grand-canyon': {
     id: 'grand-canyon',
     title: 'Grand Canyon Adventure',
@@ -71,11 +73,12 @@ export const adventureTours: Record<string, TourDetail> = {
     heroImage:
       'https://images.unsplash.com/photo-1615551043360-33de8b5f410c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80',
     duration: '3 days',
-    price: 'RM 8,000',
+    price: '$8,000',
     totalJoined: 108,
     rating: 4.9,
     reviewCount: 108,
     location: 'Arizona, USA',
+    categories: ['adventure'],
     overview: [
       "Experience the majestic Grand Canyon like never before with our 3-day guided adventure tour. Descend into the heart of this natural wonder, where you'll hike along scenic trails, camp under starlit skies, and discover hidden viewpoints away from the tourist crowds.",
       "Our expert guides will share fascinating insights about the canyon's geology, wildlife, and cultural history while ensuring your safety and comfort throughout this unforgettable journey.",
@@ -90,6 +93,7 @@ export const adventureTours: Record<string, TourDetail> = {
     ],
     contentImage:
       'https://images.unsplash.com/photo-1575527048208-933d8f4f44c9?ixlib=rb-4.0.3&auto=format&fit=crop&w=1024&q=80',
+    videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ', // Grand Canyon adventure video
     galleryImages: [
       'https://images.unsplash.com/photo-1602088693770-867f3fed105c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1024&q=80',
       'https://images.unsplash.com/photo-1578249949530-6e169da42303?ixlib=rb-4.0.3&auto=format&fit=crop&w=1024&q=80',
@@ -169,31 +173,31 @@ export const adventureTours: Record<string, TourDetail> = {
         id: 'd1',
         date: 'Jun 15-17, 2023',
         spotsLeft: 3,
-        price: 'RM 8,000',
+        price: '$8,000',
       },
       {
         id: 'd2',
         date: 'Jun 22-24, 2023',
         spotsLeft: 6,
-        price: 'RM 8,000',
+        price: '$8,000',
       },
       {
         id: 'd3',
         date: 'Jul 5-7, 2023',
         spotsLeft: 2,
-        price: 'RM 8,500',
+        price: '$8,500',
       },
       {
         id: 'd4',
         date: 'Jul 12-14, 2023',
         spotsLeft: 8,
-        price: 'RM 8,500',
+        price: '$8,500',
       },
       {
         id: 'd5',
         date: 'Aug 2-4, 2023',
         spotsLeft: 4,
-        price: 'RM 8,500',
+        price: '$8,500',
       },
     ],
     reviews: [
@@ -234,11 +238,12 @@ export const adventureTours: Record<string, TourDetail> = {
     heroImage:
       'https://images.unsplash.com/photo-1528127269322-539801943592?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80',
     duration: '5 days',
-    price: 'RM 12,000',
+    price: '$12,000',
     totalJoined: 86,
     rating: 4.8,
     reviewCount: 86,
     location: 'Interlaken, Switzerland',
+    categories: ['adventure'],
     overview: [
       "Immerse yourself in the breathtaking beauty of the Swiss Alps with our 5-day adventure tour based in Interlaken. Experience the perfect blend of adrenaline-pumping activities and serene alpine relaxation in one of Europe's most stunning mountain landscapes.",
       'From soaring above snow-capped peaks on a paragliding flight to exploring crystal-clear mountain lakes, this tour offers unforgettable experiences for nature lovers and adventure seekers alike.',
@@ -253,6 +258,7 @@ export const adventureTours: Record<string, TourDetail> = {
     ],
     contentImage:
       'https://images.unsplash.com/photo-1531210483974-4f8c1f33fd35?ixlib=rb-4.0.3&auto=format&fit=crop&w=1024&q=80',
+    videoUrl: 'https://www.youtube.com/embed/M7lc1UVf-VE', // Swiss Alps adventure video
     galleryImages: [
       'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1024&q=80',
       'https://images.unsplash.com/photo-1527489377706-5bf97e608852?ixlib=rb-4.0.3&auto=format&fit=crop&w=1024&q=80',
@@ -349,31 +355,31 @@ export const adventureTours: Record<string, TourDetail> = {
         id: 'd1',
         date: 'Jun 10-14, 2023',
         spotsLeft: 4,
-        price: 'RM 12,000',
+        price: '$12,000',
       },
       {
         id: 'd2',
         date: 'Jun 24-28, 2023',
         spotsLeft: 2,
-        price: 'RM 12,000',
+        price: '$12,000',
       },
       {
         id: 'd3',
         date: 'Jul 8-12, 2023',
         spotsLeft: 6,
-        price: 'RM 13,000',
+        price: '$13,000',
       },
       {
         id: 'd4',
         date: 'Jul 22-26, 2023',
         spotsLeft: 5,
-        price: 'RM 13,000',
+        price: '$13,000',
       },
       {
         id: 'd5',
         date: 'Aug 5-9, 2023',
         spotsLeft: 8,
-        price: 'RM 13,000',
+        price: '$13,000',
       },
     ],
     reviews: [
@@ -406,9 +412,171 @@ export const adventureTours: Record<string, TourDetail> = {
       },
     ],
   },
+  'machu-picchu': {
+    id: 'machu-picchu',
+    title: 'Machu Picchu Trek',
+    code: 'MPT-003',
+    breadcrumb: ['Home', 'Explore', 'Adventure', 'Machu Picchu Trek'],
+    heroImage:
+      'https://images.unsplash.com/photo-1587595431973-160d0d94add1?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80',
+    duration: '4 days',
+    price: '$9,500',
+    totalJoined: 124,
+    rating: 4.9,
+    reviewCount: 124,
+    location: 'Peru',
+    categories: ['adventure', 'cultural'],
+    overview: ['Hike to the ancient ruins of Machu Picchu over 4 days.'],
+    highlights: [
+      'Trek the famous Inca Trail',
+      'Watch sunrise over Machu Picchu',
+      'Explore ancient Incan ruins',
+    ],
+    contentImage:
+      'https://images.unsplash.com/photo-1587595431973-160d0d94add1?ixlib=rb-4.0.3&auto=format&fit=crop&w=1024&q=80',
+    videoUrl: 'https://www.youtube.com/embed/ljvQXd8eJHE', // Machu Picchu trek video
+    galleryImages: [],
+    inclusions: ['Guide', 'Meals', 'Accommodation'],
+    exclusions: ['Flights'],
+    itinerary: [],
+    additionalInfo: [],
+    guide: {
+      id: 'carlos-lopez',
+      name: 'Carlos Lopez',
+      image:
+        'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=128&q=80',
+      experience: '12 years',
+      specialties: ['Inca History', 'Trekking'],
+      bio: 'Expert in Incan history and mountain trekking.',
+      languages: ['English', 'Spanish', 'Quechua'],
+    },
+    dates: [],
+    reviews: [],
+  },
+  'kyoto-cultural': {
+    id: 'kyoto-cultural',
+    title: 'Kyoto Cultural Tour',
+    code: 'KCT-004',
+    breadcrumb: ['Home', 'Explore', 'Cultural', 'Kyoto Cultural Tour'],
+    heroImage:
+      'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80',
+    duration: '5 days',
+    price: '$10,500',
+    totalJoined: 112,
+    rating: 4.8,
+    reviewCount: 112,
+    location: 'Kyoto, Japan',
+    categories: ['cultural'],
+    overview: ['Discover ancient temples, tea ceremonies, and traditional arts in historic Kyoto.'],
+    highlights: [
+      'Visit historic temples and shrines',
+      'Traditional tea ceremony experience',
+      'Explore bamboo forests',
+    ],
+    contentImage:
+      'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1024&q=80',
+    videoUrl: 'https://www.youtube.com/embed/AUCqQ9YzKvs', // Kyoto cultural tour video
+    galleryImages: [],
+    inclusions: ['Guide', 'Cultural experiences', 'Transportation'],
+    exclusions: ['Flights', 'Some meals'],
+    itinerary: [],
+    additionalInfo: [],
+    guide: {
+      id: 'yuki-tanaka',
+      name: 'Yuki Tanaka',
+      image:
+        'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&auto=format&fit=crop&w=128&q=80',
+      experience: '8 years',
+      specialties: ['Japanese Culture', 'Tea Ceremony'],
+      bio: 'Traditional culture expert and certified tea master.',
+      languages: ['English', 'Japanese'],
+    },
+    dates: [],
+    reviews: [],
+  },
+  'bali-retreat': {
+    id: 'bali-retreat',
+    title: 'Bali Wellness Retreat',
+    code: 'BWR-005',
+    breadcrumb: ['Home', 'Explore', 'Relaxation', 'Bali Wellness Retreat'],
+    heroImage:
+      'https://images.unsplash.com/photo-1537996194471-e657df975ab4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80',
+    duration: '7 days',
+    price: '$9,500',
+    totalJoined: 136,
+    rating: 4.9,
+    reviewCount: 136,
+    location: 'Bali, Indonesia',
+    categories: ['relaxation', 'cultural'],
+    overview: ['Relax and rejuvenate with a 7-day retreat in Bali.'],
+    highlights: [
+      'Daily yoga and meditation',
+      'Spa treatments with local herbs',
+      'Temple visits and blessings',
+    ],
+    contentImage:
+      'https://images.unsplash.com/photo-1537996194471-e657df975ab4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1024&q=80',
+    videoUrl: 'https://www.youtube.com/embed/nggOxvLBpFg', // Bali wellness retreat video
+    galleryImages: [],
+    inclusions: ['Accommodation', 'Yoga classes', 'Spa treatments', 'Meals'],
+    exclusions: ['Flights', 'Personal expenses'],
+    itinerary: [],
+    additionalInfo: [],
+    guide: {
+      id: 'made-sudarma',
+      name: 'Made Sudarma',
+      image:
+        'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=128&q=80',
+      experience: '6 years',
+      specialties: ['Yoga', 'Balinese Healing'],
+      bio: 'Certified yoga instructor and traditional healer.',
+      languages: ['English', 'Indonesian', 'Balinese'],
+    },
+    dates: [],
+    reviews: [],
+  },
+  'italy-culinary': {
+    id: 'italy-culinary',
+    title: 'Italian Culinary Journey',
+    code: 'ICJ-006',
+    breadcrumb: ['Home', 'Explore', 'Food', 'Italian Culinary Journey'],
+    heroImage:
+      'https://images.unsplash.com/photo-1498579150354-977475b7ea0b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80',
+    duration: '8 days',
+    price: '$13,000',
+    totalJoined: 118,
+    rating: 4.9,
+    reviewCount: 118,
+    location: 'Italy',
+    categories: ['food', 'cultural'],
+    overview: ['Taste your way through Italy with cooking classes and food tours.'],
+    highlights: [
+      'Hands-on cooking classes',
+      'Visit local markets and vineyards',
+      'Dine at family-owned restaurants',
+    ],
+    contentImage:
+      'https://images.unsplash.com/photo-1498579150354-977475b7ea0b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1024&q=80',
+    videoUrl: 'https://www.youtube.com/embed/i7Bt-XNSXUI', // Italian culinary journey video
+    galleryImages: [],
+    inclusions: ['Cooking classes', 'Food tours', 'Wine tastings', 'Meals'],
+    exclusions: ['Flights', 'Accommodation'],
+    itinerary: [],
+    additionalInfo: [],
+    guide: {
+      id: 'giuseppe-rossi',
+      name: 'Giuseppe Rossi',
+      image:
+        'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&auto=format&fit=crop&w=128&q=80',
+      experience: '15 years',
+      specialties: ['Italian Cuisine', 'Wine', 'Regional History'],
+      bio: 'Master chef and wine expert from Tuscany.',
+      languages: ['English', 'Italian', 'French'],
+    },
+    dates: [],
+    reviews: [],
+  },
 };
 
-export const tourData = {
-  ...adventureTours,
-  // Cultural, relaxation, and food tours can be added here
-};
+// Legacy export for backward compatibility
+export const tourData = tours;

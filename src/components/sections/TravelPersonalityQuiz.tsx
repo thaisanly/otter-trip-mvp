@@ -28,7 +28,6 @@ import {
   HeartIcon,
 } from 'lucide-react';
 
-
 const TravelPersonalityQuiz = () => {
   const navigate = useNavigate();
   // State for quiz flow
@@ -501,7 +500,7 @@ const TravelPersonalityQuiz = () => {
                   <RefreshCwIcon size={18} className="mr-1" />
                   Retake Quiz
                 </button>
-                <button 
+                <button
                   onClick={() => navigate('/meet-experts')}
                   className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg transition-colors"
                 >

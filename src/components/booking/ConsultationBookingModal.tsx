@@ -368,15 +368,15 @@ const ConsultationBookingModal: React.FC<ConsultationBookingModalProps> = ({
         <div className="border-t border-gray-200 pt-4 mb-6">
           <div className="flex justify-between mb-2">
             <span className="text-gray-600">Consultation Fee</span>
-            <span>{typeof price === 'number' ? `RM ${price}` : price}</span>
+            <span>{typeof price === 'number' ? `$${price}` : price}</span>
           </div>
           <div className="flex justify-between mb-2">
             <span className="text-gray-600">Service Fee</span>
-            <span>RM 25</span>
+            <span>$25</span>
           </div>
           <div className="flex justify-between font-bold text-lg pt-2 border-t border-gray-200 mt-2">
             <span>Total</span>
-            <span>RM {typeof price === 'number' ? price + 25 : price}</span>
+            <span>${typeof price === 'number' ? price + 25 : price}</span>
           </div>
         </div>
         <div className="mb-6">

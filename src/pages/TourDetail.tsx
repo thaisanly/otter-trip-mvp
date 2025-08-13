@@ -19,7 +19,8 @@ import {
   UserIcon,
 } from 'lucide-react';
 // Tour data moved to mock file
-import { tourData, adventureTours } from '../mock/tours';
+import { tourData } from '../mock/tours';
+import { getAllTours } from '../mock/mockUtils';
 const TourDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -80,7 +81,7 @@ const TourDetail = () => {
           </div>
         </div>
         {/* Hero Content */}
-        <div className="absolute bottom-0 left-0 w-full pb-8">
+        <div className="absolute bottom-0 left-0 w-full pb-16">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl">
               <h1 className="text-3xl md:text-5xl font-bold text-white mb-2">{tour.title}</h1>
@@ -487,7 +488,7 @@ const TourDetail = () => {
       <div className="container mx-auto px-4 py-12">
         <h2 className="text-2xl font-bold text-gray-900 mb-6">You Might Also Like</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {Object.values(adventureTours)
+          {getAllTours()
             .filter((relatedTour) => relatedTour.id !== tour.id)
             .slice(0, 3)
             .map((relatedTour) => (
