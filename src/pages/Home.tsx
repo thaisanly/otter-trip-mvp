@@ -1,8 +1,6 @@
-import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import TourLeaderShowcase from '../components/sections/TourLeaderShowcase';
 import TravelPersonalityQuiz from '../components/sections/TravelPersonalityQuiz';
-import VibeMatchingSection from '../components/sections/VibeMatchingSection';
 import HowItWorks from '../components/sections/HowItWorks';
 const Home = () => {
   const navigate = useNavigate();
