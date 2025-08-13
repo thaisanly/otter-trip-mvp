@@ -21,14 +21,8 @@ export interface FirebaseUser {
   travelStyle: string[]; // ['adventure', 'cultural', 'relaxation', 'food']
   interests: string[]; // ['hiking', 'photography', 'history']
   budgetPreference?: 'budget' | 'mid-range' | 'luxury';
-  accessibilityNeeds?: string[];
-  preferredLanguages?: string[];
   emailVerified: boolean;
-  phoneVerified: boolean;
   isActive: boolean;
-  personalityType?: PersonalityType;
-  favoriteLeaders: string[]; // Array of leader IDs
-  favoriteTours: string[]; // Array of tour IDs
   createdAt: Timestamp;
   updatedAt: Timestamp;
   lastLoginAt?: Timestamp;
@@ -123,39 +117,6 @@ interface Certification {
   expiryDate?: Date;
   iconType?: 'award' | 'shield' | 'check';
   isVerified: boolean;
-}
-
-// ============================================================================
-// DESTINATION TYPES (Master Data Collection)
-// ============================================================================
-
-export interface Destination {
-  id: string;
-  slug: string;
-  name: string;
-  country: string;
-  countryCode: string;
-  region?: string;
-  coordinates?: GeoPoint;
-  timezone?: string;
-  image?: string;
-  galleryImages?: string[];
-  description?: string;
-  highlights?: string[];
-  guideCount: number;
-  tourCount: number;
-  averageTourPrice?: number;
-  popularActivities?: string[];
-  bestMonths?: number[]; // [1, 2, 3] for Jan, Feb, Mar
-  climateType?: string;
-  languagesSpoken?: string[];
-  currencyCode?: string;
-  isFeatured: boolean;
-  isActive: boolean;
-  searchRank: number;
-  tags?: string[];
-  createdAt: Timestamp;
-  updatedAt: Timestamp;
 }
 
 // ============================================================================
@@ -434,219 +395,6 @@ export interface Review extends TourReview {
 }
 
 // ============================================================================
-// LIVE STREAM & VIDEO TYPES
-// ============================================================================
-
-export interface LiveStream {
-  id: string;
-  leaderId: string;
-  leaderName: string; // Denormalized
-  leaderImage?: string; // Denormalized
-  title: string;
-  description?: string;
-  thumbnailUrl?: string;
-  streamUrl?: string;
-
-  scheduledStart: Timestamp;
-  scheduledEnd?: Timestamp;
-  actualStart?: Timestamp;
-  actualEnd?: Timestamp;
-  durationMinutes?: number;
-
-  destinationId?: string;
-  destinationName?: string; // Denormalized
-  location?: string;
-  tourId?: string;
-  tourTitle?: string; // Denormalized
-
-  streamType:
-    | 'tour_preview'
-    | 'live_tour'
-    | 'q&a'
-    | 'destination_guide'
-    | 'cultural_event'
-    | 'cooking'
-    | 'other';
-  tags?: string[];
-
-  status: 'scheduled' | 'live' | 'ended' | 'cancelled' | 'error';
-  isFeatured: boolean;
-  visibility: 'public' | 'followers_only' | 'paid' | 'private';
-
-  // Metrics
-  maxConcurrentViewers: number;
-  totalViews: number;
-  likesCount: number;
-  commentsCount: number;
-  sharesCount: number;
-
-  // Paid stream
-  isPaid: boolean;
-  price?: number;
-  currency?: string;
-
-  // Recording
-  isRecorded: boolean;
-  recordingUrl?: string;
-  recordingAvailable: boolean;
-
-  createdAt: Timestamp;
-  updatedAt: Timestamp;
-}
-
-export interface Video {
-  id: string;
-  leaderId: string;
-  leaderName: string; // Denormalized
-  leaderImage?: string; // Denormalized
-  title: string;
-  description?: string;
-  thumbnailUrl?: string;
-  videoUrl: string;
-  durationSeconds: number;
-
-  destinationId?: string;
-  destinationName?: string; // Denormalized
-  tourId?: string;
-  tourTitle?: string; // Denormalized
-
-  videoType:
-    | 'tour_highlight'
-    | 'destination_guide'
-    | 'tutorial'
-    | 'review'
-    | 'vlog'
-    | 'promotional'
-    | 'testimonial'
-    | 'other';
-  tags?: string[];
-
-  sourceType: 'uploaded' | 'live_stream_recording' | 'external';
-  liveStreamId?: string;
-
-  status: 'processing' | 'published' | 'unlisted' | 'private' | 'deleted';
-  isFeatured: boolean;
-  visibility: 'public' | 'followers_only' | 'paid' | 'private';
-
-  // Metrics
-  viewCount: number;
-  likesCount: number;
-  commentsCount: number;
-  sharesCount: number;
-  watchTimeMinutes: number;
-  averageWatchPercentage?: number;
-
-  // Paid video
-  isPaid: boolean;
-  price?: number;
-  currency?: string;
-
-  publishedAt?: Timestamp;
-  createdAt: Timestamp;
-  updatedAt: Timestamp;
-}
-
-// ============================================================================
-// MASTER DATA COLLECTIONS
-// ============================================================================
-
-// Personality Types
-export interface PersonalityType {
-  id: string;
-  typeName: string;
-  description: string;
-  icon?: string;
-  traits: string[];
-  createdAt: Timestamp;
-}
-
-// Travel Styles Master Data
-export interface TravelStyleOption {
-  id: string;
-  name: string; // 'adventure', 'cultural', 'relaxation', 'food', 'nature', 'luxury'
-  displayName: string; // 'Adventure Travel', 'Cultural Exploration', etc.
-  description?: string;
-  icon?: string;
-  relatedInterests?: string[]; // Related interest IDs
-  isActive: boolean;
-  sortOrder: number;
-  createdAt: Timestamp;
-}
-
-// Interests Master Data
-export interface InterestOption {
-  id: string;
-  name: string; // 'hiking', 'photography', 'history', 'yoga', 'cooking'
-  displayName: string; // 'Hiking & Trekking', 'Photography', etc.
-  category?: string; // 'outdoor', 'arts', 'wellness', 'culinary'
-  description?: string;
-  icon?: string;
-  relatedTravelStyles?: string[]; // Related travel style IDs
-  isActive: boolean;
-  sortOrder: number;
-  createdAt: Timestamp;
-}
-
-// Specialties Master Data (for Tour Leaders)
-export interface SpecialtyOption {
-  id: string;
-  name: string; // 'photography-tours', 'food-history', 'wilderness-survival'
-  displayName: string; // 'Photography Tours', 'Food History', etc.
-  category?: string; // 'tours', 'cultural', 'adventure', 'expertise'
-  description?: string;
-  icon?: string;
-  requiredCertifications?: string[]; // List of certification types that might be required
-  relatedCategories?: string[]; // Tour categories this specialty relates to
-  isActive: boolean;
-  sortOrder: number;
-  createdAt: Timestamp;
-}
-
-// Languages Master Data
-export interface LanguageOption {
-  id: string;
-  code: string; // ISO 639-1 code: 'en', 'es', 'fr', 'ja', 'zh'
-  name: string; // 'English', 'Spanish', 'French'
-  nativeName?: string; // 'English', 'Español', 'Français'
-  region?: string; // Optional regional variant
-  isActive: boolean;
-  sortOrder: number;
-  createdAt: Timestamp;
-}
-
-// Activities Master Data (for tours and itineraries)
-export interface ActivityOption {
-  id: string;
-  name: string; // 'temple-visit', 'snorkeling', 'cooking-class'
-  displayName: string; // 'Temple Visit', 'Snorkeling', 'Cooking Class'
-  category?: string; // 'cultural', 'water-sports', 'culinary'
-  description?: string;
-  icon?: string;
-  difficultyLevel?: 'easy' | 'moderate' | 'challenging';
-  typicalDuration?: number; // in minutes
-  requiredEquipment?: string[];
-  isActive: boolean;
-  sortOrder: number;
-  createdAt: Timestamp;
-}
-
-// Tour Categories Master Data
-export interface TourCategory {
-  id: string;
-  name: string; // 'adventure', 'cultural', 'relaxation', 'food', 'nature', 'urban', 'luxury'
-  displayName: string; // 'Adventure Tours', 'Cultural Experiences', etc.
-  description?: string;
-  icon?: string;
-  image?: string;
-  relatedActivities?: string[]; // Activity IDs commonly associated
-  relatedSpecialties?: string[]; // Specialty IDs commonly associated
-  isActive: boolean;
-  isFeatured: boolean;
-  sortOrder: number;
-  createdAt: Timestamp;
-}
-
-// ============================================================================
 // EXPERT TYPES (Enhanced Tour Leaders for Content Creators)
 // ============================================================================
 
@@ -827,114 +575,6 @@ export interface RelatedExpert {
 }
 
 // ============================================================================
-// TRAVEL STORY TYPES
-// ============================================================================
-
-export interface TravelStory {
-  id: string;
-  authorId: string;
-  authorName: string; // Denormalized
-  authorImage?: string; // Denormalized
-  tourId?: string;
-  tourTitle?: string; // Denormalized
-  title: string;
-  slug: string;
-  location?: string;
-  storyDate?: Date;
-  coverImage?: string;
-  content: string; // HTML or Markdown
-  excerpt?: string;
-  tags?: string[];
-  personalityTraits?: string[];
-
-  // Metrics
-  viewCount: number;
-  likeCount: number;
-  shareCount: number;
-
-  status: 'draft' | 'published' | 'archived';
-  isFeatured: boolean;
-
-  publishedAt?: Timestamp;
-  createdAt: Timestamp;
-  updatedAt: Timestamp;
-}
-
-// ============================================================================
-// MESSAGE & NOTIFICATION TYPES
-// ============================================================================
-
-export interface Message {
-  id: string;
-  senderId: string;
-  senderName: string; // Denormalized
-  senderImage?: string; // Denormalized
-  recipientId: string;
-  recipientType: 'user' | 'leader';
-  bookingId?: string;
-  subject?: string;
-  content: string;
-  isRead: boolean;
-  readAt?: Timestamp;
-  parentMessageId?: string; // For threading
-  createdAt: Timestamp;
-}
-
-export interface Notification {
-  id: string;
-  userId: string;
-  type: string; // 'booking_confirmed', 'new_review', 'stream_starting', etc.
-  title: string;
-  message?: string;
-  data?: Record<string, unknown>; // Additional data
-  isRead: boolean;
-  readAt?: Timestamp;
-  createdAt: Timestamp;
-}
-
-// ============================================================================
-// SEARCH & ANALYTICS TYPES
-// ============================================================================
-
-export interface SearchHistory {
-  id: string;
-  userId: string;
-  searchQuery: string;
-  searchType?: string;
-  filters?: Record<string, unknown>;
-  resultsCount: number;
-  createdAt: Timestamp;
-}
-
-export interface PopularSearch {
-  id: string;
-  searchTerm: string;
-  searchType?: string;
-  searchCount: number;
-  lastSearched: Timestamp;
-}
-
-// ============================================================================
-// PROMO CODE TYPES (Master Data Collection)
-// ============================================================================
-
-export interface PromoCode {
-  id: string;
-  code: string;
-  description?: string;
-  discountType: 'percentage' | 'fixed';
-  discountValue: number;
-  minimumAmount?: number;
-  maxUses?: number;
-  usesCount: number;
-  validFrom: Timestamp;
-  validUntil?: Timestamp;
-  applicableTo: 'all' | 'tours' | 'consultations';
-  isActive: boolean;
-  createdAt: Timestamp;
-}
-
-// ============================================================================
 // COLLECTION NAMES
 // ============================================================================
 
@@ -943,33 +583,8 @@ export const COLLECTIONS = {
   USERS: 'users',
   TOUR_LEADERS: 'tourLeaders',
   TOURS: 'tours',
-  DESTINATIONS: 'destinations',
   BOOKINGS: 'bookings',
-  REVIEWS: 'reviews', // Deprecated - reviews are now subcollections
   EXPERTS: 'experts',
-
-  // Content collections
-  LIVE_STREAMS: 'liveStreams',
-  VIDEOS: 'videos',
-  TRAVEL_STORIES: 'travelStories',
-
-  // Communication
-  MESSAGES: 'messages',
-  NOTIFICATIONS: 'notifications',
-
-  // Master data collections
-  PERSONALITY_TYPES: 'personalityTypes',
-  PROMO_CODES: 'promoCodes',
-  TRAVEL_STYLES: 'travelStyles',
-  INTERESTS: 'interests',
-  SPECIALTIES: 'specialties',
-  LANGUAGES: 'languages',
-  ACTIVITIES: 'activities',
-  TOUR_CATEGORIES: 'tourCategories',
-
-  // Analytics
-  SEARCH_HISTORY: 'searchHistory',
-  POPULAR_SEARCHES: 'popularSearches',
 } as const;
 
 // ============================================================================
@@ -979,11 +594,9 @@ export const COLLECTIONS = {
 export const SUBCOLLECTIONS = {
   // Tour subcollections
   TOUR_REVIEWS: 'reviews', // tours/{tourId}/reviews
-  TOUR_QUESTIONS: 'questions', // tours/{tourId}/questions
 
   // Leader subcollections
   LEADER_REVIEWS: 'reviews', // tourLeaders/{leaderId}/reviews
-  LEADER_CERTIFICATIONS: 'certifications', // tourLeaders/{leaderId}/certifications
 
   // Expert subcollections
   EXPERT_REVIEWS: 'reviews', // experts/{expertId}/reviews
@@ -995,28 +608,6 @@ export const SUBCOLLECTIONS = {
 
 export type CollectionName = (typeof COLLECTIONS)[keyof typeof COLLECTIONS];
 export type SubcollectionName = (typeof SUBCOLLECTIONS)[keyof typeof SUBCOLLECTIONS];
-
-export interface QueryOptions {
-  limit?: number;
-  orderBy?: string;
-  orderDirection?: 'asc' | 'desc';
-  startAfter?: unknown;
-  where?: Array<{
-    field: string;
-    operator:
-      | '<'
-      | '<='
-      | '=='
-      | '>'
-      | '>='
-      | '!='
-      | 'array-contains'
-      | 'array-contains-any'
-      | 'in'
-      | 'not-in';
-    value: unknown;
-  }>;
-}
 
 // ============================================================================
 // INDEXING RECOMMENDATIONS
@@ -1032,7 +623,6 @@ export interface QueryOptions {
  *
  * 2. tours:
  *    - (category, isActive, averageRating DESC)
- *    - (destinationId, isActive, pricePerPerson ASC)
  *    - (leaderId, isActive, createdAt DESC)
  *
  * 3. bookings:
@@ -1040,15 +630,7 @@ export interface QueryOptions {
  *    - (leaderId, status, startDate ASC)
  *    - (tourId, status, startDate ASC)
  *
- * 4. reviews:
- *    - (leaderId, rating DESC, createdAt DESC)
- *    - (tourId, rating DESC, createdAt DESC)
- *
- * 5. liveStreams:
- *    - (status, scheduledStart ASC)
- *    - (leaderId, status, scheduledStart DESC)
- *
- * 6. videos:
- *    - (leaderId, status, viewCount DESC)
- *    - (videoType, status, publishedAt DESC)
+ * 4. experts:
+ *    - (verified, isActive, stats.rating DESC)
+ *    - (countryCode, isActive, stats.followers DESC)
  */
