@@ -5,9 +5,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Important Files to Read First
 
 When starting work on this codebase, ALWAYS read these files first:
-1. **src/types/index.ts** - Complete TypeScript type definitions for the entire application
-2. **CHANGELOG.md** - Track recent changes and understand project evolution
-3. **CLAUDE.md** (this file) - Project-specific instructions and guidelines
+1. **README.md** - Project overview and setup instructions
+2. **src/types/index.ts** - Complete TypeScript type definitions for the entire application
+3. **CHANGELOG.md** - Track recent changes and understand project evolution
+4. **CLAUDE.md** (this file) - Project-specific instructions and guidelines
 
 ## Task Analysis and Delegation
 
