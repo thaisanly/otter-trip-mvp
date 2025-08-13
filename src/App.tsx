@@ -8,7 +8,6 @@ import SearchResults from './pages/SearchResults';
 import TourLeaderProfile from './pages/TourLeaderProfile';
 import BookingFlow from './pages/BookingFlow';
 import Dashboard from './pages/Dashboard';
-import OtterSelects from './pages/OtterSelects';
 import TourDetail from './pages/TourDetail';
 import Explore from './pages/Explore';
 import MeetExperts from './pages/MeetExperts';
@@ -26,7 +25,6 @@ export function App() {
               <Route path="/tour-leader/:id" element={<TourLeaderProfile />} />
               <Route path="/booking/:id" element={<BookingFlow />} />
               <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/otter-selects" element={<OtterSelects />} />
               <Route path="/tour/:id" element={<TourDetail />} />
               <Route path="/explore/:category" element={<Explore />} />
               <Route path="/meet-experts" element={<MeetExperts />} />
