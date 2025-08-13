@@ -1,12 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { MenuIcon, XIcon, SearchIcon, ChevronDownIcon, UserIcon } from 'lucide-react';
-import LoginModal from '../ui/LoginModal';
+import { MenuIcon, XIcon, ChevronDownIcon } from 'lucide-react';
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isExploreOpen, setIsExploreOpen] = useState(false);
-  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const location = useLocation();
   useEffect(() => {
     const handleScroll = () => {
@@ -39,12 +37,13 @@ const Header = () => {
         <Link to="/" className="flex items-center space-x-2">
           <img src="/image.png" alt="OtterTrip" className="h-10 md:h-12" />
         </Link>
-        {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center space-x-8">
+        {/* Desktop Navigation - Right aligned */}
+        <div className="hidden md:flex items-center ml-auto">
+          <nav className="flex items-center space-x-8">
           <Link to="/" className={`text-sm font-medium ${isActive('/') ? 'text-blue-600' : 'text-gray-700 hover:text-blue-600'} transition-colors`}>
             Home
           </Link>
-          <Link to="/meet-experts" className={`text-sm font-medium ${isMeetExpertsActive() ? 'text-blue-600 bg-blue-50 px-3 py-1 rounded-full' : 'text-gray-700 hover:text-blue-600'} transition-colors`}>
+          <Link to="/meet-experts" className={`text-sm font-medium ${isMeetExpertsActive() ? 'text-blue-600' : 'text-gray-700 hover:text-blue-600'} transition-colors`}>
             Meet Experts
           </Link>
           <div className="relative">
@@ -65,28 +64,15 @@ const Header = () => {
                 <Link to="/explore/food" className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-md" onClick={() => setIsExploreOpen(false)}>
                   Food & Cuisine
                 </Link>
-                <div className="border-t border-gray-100 my-1 pt-1">
-                  <Link to="/otter-selects" className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-md" onClick={() => setIsExploreOpen(false)}>
-                    Otter Selects
-                  </Link>
-                </div>
+
               </div>}
           </div>
-        </nav>
-        {/* Right side actions */}
-        <div className="flex items-center space-x-4">
-          <button className="text-gray-700 hover:text-blue-600 transition-colors">
-            <SearchIcon size={20} />
-          </button>
-          <button onClick={() => setIsLoginModalOpen(true)} className="hidden md:flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors text-sm font-medium">
-            <UserIcon size={16} />
-            <span>Sign In</span>
-          </button>
-          {/* Mobile Menu Button */}
-          <button className="md:hidden text-gray-700" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-            {isMenuOpen ? <XIcon size={24} /> : <MenuIcon size={24} />}
-          </button>
+          </nav>
         </div>
+        {/* Mobile Menu Button */}
+        <button className="md:hidden text-gray-700" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+          {isMenuOpen ? <XIcon size={24} /> : <MenuIcon size={24} />}
+        </button>
       </div>
       {/* Mobile Menu */}
       {isMenuOpen && <div className="md:hidden bg-white py-4 px-4 shadow-md border-t border-gray-100">
@@ -117,22 +103,11 @@ const Header = () => {
                   <Link to="/explore/food" className="block py-1 text-gray-700 hover:text-blue-600" onClick={() => setIsMenuOpen(false)}>
                     Food & Cuisine
                   </Link>
-                  <Link to="/otter-selects" className="block py-1 text-gray-700 hover:text-blue-600" onClick={() => setIsMenuOpen(false)}>
-                    Otter Selects
-                  </Link>
                 </div>}
             </div>
-            <button onClick={() => {
-          setIsMenuOpen(false);
-          setIsLoginModalOpen(true);
-        }} className="flex items-center space-x-2 bg-blue-600 text-white rounded-full py-2 px-4 hover:bg-blue-700 w-full justify-center">
-              <UserIcon size={16} />
-              <span>Sign In</span>
-            </button>
+
           </nav>
         </div>}
-      {/* Login Modal */}
-      <LoginModal isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)} />
     </header>;
 };
 export default Header;

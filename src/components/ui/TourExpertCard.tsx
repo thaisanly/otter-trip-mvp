@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { HeartIcon, MapPinIcon, GlobeIcon, CheckCircleIcon, StarIcon, UsersIcon, VideoIcon, PlayCircleIcon, ShoppingBagIcon } from 'lucide-react';
+import { MapPinIcon, GlobeIcon, CheckCircleIcon, StarIcon, PlayCircleIcon, ShoppingBagIcon } from 'lucide-react';
 export interface TourExpertProps {
   id: string;
   name: string;
@@ -42,36 +42,16 @@ const TourExpertCard: React.FC<TourExpertProps> = ({
   tours
 }) => {
   const navigate = useNavigate();
-  const [isFollowing, setIsFollowing] = useState(false);
-  const [isFavorite, setIsFavorite] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const handleCardClick = () => {
     setIsLoading(true);
     navigate(`/meet-experts/${id}`);
-  };
-  const handleFollowClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsFollowing(!isFollowing);
-    // Here you would typically call an API to follow/unfollow
-  };
-  const handleFavoriteClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsFavorite(!isFavorite);
-    // Here you would typically call an API to favorite/unfavorite
   };
   const handleViewProfileClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     setIsLoading(true);
     navigate(`/meet-experts/${id}`);
-  };
-  const formatFollowers = (count: number) => {
-    if (count >= 1000) {
-      return (count / 1000).toFixed(1) + 'K';
-    }
-    return count.toString();
   };
   return <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden transform hover:-translate-y-1 cursor-pointer active:translate-y-0 active:shadow-sm" onClick={handleCardClick} style={{
     position: 'relative'
@@ -120,9 +100,6 @@ const TourExpertCard: React.FC<TourExpertProps> = ({
           </div>
           <span className="text-sm font-medium text-gray-800 ml-2">
             {rating}/5
-            <span className="text-gray-500 font-normal">
-              ({reviews} reviews)
-            </span>
           </span>
         </div>
         {/* Experience badge */}
@@ -149,35 +126,20 @@ const TourExpertCard: React.FC<TourExpertProps> = ({
             </span>}
         </div>
         {/* Content stats */}
-        <div className="w-full flex justify-between items-center text-xs text-gray-500 mb-4 px-2">
-          <div className="flex items-center">
-            <VideoIcon size={12} className="mr-1" />
-            <span>{videos} Videos</span>
-          </div>
-          <div className="flex items-center">
-            <PlayCircleIcon size={12} className="mr-1" />
-            <span>{liveStreams} Streams</span>
-          </div>
+        <div className="w-full flex justify-center items-center text-xs text-gray-500 mb-4 px-2 gap-6">
           <div className="flex items-center">
             <ShoppingBagIcon size={12} className="mr-1" />
             <span>{tours} Tours</span>
           </div>
+          <div className="flex items-center">
+            <PlayCircleIcon size={12} className="mr-1" />
+            <span>{liveStreams} Story</span>
+          </div>
         </div>
-        {/* Follower count */}
-        <div className="flex items-center mb-4 text-sm text-gray-600">
-          <UsersIcon size={14} className="mr-1" />
-          <span>{formatFollowers(followers)} followers</span>
-        </div>
-        {/* Action buttons */}
-        <div className="flex w-full gap-2" onClick={e => e.stopPropagation()}>
-          <button onClick={handleFollowClick} className={`flex-1 text-center font-medium py-2 px-4 rounded-lg text-sm transition-colors ${isFollowing ? 'bg-gray-100 text-gray-700 border border-gray-300' : 'bg-blue-600 text-white hover:bg-blue-700'}`}>
-            {isFollowing ? 'Following' : 'Follow'}
-          </button>
-          <button onClick={handleViewProfileClick} className="flex-1 text-center border border-blue-600 text-blue-600 hover:bg-blue-50 font-medium py-2 px-4 rounded-lg text-sm transition-colors">
+        {/* Action button */}
+        <div className="w-full" onClick={e => e.stopPropagation()}>
+          <button onClick={handleViewProfileClick} className="w-full text-center border border-blue-600 text-blue-600 hover:bg-blue-50 font-medium py-2 px-4 rounded-lg text-sm transition-colors">
             View Profile
-          </button>
-          <button onClick={handleFavoriteClick} className={`p-2 rounded-lg border ${isFavorite ? 'border-red-200 bg-red-50 text-red-500' : 'border-gray-200 hover:bg-gray-50 text-gray-500'} transition-colors`} aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}>
-            <HeartIcon size={18} className={isFavorite ? 'fill-current' : ''} />
           </button>
         </div>
       </div>

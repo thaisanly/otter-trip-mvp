@@ -417,51 +417,10 @@ const FilterModal = ({
       </div>
     </div>;
 };
-// Sort dropdown component
-const SortDropdown = ({
-  isOpen,
-  onToggle,
-  onSelect,
-  selectedOption
-}) => {
-  const options = [{
-    id: 'popularity',
-    label: 'Popularity'
-  }, {
-    id: 'rating',
-    label: 'Rating'
-  }, {
-    id: 'newest',
-    label: 'Newest'
-  }, {
-    id: 'most-active',
-    label: 'Most Active'
-  }];
-  return <div className="relative">
-      <button className="flex items-center space-x-2 text-gray-700 hover:text-blue-600 focus:outline-none" onClick={onToggle}>
-        <span className="text-sm font-medium">Sort By:</span>
-        <span className="text-sm font-medium text-gray-900">
-          {selectedOption}
-        </span>
-        <ChevronDownIcon size={16} />
-      </button>
-      {isOpen && <div className="absolute right-0 mt-2 w-40 bg-white rounded-lg shadow-lg z-20 border border-gray-100">
-          {options.map(option => <button key={option.id} className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600" onClick={() => onSelect(option.id, option.label)}>
-              {option.label}
-            </button>)}
-        </div>}
-    </div>;
-};
 const MeetExperts = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
-  const [isSortDropdownOpen, setIsSortDropdownOpen] = useState(false);
-  const [sortOption, setSortOption] = useState('Popularity');
   const [activeFilter, setActiveFilter] = useState('all');
-  const handleSortSelect = (id, label) => {
-    setSortOption(label);
-    setIsSortDropdownOpen(false);
-  };
   const handleFilterChange = filter => {
     setActiveFilter(filter);
   };
@@ -499,89 +458,15 @@ const MeetExperts = () => {
               Discover passionate travel creators and join their adventures
             </p>
           </div>
-          <div className="flex items-center space-x-4">
-            <button className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors" onClick={() => setIsFilterModalOpen(true)}>
-              <FilterIcon size={18} />
-              <span className="text-sm font-medium">Advanced Filter</span>
-            </button>
-            <SortDropdown isOpen={isSortDropdownOpen} onToggle={() => setIsSortDropdownOpen(!isSortDropdownOpen)} onSelect={handleSortSelect} selectedOption={sortOption} />
-          </div>
+
         </div>
         {/* Search Bar */}
         <div className="relative mb-6">
           <SearchIcon size={20} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
           <input type="text" placeholder="Search experts by name, location, or specialty..." className="w-full pl-10 pr-4 py-3 bg-white border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
         </div>
-        {/* Filter Bar */}
-        <div className="flex flex-wrap items-center mb-6 gap-3">
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 flex overflow-x-auto">
-            <button className={`px-4 py-2 text-sm font-medium whitespace-nowrap ${activeFilter === 'all' ? 'bg-blue-50 text-blue-600' : 'text-gray-700 hover:bg-gray-50'}`} onClick={() => handleFilterChange('all')}>
-              All Experts
-            </button>
-            <button className={`px-4 py-2 text-sm font-medium whitespace-nowrap flex items-center ${activeFilter === 'live-now' ? 'bg-blue-50 text-blue-600' : 'text-gray-700 hover:bg-gray-50'}`} onClick={() => handleFilterChange('live-now')}>
-              <span className="w-2 h-2 bg-red-600 rounded-full mr-1.5 animate-pulse"></span>
-              Live Now
-            </button>
-            <button className={`px-4 py-2 text-sm font-medium whitespace-nowrap ${activeFilter === 'top-creators' ? 'bg-blue-50 text-blue-600' : 'text-gray-700 hover:bg-gray-50'}`} onClick={() => handleFilterChange('top-creators')}>
-              Top Creators
-            </button>
-            <button className={`px-4 py-2 text-sm font-medium whitespace-nowrap ${activeFilter === 'rising-stars' ? 'bg-blue-50 text-blue-600' : 'text-gray-700 hover:bg-gray-50'}`} onClick={() => handleFilterChange('rising-stars')}>
-              Rising Stars
-            </button>
-          </div>
-          <div className="flex items-center flex-wrap gap-2">
-            <div className="relative">
-              <button className="flex items-center space-x-1 bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm hover:bg-gray-50">
-                <MapPinIcon size={14} className="text-gray-500" />
-                <span>All Locations</span>
-                <ChevronDownIcon size={14} className="text-gray-500" />
-              </button>
-            </div>
-            <div className="relative">
-              <button className="flex items-center space-x-1 bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm hover:bg-gray-50">
-                <GlobeIcon size={14} className="text-gray-500" />
-                <span>Languages</span>
-                <ChevronDownIcon size={14} className="text-gray-500" />
-              </button>
-            </div>
-            <div className="relative">
-              <button className="flex items-center space-x-1 bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm hover:bg-gray-50">
-                <SlidersIcon size={14} className="text-gray-500" />
-                <span>Specialties</span>
-                <ChevronDownIcon size={14} className="text-gray-500" />
-              </button>
-            </div>
-            <div className="relative">
-              <button className="flex items-center space-x-1 bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm hover:bg-gray-50">
-                <LayersIcon size={14} className="text-gray-500" />
-                <span>Content Type</span>
-                <ChevronDownIcon size={14} className="text-gray-500" />
-              </button>
-            </div>
-            <div className="relative">
-              <button className="flex items-center space-x-1 bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm hover:bg-gray-50">
-                <RadioIcon size={14} className="text-gray-500" />
-                <span>Activity Status</span>
-                <ChevronDownIcon size={14} className="text-gray-500" />
-              </button>
-            </div>
-          </div>
-        </div>
-        {/* Active filters display */}
-        {activeFilter !== 'all' && <div className="flex items-center mb-6">
-            <div className="text-sm text-gray-600 mr-2">Active filters:</div>
-            <div className="flex items-center bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-sm">
-              {activeFilter === 'live-now' && <>
-                  <span className="w-2 h-2 bg-red-600 rounded-full mr-1.5 animate-pulse"></span>
-                  Live Now
-                </>}
-              {activeFilter === 'top-creators' && 'Top Creators'}
-              {activeFilter === 'rising-stars' && 'Rising Stars'}
-              <button className="ml-2 text-blue-700 hover:text-blue-800" onClick={() => handleFilterChange('all')}>
-                <XIcon size={14} />
-              </button>
-            </div>
-          </div>}
+
+
         {/* Experts Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredExperts.map(expert => <TourExpertCard key={expert.id} {...expert} />)}

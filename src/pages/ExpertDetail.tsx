@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeftIcon, ShareIcon, BookmarkIcon, HeartIcon, MapPinIcon, GlobeIcon, CheckCircleIcon, StarIcon, UsersIcon, VideoIcon, PlayCircleIcon, ShoppingBagIcon, MessageCircleIcon, CalendarIcon, PauseIcon, PlayIcon, VolumeIcon, Volume2Icon, Volume1Icon, VolumeXIcon, PhoneIcon, MailIcon, InstagramIcon, YoutubeIcon, TwitterIcon, FacebookIcon, LinkedinIcon, PlusIcon, ClockIcon, ChevronDownIcon, CheckIcon, AlertCircleIcon, UserIcon } from 'lucide-react';
+import { ArrowLeftIcon, HeartIcon, MapPinIcon, GlobeIcon, CheckCircleIcon, StarIcon, UsersIcon, VideoIcon, PlayCircleIcon, ShoppingBagIcon, MessageCircleIcon, CalendarIcon, PauseIcon, PlayIcon, VolumeIcon, Volume2Icon, Volume1Icon, VolumeXIcon, PhoneIcon, MailIcon, InstagramIcon, YoutubeIcon, TwitterIcon, FacebookIcon, LinkedinIcon, PlusIcon, ClockIcon, ChevronDownIcon, CheckIcon, AlertCircleIcon, UserIcon } from 'lucide-react';
 import TourExpertCard from '../components/ui/TourExpertCard';
 import InvitationCodeModal from '../components/booking/InvitationCodeModal';
 import ConsultationBookingModal from '../components/booking/ConsultationBookingModal';
@@ -35,7 +35,7 @@ const expertsData = {
       title: 'Singapore Food Heritage Tour',
       image: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?ixlib=rb-4.0.3&auto=format&fit=crop&w=1024&q=80',
       duration: '4 hours',
-      price: 'RM 120',
+      price: '$120',
       description: "Explore Singapore's diverse culinary scene through its hawker centers and local markets, 4.9.",
       reviews: 78
     }, {
@@ -43,7 +43,7 @@ const expertsData = {
       title: 'Cultural Neighborhoods Walking Tour',
       image: 'https://images.unsplash.com/photo-1565967511849-76a60a516170?ixlib=rb-4.0.3&auto=format&fit=crop&w=1024&q=80',
       duration: '3 hours',
-      price: 'RM 85',
+      price: '$85',
       description: "Discover the unique blend of cultures in Singapore's historic neighborhoods.",
       reviews: 42
     }],
@@ -109,7 +109,7 @@ const expertsData = {
       title: 'Barcelona Hidden Gems Tour',
       image: 'https://images.unsplash.com/photo-1583422409516-2895a77efded?ixlib=rb-4.0.3&auto=format&fit=crop&w=1024&q=80',
       duration: '5 hours',
-      price: 'RM 150',
+      price: '$150',
       description: 'Discover the secret spots and local favorites that most tourists never see.',
       rating: 4.9,
       reviews: 87
@@ -118,7 +118,7 @@ const expertsData = {
       title: 'Gaudí Architecture Experience',
       image: 'https://images.unsplash.com/photo-1583779457094-ab6f9164a1c8?ixlib=rb-4.0.3&auto=format&fit=crop&w=1024&q=80',
       duration: '4 hours',
-      price: 'RM 130',
+      price: '$130',
       description: 'Explore the masterpieces of Antoni Gaudí with expert commentary and skip-the-line access.',
       rating: 4.8,
       reviews: 65
@@ -171,7 +171,7 @@ const expertsData = {
       title: 'Tokyo Contrast: Tradition & Innovation',
       image: 'https://images.unsplash.com/photo-1536098561742-ca998e48cbcc?ixlib=rb-4.0.3&auto=format&fit=crop&w=1024&q=80',
       duration: '6 hours',
-      price: 'RM 180',
+      price: '$180',
       description: 'Experience the fascinating contrast between ancient traditions and futuristic innovations in Tokyo.',
       rating: 4.8,
       reviews: 42
@@ -180,7 +180,7 @@ const expertsData = {
       title: 'Tokyo Food Adventure',
       image: 'https://images.unsplash.com/photo-1540648639573-8c848de23f0a?ixlib=rb-4.0.3&auto=format&fit=crop&w=1024&q=80',
       duration: '4 hours',
-      price: 'RM 140',
+      price: '$140',
       description: 'Sample authentic Japanese cuisine from street food to high-end izakayas.',
       rating: 4.9,
       reviews: 36
@@ -228,7 +228,7 @@ const expertsData = {
       title: 'London Through the Ages',
       image: 'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?ixlib=rb-4.0.3&auto=format&fit=crop&w=1024&q=80',
       duration: '6 hours',
-      price: 'RM 160',
+      price: '$160',
       description: "Walk through 2,000 years of London's history from Roman ruins to modern landmarks.",
       rating: 4.9,
       reviews: 87
@@ -237,7 +237,7 @@ const expertsData = {
       title: 'British Museum Highlights Tour',
       image: 'https://images.unsplash.com/photo-1574322768247-e5db3e1e7bea?ixlib=rb-4.0.3&auto=format&fit=crop&w=1024&q=80',
       duration: '3 hours',
-      price: 'RM 90',
+      price: '$90',
       description: 'Discover the most important artifacts and hidden gems of the British Museum.',
       rating: 4.8,
       reviews: 62
@@ -326,7 +326,6 @@ const ExpertDetail = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
   const [volume, setVolume] = useState(50);
-  const [isBookmarked, setIsBookmarked] = useState(false);
   const [isFollowing, setIsFollowing] = useState(false);
   const [isNavSticky, setIsNavSticky] = useState(false);
   const [tourFilter, setTourFilter] = useState('upcoming');
@@ -373,8 +372,6 @@ const ExpertDetail = () => {
         setActiveTab('tours');
       } else if (socialRef.current && scrollPosition < socialRef.current.offsetTop + socialRef.current.offsetHeight) {
         setActiveTab('social');
-      } else if (reviewsRef.current && scrollPosition < reviewsRef.current.offsetTop + reviewsRef.current.offsetHeight) {
-        setActiveTab('reviews');
       } else if (contactRef.current) {
         setActiveTab('contact');
       }
@@ -398,9 +395,6 @@ const ExpertDetail = () => {
       case 'social':
         ref = socialRef;
         break;
-      case 'reviews':
-        ref = reviewsRef;
-        break;
       case 'contact':
         ref = contactRef;
         break;
@@ -418,14 +412,6 @@ const ExpertDetail = () => {
   };
   const handleBackClick = () => {
     navigate('/meet-experts');
-  };
-  const handleShareClick = () => {
-    // Copy URL to clipboard
-    navigator.clipboard.writeText(window.location.href);
-    alert('Link copied to clipboard!');
-  };
-  const handleBookmarkClick = () => {
-    setIsBookmarked(!isBookmarked);
   };
   const handleFollowClick = () => {
     setIsFollowing(!isFollowing);
@@ -513,15 +499,6 @@ const ExpertDetail = () => {
             </div>
           </div>
         </div>
-        {/* Action buttons */}
-        <div className="absolute top-4 right-4 flex space-x-2">
-          <button onClick={handleShareClick} className="bg-white/20 backdrop-blur-sm text-white p-2 rounded-full hover:bg-white/30 transition-colors" aria-label="Share profile">
-            <ShareIcon size={20} />
-          </button>
-          <button onClick={handleBookmarkClick} className={`p-2 rounded-full transition-colors ${isBookmarked ? 'bg-blue-600 text-white' : 'bg-white/20 backdrop-blur-sm text-white hover:bg-white/30'}`} aria-label={isBookmarked ? 'Remove bookmark' : 'Bookmark profile'}>
-            <BookmarkIcon size={20} className={isBookmarked ? 'fill-white' : ''} />
-          </button>
-        </div>
         {/* Audio controls */}
         {expertData.audioTrack && <div className="absolute bottom-4 right-4 flex items-center bg-black/40 backdrop-blur-sm rounded-full px-3 py-1.5 text-white">
             <button onClick={togglePlay} className="mr-2" aria-label={isPlaying ? 'Pause background music' : 'Play background music'}>
@@ -560,13 +537,7 @@ const ExpertDetail = () => {
                     </div>
                   </div>
                   <div className="flex mt-4 md:mt-0 space-x-3 justify-center md:justify-start">
-                    <button onClick={handleFollowClick} className={`px-6 py-2 rounded-full text-sm font-medium transition-colors ${isFollowing ? 'bg-white text-blue-600' : 'bg-blue-600 text-white hover:bg-blue-700'} flex items-center justify-center`}>
-                      {isFollowing ? <>
-                          <CheckIcon size={16} className="mr-1.5" />
-                          Following
-                        </> : 'Follow'}
-                    </button>
-                    <button className="px-6 py-2 bg-white/20 backdrop-blur-sm rounded-full text-sm font-medium hover:bg-white/30 transition-colors flex items-center justify-center">
+                    <button onClick={() => scrollToSection('contact')} className="px-6 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded-full text-sm font-medium transition-colors flex items-center justify-center">
                       <MessageCircleIcon size={16} className="mr-1.5" />
                       Message
                     </button>
@@ -577,18 +548,7 @@ const ExpertDetail = () => {
                     <StarIcon size={16} className="text-yellow-400 fill-current mr-1.5" />
                     <span className="font-medium">{expertData.rating}</span>
                     <span className="text-white/80 ml-1">
-                      ({expertData.reviews} reviews)
                     </span>
-                  </div>
-                  <div className="flex items-center">
-                    <UsersIcon size={16} className="mr-1.5" />
-                    <span>
-                      {expertData.followers.toLocaleString()} followers
-                    </span>
-                  </div>
-                  <div className="flex items-center">
-                    <VideoIcon size={16} className="mr-1.5" />
-                    <span>{expertData.videos} videos</span>
                   </div>
                   <div className="flex items-center">
                     <ShoppingBagIcon size={16} className="mr-1.5" />
@@ -615,10 +575,6 @@ const ExpertDetail = () => {
             <button className={`px-6 py-4 font-medium text-sm whitespace-nowrap transition-colors ${activeTab === 'social' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-600 hover:text-gray-900'}`} onClick={() => scrollToSection('social')}>
               <VideoIcon size={16} className="inline mr-1.5" />
               Social
-            </button>
-            <button className={`px-6 py-4 font-medium text-sm whitespace-nowrap transition-colors ${activeTab === 'reviews' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-600 hover:text-gray-900'}`} onClick={() => scrollToSection('reviews')}>
-              <StarIcon size={16} className="inline mr-1.5" />
-              Reviews ({expertData.reviews})
             </button>
             <button className={`px-6 py-4 font-medium text-sm whitespace-nowrap transition-colors ${activeTab === 'contact' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-600 hover:text-gray-900'}`} onClick={() => scrollToSection('contact')}>
               <MailIcon size={16} className="inline mr-1.5" />
@@ -695,7 +651,6 @@ const ExpertDetail = () => {
                                 {tour.rating}
                               </span>
                               <span className="text-xs text-gray-500 ml-1">
-                                ({tour.reviews})
                               </span>
                             </div>
                           </div>
@@ -793,7 +748,7 @@ const ExpertDetail = () => {
                         <div className="flex justify-between items-center">
                           <div>
                             <div className="text-gray-900 font-bold">
-                              RM 140
+                              $140
                             </div>
                             <div className="text-gray-500 text-xs">
                               per person
@@ -856,7 +811,7 @@ const ExpertDetail = () => {
                         <div className="flex justify-between items-center">
                           <div>
                             <div className="text-gray-900 font-bold">
-                              RM 110
+                              $110
                             </div>
                             <div className="text-gray-500 text-xs">
                               per person
@@ -938,43 +893,9 @@ const ExpertDetail = () => {
                         </div>)}
                     </div>
                   </div>}
-              {/* Upcoming Live Streams */}
-              {expertData.upcomingStreams && expertData.upcomingStreams.length > 0 && <div>
-                    <div className="flex justify-between items-center mb-4">
-                      <h3 className="text-xl font-bold text-gray-900">
-                        Upcoming Live Streams
-                      </h3>
-                      <a href="#" className="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                        View all streams
-                      </a>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {expertData.upcomingStreams.map(stream => <div key={stream.id} className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow cursor-pointer">
-                          <div className="relative">
-                            <img src={stream.thumbnail} alt={stream.title} className="w-full aspect-video object-cover" />
-                            <div className="absolute top-3 left-3 bg-red-600 text-white text-xs font-medium px-2 py-1 rounded-full flex items-center">
-                              <span className="w-2 h-2 bg-white rounded-full mr-1.5 animate-pulse"></span>
-                              UPCOMING
-                            </div>
-                          </div>
-                          <div className="p-4">
-                            <h4 className="font-medium text-gray-900">
-                              {stream.title}
-                            </h4>
-                            <div className="flex items-center text-sm text-gray-600 mt-2">
-                              <CalendarIcon size={14} className="mr-1.5" />
-                              {stream.date}, {stream.time}
-                            </div>
-                            <button className="mt-3 w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded-lg text-sm transition-colors">
-                              Set Reminder
-                            </button>
-                          </div>
-                        </div>)}
-                    </div>
-                  </div>}
             </section>
-            {/* Reviews Section */}
-            <section id="reviews" ref={reviewsRef} className="mb-12">
+            {/* Reviews Section - Removed */}
+            {false && <section id="reviews" ref={reviewsRef} className="mb-12">
               <h2 className="text-2xl font-bold text-gray-900 mb-6">Reviews</h2>
               <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
                 <div className="flex flex-col md:flex-row items-center justify-between mb-8">
@@ -1172,23 +1093,13 @@ const ExpertDetail = () => {
                   </div>
                 </div>
               </div>
-            </section>
+            </section>}
             {/* Contact Section */}
             <section id="contact" ref={contactRef} className="mb-12">
               <h2 className="text-2xl font-bold text-gray-900 mb-6">
                 Contact {expertData.name}
               </h2>
               <div className="bg-white rounded-xl shadow-sm p-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                  <button className="flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition-colors">
-                    <MessageCircleIcon size={18} className="mr-2" />
-                    Send Message
-                  </button>
-                  <button className="flex items-center justify-center border border-blue-600 text-blue-600 hover:bg-blue-50 font-medium py-3 px-4 rounded-lg transition-colors">
-                    <PhoneIcon size={18} className="mr-2" />
-                    Request Call
-                  </button>
-                </div>
                 <div className="border-t border-gray-100 pt-6">
                   <h3 className="font-medium text-gray-900 mb-4">
                     Send an Inquiry
@@ -1280,7 +1191,7 @@ const ExpertDetail = () => {
                   <span className="text-gray-500 text-sm">
                     Consultation Fee
                   </span>
-                  <div className="text-2xl font-bold text-gray-900">RM 250</div>
+                  <div className="text-2xl font-bold text-gray-900">$250</div>
                 </div>
                 <div className="bg-green-100 px-3 py-1 rounded-full">
                   <span className="text-green-800 text-sm font-medium">
@@ -1295,54 +1206,6 @@ const ExpertDetail = () => {
               <p className="text-center text-xs text-gray-500 mt-3">
                 Invitation code required for booking
               </p>
-            </div>
-            {/* Quick Stats */}
-            <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
-              <h3 className="font-medium text-gray-900 mb-4">Quick Stats</h3>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="text-center p-3 bg-blue-50 rounded-lg">
-                  <div className="text-2xl font-bold text-blue-700">
-                    {expertData.experience}
-                  </div>
-                  <div className="text-sm text-gray-600">Years Exp.</div>
-                </div>
-                <div className="text-center p-3 bg-green-50 rounded-lg">
-                  <div className="text-2xl font-bold text-green-700">
-                    {expertData.tours}
-                  </div>
-                  <div className="text-sm text-gray-600">Tours</div>
-                </div>
-                <div className="text-center p-3 bg-purple-50 rounded-lg">
-                  <div className="text-2xl font-bold text-purple-700">
-                    {expertData.videos}
-                  </div>
-                  <div className="text-sm text-gray-600">Videos</div>
-                </div>
-                <div className="text-center p-3 bg-yellow-50 rounded-lg">
-                  <div className="text-2xl font-bold text-yellow-700">
-                    {expertData.languages.length}
-                  </div>
-                  <div className="text-sm text-gray-600">Languages</div>
-                </div>
-              </div>
-            </div>
-            {/* Availability Calendar */}
-            <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="font-medium text-gray-900">Availability</h3>
-                <button className="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                  View Calendar
-                </button>
-              </div>
-              <div className="text-center py-3 px-4 bg-blue-50 rounded-lg mb-4">
-                <div className="text-sm text-gray-600 mb-1">Next Available</div>
-                <div className="text-lg font-medium text-blue-700">
-                  May 15, 2023
-                </div>
-              </div>
-              <button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors">
-                Check Availability
-              </button>
             </div>
             {/* Similar Experts */}
             <div>
@@ -1388,7 +1251,7 @@ const ExpertDetail = () => {
       {/* Invitation Code Modal */}
       <InvitationCodeModal isOpen={isInvitationModalOpen} onClose={() => setIsInvitationModalOpen(false)} onValidCode={handleValidInvitationCode} />
       {/* Consultation Booking Modal */}
-      <ConsultationBookingModal isOpen={isBookingModalOpen} onClose={() => setIsBookingModalOpen(false)} expertName={expertData?.name || ''} expertImage={expertData?.image || ''} price={expertData?.consultationPrice || 'RM 250'} />
+      <ConsultationBookingModal isOpen={isBookingModalOpen} onClose={() => setIsBookingModalOpen(false)} expertName={expertData?.name || ''} expertImage={expertData?.image || ''} price={expertData?.consultationPrice || '$250'} />
     </div>;
 };
 export default ExpertDetail;

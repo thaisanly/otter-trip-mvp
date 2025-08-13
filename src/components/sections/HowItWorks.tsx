@@ -46,11 +46,6 @@ const HowItWorks = () => {
               </div>
             </div>)}
         </div>
-        <div className="mt-12 text-center">
-          <button className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-8 rounded-lg transition-colors">
-            Start Your Journey
-          </button>
-        </div>
       </div>
     </div>;
 };

@@ -299,9 +299,7 @@ const TourDetail = () => {
                 <div className="flex items-center">
                   <StarIcon size={18} className="text-yellow-400 fill-current mr-1" />
                   <span className="text-white font-medium">{tour.rating}</span>
-                  <span className="text-white/80 ml-1">
-                    ({tour.reviewCount} reviews)
-                  </span>
+
                 </div>
                 <div className="flex items-center">
                   <ClockIcon size={18} className="text-white/80 mr-1" />
@@ -355,9 +353,7 @@ const TourDetail = () => {
                   <button className={`px-6 py-3 font-medium text-sm whitespace-nowrap ${activeTab === 'inclusions' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-600 hover:text-gray-900'}`} onClick={() => setActiveTab('inclusions')}>
                     What's Included
                   </button>
-                  <button className={`px-6 py-3 font-medium text-sm whitespace-nowrap ${activeTab === 'reviews' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-600 hover:text-gray-900'}`} onClick={() => setActiveTab('reviews')}>
-                    Reviews ({tour.reviewCount})
-                  </button>
+
                 </div>
               </div>
               <div className="p-6">
@@ -476,51 +472,6 @@ const TourDetail = () => {
                       </div>
                     </div>
                   </div>}
-                {/* Reviews Tab */}
-                {activeTab === 'reviews' && <div>
-                    <div className="flex items-center justify-between mb-6">
-                      <div className="flex items-center">
-                        <div className="mr-4">
-                          <div className="text-3xl font-bold text-gray-900">
-                            {tour.rating}
-                          </div>
-                          <div className="flex">
-                            {[...Array(5)].map((_, i) => <StarIcon key={i} size={18} className={`${i < Math.floor(tour.rating) ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} />)}
-                          </div>
-                        </div>
-                        <div className="text-gray-600 text-sm">
-                          Based on {tour.reviewCount} reviews
-                        </div>
-                      </div>
-                    </div>
-                    <div className="space-y-6">
-                      {tour.reviews.map(review => <div key={review.id} className="border border-gray-100 rounded-lg p-4">
-                          <div className="flex items-start mb-3">
-                            <img src={review.avatar} alt={review.user} className="w-10 h-10 rounded-full mr-3" />
-                            <div>
-                              <div className="font-medium text-gray-900">
-                                {review.user}
-                              </div>
-                              <div className="flex items-center">
-                                <div className="flex">
-                                  {[...Array(5)].map((_, i) => <StarIcon key={i} size={14} className={`${i < review.rating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} />)}
-                                </div>
-                                <span className="mx-2 text-gray-300">•</span>
-                                <span className="text-xs text-gray-500">
-                                  {review.date}
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-                          <p className="text-gray-600 text-sm">{review.text}</p>
-                        </div>)}
-                    </div>
-                    {tour.reviewCount > tour.reviews.length && <div className="mt-6 text-center">
-                        <button className="border border-gray-300 text-gray-700 hover:bg-gray-50 font-medium py-2 px-5 rounded-lg text-sm">
-                          Load More Reviews
-                        </button>
-                      </div>}
-                  </div>}
               </div>
             </div>
             {/* Guide Details */}
@@ -584,9 +535,7 @@ const TourDetail = () => {
                 <div className="flex items-center">
                   <StarIcon size={18} className="text-yellow-400 fill-current mr-1" />
                   <span className="font-medium">{tour.rating}</span>
-                  <span className="text-gray-500 text-sm ml-1">
-                    ({tour.reviewCount})
-                  </span>
+
                 </div>
               </div>
               <div className="mb-6">

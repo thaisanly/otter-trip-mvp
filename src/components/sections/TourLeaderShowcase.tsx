@@ -1,5 +1,4 @@
 import React from 'react';
-import GlassmorphicSearchBar from '../ui/GlassmorphicSearchBar';
 const TourLeaderShowcase = () => {
   return <div className="relative bg-blue-900 text-white">
       {/* Background Image with Overlay */}
@@ -49,8 +48,7 @@ const TourLeaderShowcase = () => {
           </div>
         </div>
       </div>
-      {/* Glassmorphic Search Bar */}
-      <GlassmorphicSearchBar />
+
     </div>;
 };
 export default TourLeaderShowcase;

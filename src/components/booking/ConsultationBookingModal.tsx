@@ -93,15 +93,15 @@ const ConsultationBookingModal: React.FC<ConsultationBookingModalProps> = ({
     setSelectedTimeSlot(slotId);
   };
   const handleContinue = () => {
-    if (step === 3) {
-      // Process payment and complete booking
+    if (step === 2) {
+      // Process booking
       setIsLoading(true);
       // Simulate API call
       setTimeout(() => {
         setIsLoading(false);
         setIsBookingComplete(true);
         setBookingReference(`OT-${Math.floor(100000 + Math.random() * 900000)}`);
-        setStep(4);
+        setStep(3);
       }, 2000);
     } else {
       setStep(step + 1);
@@ -132,11 +132,11 @@ const ConsultationBookingModal: React.FC<ConsultationBookingModalProps> = ({
   };
   const renderStepIndicator = () => {
     return <div className="flex items-center justify-center mb-6">
-        {[1, 2, 3].map(stepNumber => <Fragment key={stepNumber}>
+        {[1, 2].map(stepNumber => <Fragment key={stepNumber}>
             <div className={`w-8 h-8 rounded-full flex items-center justify-center ${stepNumber === step ? 'bg-blue-600 text-white' : stepNumber < step ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-600'}`}>
               {stepNumber < step ? <CheckIcon size={16} /> : stepNumber}
             </div>
-            {stepNumber < 3 && <div className={`w-12 h-1 ${stepNumber < step ? 'bg-green-500' : 'bg-gray-200'}`} />}
+            {stepNumber < 2 && <div className={`w-12 h-1 ${stepNumber < step ? 'bg-green-500' : 'bg-gray-200'}`} />}
           </Fragment>)}
       </div>;
   };
@@ -380,22 +380,20 @@ const ConsultationBookingModal: React.FC<ConsultationBookingModalProps> = ({
       case 2:
         return renderContactDetails();
       case 3:
-        return renderPaymentDetails();
-      case 4:
         return renderConfirmation();
       default:
         return null;
     }
   };
   const getModalTitle = () => {
-    if (step === 4) return 'Booking Confirmation';
+    if (step === 3) return 'Booking Confirmation';
     return 'Book Consultation';
   };
-  return <Modal isOpen={isOpen} onClose={onClose} title={getModalTitle()} size={step === 4 ? 'lg' : 'xl'}>
+  return <Modal isOpen={isOpen} onClose={onClose} title={getModalTitle()} size={step === 3 ? 'lg' : 'xl'}>
       <div>
-        {step < 4 && renderStepIndicator()}
+        {step < 3 && renderStepIndicator()}
         <div className="mb-6">{renderStepContent()}</div>
-        {step < 4 && <div className="flex justify-between">
+        {step < 3 && <div className="flex justify-between">
             {step > 1 ? <button onClick={handleBack} className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition-colors flex items-center">
                   <ChevronLeftIcon size={16} className="mr-1" />
                   Back
@@ -406,7 +404,7 @@ const ConsultationBookingModal: React.FC<ConsultationBookingModalProps> = ({
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
                   Processing...
                 </> : <>
-                  {step === 3 ? 'Complete Booking' : 'Continue'}
+                  {step === 2 ? 'Complete Booking' : 'Continue'}
                   <ChevronRightIcon size={16} className="ml-1" />
                 </>}
             </button>

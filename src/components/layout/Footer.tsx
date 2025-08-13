@@ -5,8 +5,30 @@ const Footer = () => {
   const currentYear = new Date().getFullYear();
   return <footer className="bg-gray-900 text-white">
       <div className="container mx-auto px-4 py-12">
+        {/* Newsletter */}
+        <div className="bg-gray-800 rounded-xl p-6 mb-12">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
+            <div className="md:col-span-2">
+              <h3 className="font-bold text-xl mb-2">
+                Subscribe to Our Newsletter
+              </h3>
+              <p className="text-gray-400">
+                Get the latest travel tips, destination guides, and exclusive
+                offers delivered to your inbox.
+              </p>
+            </div>
+            <div>
+              <div className="flex">
+                <input type="email" placeholder="Your email address" className="flex-grow px-4 py-3 rounded-l-lg text-gray-900 focus:outline-none" />
+                <button className="bg-blue-600 hover:bg-blue-700 px-4 py-3 rounded-r-lg transition-colors">
+                  Subscribe
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
         {/* Top section */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
           {/* Company info */}
           <div>
             <div className="mb-6">
@@ -42,24 +64,6 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/otter-selects" className="text-gray-400 hover:text-white transition-colors flex items-center">
-                  <ChevronRightIcon size={16} className="mr-2" />
-                  Otter Selects
-                </Link>
-              </li>
-              <li>
-                <Link to="/become-guide" className="text-gray-400 hover:text-white transition-colors flex items-center">
-                  <ChevronRightIcon size={16} className="mr-2" />
-                  Become a Guide
-                </Link>
-              </li>
-              <li>
-                <Link to="/blog" className="text-gray-400 hover:text-white transition-colors flex items-center">
-                  <ChevronRightIcon size={16} className="mr-2" />
-                  Travel Blog
-                </Link>
-              </li>
-              <li>
                 <Link to="/faq" className="text-gray-400 hover:text-white transition-colors flex items-center">
                   <ChevronRightIcon size={16} className="mr-2" />
                   FAQs
@@ -67,42 +71,7 @@ const Footer = () => {
               </li>
             </ul>
           </div>
-          {/* Popular destinations */}
-          <div>
-            <h3 className="font-bold text-lg mb-4">Popular Destinations</h3>
-            <ul className="space-y-3">
-              <li>
-                <Link to="/search?destination=bali" className="text-gray-400 hover:text-white transition-colors flex items-center">
-                  <ChevronRightIcon size={16} className="mr-2" />
-                  Bali, Indonesia
-                </Link>
-              </li>
-              <li>
-                <Link to="/search?destination=kyoto" className="text-gray-400 hover:text-white transition-colors flex items-center">
-                  <ChevronRightIcon size={16} className="mr-2" />
-                  Kyoto, Japan
-                </Link>
-              </li>
-              <li>
-                <Link to="/search?destination=barcelona" className="text-gray-400 hover:text-white transition-colors flex items-center">
-                  <ChevronRightIcon size={16} className="mr-2" />
-                  Barcelona, Spain
-                </Link>
-              </li>
-              <li>
-                <Link to="/search?destination=new-york" className="text-gray-400 hover:text-white transition-colors flex items-center">
-                  <ChevronRightIcon size={16} className="mr-2" />
-                  New York, USA
-                </Link>
-              </li>
-              <li>
-                <Link to="/search?destination=marrakech" className="text-gray-400 hover:text-white transition-colors flex items-center">
-                  <ChevronRightIcon size={16} className="mr-2" />
-                  Marrakech, Morocco
-                </Link>
-              </li>
-            </ul>
-          </div>
+
           {/* Contact info */}
           <div>
             <h3 className="font-bold text-lg mb-4">Contact Us</h3>
@@ -122,28 +91,6 @@ const Footer = () => {
                 <span className="text-gray-400">hello@ottertrip.com</span>
               </li>
             </ul>
-          </div>
-        </div>
-        {/* Newsletter */}
-        <div className="bg-gray-800 rounded-xl p-6 mb-12">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
-            <div className="md:col-span-2">
-              <h3 className="font-bold text-xl mb-2">
-                Subscribe to Our Newsletter
-              </h3>
-              <p className="text-gray-400">
-                Get the latest travel tips, destination guides, and exclusive
-                offers delivered to your inbox.
-              </p>
-            </div>
-            <div>
-              <div className="flex">
-                <input type="email" placeholder="Your email address" className="flex-grow px-4 py-3 rounded-l-lg text-gray-900 focus:outline-none" />
-                <button className="bg-blue-600 hover:bg-blue-700 px-4 py-3 rounded-r-lg transition-colors">
-                  Subscribe
-                </button>
-              </div>
-            </div>
           </div>
         </div>
         {/* Bottom section */}

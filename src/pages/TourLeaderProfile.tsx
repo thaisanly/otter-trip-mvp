@@ -222,14 +222,10 @@ const TourLeaderProfile = () => {
     id
   } = useParams();
   const [activeTab, setActiveTab] = useState('about');
-  const [isSaved, setIsSaved] = useState(false);
   const [showFullAbout, setShowFullAbout] = useState(false);
   const [expandedStory, setExpandedStory] = useState<string | null>(null);
   const [likedStories, setLikedStories] = useState<Record<string, boolean>>({});
-  const handleSaveGuide = () => {
-    setIsSaved(!isSaved);
-  };
-  const toggleLike = (storyId: string) => {
+const toggleLike = (storyId: string) => {
     setLikedStories(prev => ({
       ...prev,
       [storyId]: !prev[storyId]
@@ -266,7 +262,7 @@ const TourLeaderProfile = () => {
                     {tourLeader.location}
                   </div>
                   <div className="flex items-center">
-                    <Rating value={tourLeader.rating} reviewCount={tourLeader.reviewCount} size="sm" />
+                    <Rating value={tourLeader.rating} size="sm" showCount={false} />
                   </div>
                 </div>
               </div>
@@ -284,19 +280,7 @@ const TourLeaderProfile = () => {
                 <div className="flex items-center mb-4">
                   <Rating value={tourLeader.rating} reviewCount={tourLeader.reviewCount} size="sm" />
                 </div>
-                <div className="flex space-x-2">
-                  <button className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-1.5 px-3 rounded-lg flex items-center text-sm">
-                    <MessageCircleIcon size={14} className="mr-1.5" />
-                    Message
-                  </button>
-                  <button className={`border ${isSaved ? 'border-red-600 text-red-600 bg-red-50' : 'border-gray-300 text-gray-700 hover:bg-gray-50'} font-medium py-1.5 px-3 rounded-lg flex items-center text-sm`} onClick={handleSaveGuide}>
-                    <HeartIcon size={14} className={`mr-1.5 ${isSaved ? 'fill-current' : ''}`} />
-                    {isSaved ? 'Saved' : 'Save'}
-                  </button>
-                  <button className="border border-gray-300 text-gray-700 hover:bg-gray-50 font-medium p-1.5 rounded-lg">
-                    <ShareIcon size={14} />
-                  </button>
-                </div>
+
               </div>
             </div>
             <div className="md:w-3/4 md:pl-6 md:border-l md:border-gray-200">
@@ -364,7 +348,7 @@ const TourLeaderProfile = () => {
                     <div>
                       <div className="text-xs text-gray-500">Rating</div>
                       <div className="font-medium text-gray-900 text-sm">
-                        {tourLeader.rating} ({tourLeader.reviewCount})
+                        {tourLeader.rating}
                       </div>
                     </div>
                   </div>
@@ -383,19 +367,7 @@ const TourLeaderProfile = () => {
                     </span>)}
                 </div>
               </div>
-              <div className="md:hidden flex space-x-2 mt-4">
-                <button className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-1.5 px-3 rounded-lg flex items-center justify-center text-sm">
-                  <MessageCircleIcon size={14} className="mr-1.5" />
-                  Message
-                </button>
-                <button className={`flex-1 border ${isSaved ? 'border-red-600 text-red-600 bg-red-50' : 'border-gray-300 text-gray-700 hover:bg-gray-50'} font-medium py-1.5 px-3 rounded-lg flex items-center justify-center text-sm`} onClick={handleSaveGuide}>
-                  <HeartIcon size={14} className={`mr-1.5 ${isSaved ? 'fill-current' : ''}`} />
-                  {isSaved ? 'Saved' : 'Save'}
-                </button>
-                <button className="border border-gray-300 text-gray-700 hover:bg-gray-50 font-medium p-1.5 rounded-lg">
-                  <ShareIcon size={14} />
-                </button>
-              </div>
+
             </div>
           </div>
         </div>
@@ -415,10 +387,7 @@ const TourLeaderProfile = () => {
                 <BookOpenIcon size={16} className="inline mr-1.5" />
                 Tours
               </button>
-              <button className={`px-6 py-3 font-medium text-sm whitespace-nowrap ${activeTab === 'reviews' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-600 hover:text-gray-900'}`} onClick={() => setActiveTab('reviews')}>
-                <StarIcon size={16} className="inline mr-1.5" />
-                Reviews ({tourLeader.reviewCount})
-              </button>
+
             </div>
           </div>
           {/* About Me Tab */}
@@ -439,7 +408,7 @@ const TourLeaderProfile = () => {
                         My Travel Style
                       </h4>
                       <div className="flex flex-wrap gap-2">
-                        {tourLeader.personality.map((trait, index) => <InterestTag key={`trait-${index}`} label={trait} icon={<div className="w-4 h-4 bg-blue-100 rounded-full"></div>} iconPosition="top" className="mb-0" />)}
+                        {tourLeader.personality.map((trait, index) => <InterestTag key={`trait-${index}`} label={trait} className="mb-0" />)}
                       </div>
                     </div>
                   </div>
@@ -649,50 +618,7 @@ const TourLeaderProfile = () => {
                 </div>
               </div>
             </div>}
-          {/* Reviews Tab */}
-          {activeTab === 'reviews' && <div className="p-5">
-              <div className="flex items-center justify-between mb-5">
-                <div className="flex items-center">
-                  <div className="mr-4">
-                    <div className="text-3xl font-bold text-gray-900">
-                      {tourLeader.rating}
-                    </div>
-                    <Rating value={tourLeader.rating} showCount={false} />
-                  </div>
-                  <div className="text-gray-600 text-sm">
-                    Based on {tourLeader.reviewCount} reviews
-                  </div>
-                </div>
-                <button className="border border-gray-300 text-gray-700 hover:bg-gray-50 font-medium py-1.5 px-3 rounded-lg text-sm">
-                  Filter Reviews
-                </button>
-              </div>
-              <div className="space-y-5">
-                {tourLeader.reviews.map(review => <div key={review.id} className="border border-gray-100 rounded-lg p-4">
-                    <div className="flex items-start mb-3">
-                      <img src={review.avatar} alt={review.user} className="w-10 h-10 rounded-full mr-3" />
-                      <div>
-                        <div className="font-medium text-gray-900">
-                          {review.user}
-                        </div>
-                        <div className="flex items-center">
-                          <Rating value={review.rating} size="sm" showCount={false} />
-                          <span className="mx-2 text-gray-300">•</span>
-                          <span className="text-xs text-gray-500">
-                            {review.date}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                    <p className="text-gray-600 text-sm">{review.text}</p>
-                  </div>)}
-              </div>
-              <div className="mt-6 text-center">
-                <button className="border border-gray-300 text-gray-700 hover:bg-gray-50 font-medium py-2 px-5 rounded-lg text-sm">
-                  Load More Reviews
-                </button>
-              </div>
-            </div>}
+
         </div>
       </div>
     </div>;

@@ -53,7 +53,7 @@ const VibeMatchingSection = () => {
                   Select your travel personality traits:
                 </div>
                 <div className="flex flex-wrap gap-2 mb-4">
-                  {personalityTraits.map(trait => <InterestTag key={trait.id} label={trait.label} icon={<span className="text-lg">{trait.emoji}</span>} onClick={() => {}} />)}
+                  {personalityTraits.map(trait => <InterestTag key={trait.id} label={trait.label} icon={<span className="text-lg">{trait.emoji}</span>} onClick={() => console.log('Personality trait selected:', trait.label)} />)}
                 </div>
               </div>
               <div className="bg-blue-50 border border-blue-100 rounded-lg p-5 mb-8">
