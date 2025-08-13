@@ -232,6 +232,7 @@ CLAUDE.local.md
 **/.junie/
 CHANGELOG.md
 .serena/
+docs/
 
 # Firebase files
 firebase.json
@@ -253,3 +254,11 @@ ui-debug.log
 database-debug.log
 firebase-tools.json
 .firebaserc.local
+
+# Additional exclusions
+.claude
+.devcontainer
+.firebase
+.firebaserc
+.mcp.json
+.mcp.json.*
