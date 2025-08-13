@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef, memo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   ChevronRightIcon,
   CheckIcon,
@@ -478,6 +479,7 @@ const personalityTypes: PersonalityType[] = [
   },
 ];
 const TravelPersonalityQuiz = () => {
+  const navigate = useNavigate();
   // State for quiz flow
   const [quizStarted, setQuizStarted] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
@@ -929,12 +931,9 @@ const TravelPersonalityQuiz = () => {
                               {expert.languages.length} languages
                             </div>
                           </div>
-                          <div className="flex gap-2">
-                            <button className="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium py-2 rounded transition-colors">
+                          <div className="w-full">
+                            <button className="w-full text-center border border-blue-600 text-blue-600 hover:bg-blue-50 font-medium py-2 px-4 rounded-lg text-sm transition-colors">
                               View Profile
-                            </button>
-                            <button className="flex items-center justify-center w-10 h-9 border border-gray-300 rounded hover:bg-gray-50 transition-colors">
-                              <MessageCircleIcon size={16} />
                             </button>
                           </div>
                         </div>
@@ -944,20 +943,17 @@ const TravelPersonalityQuiz = () => {
                 </div>
               </div>
               <div className="border-t border-gray-200 p-6 flex flex-wrap gap-4 justify-between items-center">
-                <div className="flex space-x-3">
-                  <button className="flex items-center text-gray-700 hover:text-gray-900">
-                    <ShareIcon size={18} className="mr-1" />
-                    Share Result
-                  </button>
-                  <button
-                    onClick={resetQuiz}
-                    className="flex items-center text-gray-700 hover:text-gray-900"
-                  >
-                    <RefreshCwIcon size={18} className="mr-1" />
-                    Retake Quiz
-                  </button>
-                </div>
-                <button className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg transition-colors">
+                <button
+                  onClick={resetQuiz}
+                  className="flex items-center text-gray-700 hover:text-gray-900"
+                >
+                  <RefreshCwIcon size={18} className="mr-1" />
+                  Retake Quiz
+                </button>
+                <button 
+                  onClick={() => navigate('/meet-experts')}
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg transition-colors"
+                >
                   Browse All Matching Guides
                 </button>
               </div>
