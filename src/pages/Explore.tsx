@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { Link, useParams, useNavigate } from 'react-router-dom';
-import { FilterIcon, ChevronDownIcon, SearchIcon, ArrowLeftIcon } from 'lucide-react';
+import React, { useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { SearchIcon, ArrowLeftIcon } from 'lucide-react';
 import TourCard from '../components/ui/TourCard';
 import InterestTag from '../components/ui/InterestTag';
 // Sample category data
@@ -246,8 +246,6 @@ const Explore = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
-  const [sortOption, setSortOption] = useState('popularity');
-  const [isSortOpen, setIsSortOpen] = useState(false);
   // Get the category data or default to adventure if invalid
   const categoryData = categories[category as keyof typeof categories] || categories.adventure;
   const tours =
@@ -276,11 +274,6 @@ const Explore = () => {
       setSelectedInterests([...selectedInterests, interest]);
     }
   };
-  // Handle sort selection
-  const handleSortChange = (option: string) => {
-    setSortOption(option);
-    setIsSortOpen(false);
-  };
   return (
     <div className="bg-gray-50 min-h-screen pb-12">
       {/* Hero Section */}
@@ -301,62 +294,18 @@ const Explore = () => {
       <div className="container mx-auto px-4 -mt-10 relative z-10">
         {/* Search Bar */}
         <div className="bg-white rounded-xl shadow-md p-4 mb-8">
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex-grow relative">
-              <SearchIcon
-                size={20}
-                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-              />
-              <input
-                type="text"
-                placeholder={`Search ${categoryData.title.toLowerCase()}...`}
-                className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
-            <div className="relative">
-              <button
-                className="px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-100 w-full md:w-auto flex items-center justify-between"
-                onClick={() => setIsSortOpen(!isSortOpen)}
-              >
-                <span>Sort by: </span>
-                <span className="font-medium ml-1">
-                  {sortOption === 'popularity'
-                    ? 'Popularity'
-                    : sortOption === 'price-low'
-                      ? 'Price: Low to High'
-                      : 'Price: High to Low'}
-                </span>
-                <ChevronDownIcon size={16} className="ml-2" />
-              </button>
-              {isSortOpen && (
-                <div className="absolute right-0 mt-1 w-48 bg-white rounded-lg shadow-lg z-50 py-1">
-                  <button
-                    className="w-full text-left px-4 py-2 hover:bg-blue-50 text-gray-700"
-                    onClick={() => handleSortChange('popularity')}
-                  >
-                    Popularity
-                  </button>
-                  <button
-                    className="w-full text-left px-4 py-2 hover:bg-blue-50 text-gray-700"
-                    onClick={() => handleSortChange('price-low')}
-                  >
-                    Price: Low to High
-                  </button>
-                  <button
-                    className="w-full text-left px-4 py-2 hover:bg-blue-50 text-gray-700"
-                    onClick={() => handleSortChange('price-high')}
-                  >
-                    Price: High to Low
-                  </button>
-                </div>
-              )}
-            </div>
-            <button className="px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center">
-              <FilterIcon size={18} className="mr-2" />
-              Filters
-            </button>
+          <div className="relative">
+            <SearchIcon
+              size={20}
+              className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+            />
+            <input
+              type="text"
+              placeholder={`Search ${categoryData.title.toLowerCase()}...`}
+              className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
           </div>
         </div>
         {/* Interests Tags */}
