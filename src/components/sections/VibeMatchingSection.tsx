@@ -1,4 +1,3 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
 import InterestTag from '../ui/InterestTag';
 const personalityTraits = [
@@ -43,6 +42,7 @@ const personalityTraits = [
     emoji: '👥',
   },
 ];
+
 const VibeMatchingSection = () => {
   return (
     <div className="bg-gray-50 py-16">
