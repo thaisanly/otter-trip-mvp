@@ -200,35 +200,7 @@ export const tours: Record<string, TourDetail> = {
         price: '$8,500',
       },
     ],
-    reviews: [
-      {
-        id: 'r1',
-        user: 'Michael T.',
-        avatar:
-          'https://images.unsplash.com/photo-1568602471122-7832951cc4c5?ixlib=rb-4.0.3&auto=format&fit=crop&w=128&q=80',
-        rating: 5,
-        date: 'May 2023',
-        text: 'This Grand Canyon trek exceeded all my expectations! James was an incredible guide - knowledgeable, safety-conscious, and fun. The views were breathtaking, and camping by the Colorado River was magical. Highly recommend!',
-      },
-      {
-        id: 'r2',
-        user: 'Jessica L.',
-        avatar:
-          'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&auto=format&fit=crop&w=128&q=80',
-        rating: 5,
-        date: 'April 2023',
-        text: 'As a first-time canyon hiker, I was nervous about this adventure, but it turned out to be the highlight of my year! The guides were supportive and encouraging, the food was surprisingly delicious for camping, and the scenery was absolutely unreal. Worth every penny.',
-      },
-      {
-        id: 'r3',
-        user: 'David K.',
-        avatar:
-          'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=128&q=80',
-        rating: 4,
-        date: 'March 2023',
-        text: "Great experience overall! The hike was challenging but rewarding, and our guide James shared fascinating information about the canyon's geology and history. The only reason for 4 stars instead of 5 is that some of the camping equipment could use an upgrade. Still, I'd definitely recommend this tour!",
-      },
-    ],
+    reviews: [],
   },
   'swiss-alps': {
     id: 'swiss-alps',
@@ -382,35 +354,7 @@ export const tours: Record<string, TourDetail> = {
         price: '$13,000',
       },
     ],
-    reviews: [
-      {
-        id: 'r1',
-        user: 'Emma S.',
-        avatar:
-          'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.0.3&auto=format&fit=crop&w=128&q=80',
-        rating: 5,
-        date: 'August 2022',
-        text: 'The Swiss Alps Adventure was truly the trip of a lifetime! Paragliding over Interlaken was breathtaking, and the Jungfraujoch excursion was spectacular. Our guide Lukas was knowledgeable and personable, making sure everyone had an amazing experience regardless of their adventure level.',
-      },
-      {
-        id: 'r2',
-        user: 'Thomas B.',
-        avatar:
-          'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?ixlib=rb-4.0.3&auto=format&fit=crop&w=128&q=80',
-        rating: 5,
-        date: 'July 2022',
-        text: 'This tour offered the perfect mix of adrenaline and relaxation. The canyoning was an unexpected highlight - so much fun! The hotel was comfortable and centrally located, and the fondue dinner was delicious. Highly recommend for anyone who loves mountains and adventure.',
-      },
-      {
-        id: 'r3',
-        user: 'Sophie L.',
-        avatar:
-          'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&auto=format&fit=crop&w=128&q=80',
-        rating: 4,
-        date: 'September 2022',
-        text: "Beautiful scenery and well-organized activities. The paragliding was incredible! I'm giving 4 stars because our Jungfraujoch day was quite cloudy with limited visibility, but that's just bad luck with weather. Our guide Lukas was excellent and very knowledgeable about the region.",
-      },
-    ],
+    reviews: [],
   },
   'machu-picchu': {
     id: 'machu-picchu',
