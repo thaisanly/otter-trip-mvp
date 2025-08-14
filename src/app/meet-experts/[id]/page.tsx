@@ -481,7 +481,12 @@ const ExpertDetail = () => {
                               <div className="text-gray-900 font-bold">{tour.price}</div>
                               <div className="text-gray-500 text-xs">per person</div>
                             </div>
-                            <button className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg text-sm transition-colors">
+                            <button 
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                router.push(`/booking/${tour.id}`);
+                              }}
+                              className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg text-sm transition-colors">
                               Book Now
                             </button>
                           </div>

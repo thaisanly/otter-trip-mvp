@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { HeartIcon, StarIcon } from 'lucide-react';
 interface TourCardProps {
   tour: {
@@ -22,7 +23,9 @@ interface TourCardProps {
   onFavorite?: (id: string) => void;
 }
 const TourCard: React.FC<TourCardProps> = ({ tour, onFavorite }) => {
+  const router = useRouter();
   const [isFavorite, setIsFavorite] = useState(false);
+  
   const handleFavoriteClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -30,6 +33,12 @@ const TourCard: React.FC<TourCardProps> = ({ tour, onFavorite }) => {
     if (onFavorite) {
       onFavorite(tour.id);
     }
+  };
+
+  const handleBookClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    router.push(`/booking/${tour.id}`);
   };
   return (
     <Link href={`/tour/${tour.id}`} className="block">
@@ -59,7 +68,7 @@ const TourCard: React.FC<TourCardProps> = ({ tour, onFavorite }) => {
             </div>
           </div>
           <p className="text-gray-600 text-sm mb-3 line-clamp-2">{tour.description}</p>
-          <div className="flex justify-between items-end">
+          <div className="flex justify-between items-end mb-3">
             <div>
               <div className="text-gray-900 font-bold">{tour.price}</div>
               <div className="text-gray-500 text-xs">per person</div>
@@ -75,6 +84,12 @@ const TourCard: React.FC<TourCardProps> = ({ tour, onFavorite }) => {
               </div>
             )}
           </div>
+          <button
+            onClick={handleBookClick}
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+          >
+            Book Now
+          </button>
         </div>
       </div>
     </Link>

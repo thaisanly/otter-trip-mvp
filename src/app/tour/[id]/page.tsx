@@ -55,6 +55,12 @@ const TourDetail = () => {
   const handleDateSelect = (dateId: string) => {
     setSelectedDate(dateId === selectedDate ? null : dateId);
   };
+
+  const handleBookNow = () => {
+    if (selectedDate) {
+      router.push(`/booking/${id}?date=${selectedDate}`);
+    }
+  };
   return (
     <div className="bg-gray-50 min-h-screen pb-12">
       {/* Hero Section */}
@@ -412,6 +418,7 @@ const TourDetail = () => {
                     : ''
                 }`}
                 disabled={!tour.dates || tour.dates.length === 0 || !selectedDate}
+                onClick={handleBookNow}
               >
                 {!tour.dates || tour.dates.length === 0
                   ? 'No dates available'
