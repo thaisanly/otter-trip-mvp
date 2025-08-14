@@ -239,3 +239,5 @@ docs/
 .devcontainer
 .mcp.json
 .mcp.json.*
+
+otter-trip-react/
