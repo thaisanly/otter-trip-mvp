@@ -257,6 +257,51 @@ const BookingFlow = () => {
     );
   }
 
+  // Check if tour has available dates
+  const hasAvailableDates = availableDates && availableDates.length > 0 && 
+    !availableDates.every(date => date.start === 'Date TBD' || date.spotsLeft === 0);
+
+  // Show no dates available message
+  if (!hasAvailableDates && !loadingTour) {
+    return (
+      <div className="bg-gray-50 min-h-screen py-8">
+        <div className="container mx-auto px-4">
+          <Link
+            href={`/tour/${id}`}
+            className="inline-flex items-center text-blue-600 hover:text-blue-800 mb-6"
+          >
+            <ArrowLeftIcon size={16} className="mr-2" />
+            Back to tour details
+          </Link>
+          
+          <div className="bg-white rounded-xl shadow-md p-8 max-w-2xl mx-auto text-center">
+            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <CalendarIcon size={32} className="text-gray-400" />
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-3">No Available Dates</h2>
+            <p className="text-gray-600 mb-6">
+              Sorry, there are no available schedules for this tour at this time. Please check back later or contact us for more information.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <button
+                onClick={() => router.push('/')}
+                className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg"
+              >
+                Browse Other Tours
+              </button>
+              <button
+                onClick={() => router.push('/meet-experts')}
+                className="px-6 py-2 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50"
+              >
+                Contact Expert
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-gray-50 min-h-screen py-8">
       <div className="container mx-auto px-4">
@@ -271,36 +316,47 @@ const BookingFlow = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2">
-            {/* Progress Steps - Only show for steps 1 and 2 */}
-            {step < 3 && (
-              <div className="bg-white rounded-xl shadow-md p-6 mb-8">
-                <div className="flex justify-between items-center">
-                  <div className="flex flex-col items-center">
-                    <div
-                      className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                        step >= 1 ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-500'
-                      }`}
-                    >
-                      {step > 1 ? <CheckCircleIcon size={20} /> : '1'}
-                    </div>
-                    <span className="text-sm mt-2">Trip Details</span>
-                  </div>
+            {/* Progress Steps */}
+            <div className="bg-white rounded-xl shadow-md p-6 mb-8">
+              <div className="flex justify-between items-center">
+                <div className="flex flex-col items-center">
                   <div
-                    className={`flex-1 h-1 mx-4 ${step >= 2 ? 'bg-blue-600' : 'bg-gray-200'}`}
-                  ></div>
-                  <div className="flex flex-col items-center">
-                    <div
-                      className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                        step >= 2 ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-500'
-                      }`}
-                    >
-                      2
-                    </div>
-                    <span className="text-sm mt-2">Traveler Info</span>
+                    className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                      step >= 1 ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-500'
+                    }`}
+                  >
+                    {step > 1 ? <CheckCircleIcon size={20} /> : '1'}
                   </div>
+                  <span className="text-sm mt-2">Trip Details</span>
+                </div>
+                <div
+                  className={`flex-1 h-1 mx-4 ${step >= 2 ? 'bg-blue-600' : 'bg-gray-200'}`}
+                ></div>
+                <div className="flex flex-col items-center">
+                  <div
+                    className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                      step >= 2 ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-500'
+                    }`}
+                  >
+                    {step > 2 ? <CheckCircleIcon size={20} /> : '2'}
+                  </div>
+                  <span className="text-sm mt-2">Traveler Info</span>
+                </div>
+                <div
+                  className={`flex-1 h-1 mx-4 ${step >= 3 ? 'bg-blue-600' : 'bg-gray-200'}`}
+                ></div>
+                <div className="flex flex-col items-center">
+                  <div
+                    className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                      step >= 3 ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-500'
+                    }`}
+                  >
+                    {step === 3 ? <CheckCircleIcon size={20} /> : '3'}
+                  </div>
+                  <span className="text-sm mt-2">Confirmation</span>
                 </div>
               </div>
-            )}
+            </div>
             
             {/* Step 1: Trip Details */}
             {step === 1 && (
@@ -522,38 +578,141 @@ const BookingFlow = () => {
             {/* Step 3: Confirmation */}
             {step === 3 && bookingComplete && (
               <div className="bg-white rounded-xl shadow-md p-6 mb-8">
-                <div className="text-center">
-                  <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <CheckIcon size={32} className="text-green-600" />
-                  </div>
-                  <h2 className="text-2xl font-bold text-gray-900 mb-2">Booking Confirmed!</h2>
-                  <p className="text-gray-600 mb-6">
-                    Your booking has been successfully submitted.
-                  </p>
-                  
-                  <div className="bg-blue-50 p-6 rounded-lg mb-6 text-left">
-                    <h3 className="font-medium text-gray-900 mb-4">Booking Details</h3>
-                    <div className="space-y-2">
-                      <p><strong>Booking Reference:</strong> {bookingReference}</p>
-                      <p><strong>Tour:</strong> {tour.title}</p>
-                      <p><strong>Date:</strong> {selectedDate?.start} - {selectedDate?.end}</p>
-                      <p><strong>Participants:</strong> {participants}</p>
-                      <p><strong>Total Price:</strong> ${priceNumber * participants + Math.round(priceNumber * participants * 0.1)}</p>
+                <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <CheckIcon size={40} className="text-green-600" />
+                </div>
+                <h2 className="text-3xl font-bold text-gray-900 mb-2 text-center">Booking Confirmed!</h2>
+                <p className="text-gray-600 mb-8 text-center">
+                  Thank you for your booking. Your adventure is confirmed!
+                </p>
+                
+                {/* Booking Reference Card */}
+                <div className="bg-gradient-to-r from-blue-500 to-blue-600 p-6 rounded-lg mb-6 text-white">
+                  <div className="text-sm opacity-90 mb-1">Booking Reference</div>
+                  <div className="text-2xl font-bold font-mono">{bookingReference}</div>
+                  <div className="text-sm opacity-90 mt-2">Please save this for your records</div>
+                </div>
+                
+                {/* Trip Summary */}
+                <div className="border border-gray-200 rounded-lg p-6 mb-6">
+                  <h3 className="font-semibold text-lg text-gray-900 mb-4 flex items-center">
+                    <CalendarIcon size={20} className="mr-2 text-blue-600" />
+                    Trip Summary
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <div className="text-sm text-gray-500">Tour Package</div>
+                      <div className="font-medium text-gray-900">{tour.title}</div>
+                    </div>
+                    <div>
+                      <div className="text-sm text-gray-500">Location</div>
+                      <div className="font-medium text-gray-900">{tour.location}</div>
+                    </div>
+                    <div>
+                      <div className="text-sm text-gray-500">Travel Dates</div>
+                      <div className="font-medium text-gray-900">{selectedDate?.start} - {selectedDate?.end}</div>
+                    </div>
+                    <div>
+                      <div className="text-sm text-gray-500">Duration</div>
+                      <div className="font-medium text-gray-900">{tour.duration}</div>
                     </div>
                   </div>
-                  
-                  <div className="text-gray-600 mb-8">
-                    <p className="mb-2">
-                      We&apos;ve sent your booking details to our team.
-                    </p>
-                    <p>
-                      You&apos;ll receive a confirmation email at <strong>{leadTraveler.email}</strong> within 24 hours with payment instructions.
-                    </p>
+                </div>
+                
+                {/* Traveler Information */}
+                <div className="border border-gray-200 rounded-lg p-6 mb-6">
+                  <h3 className="font-semibold text-lg text-gray-900 mb-4 flex items-center">
+                    <UsersIcon size={20} className="mr-2 text-blue-600" />
+                    Traveler Information
+                  </h3>
+                  <div className="space-y-3">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Lead Traveler</span>
+                      <span className="font-medium">{leadTraveler.firstName} {leadTraveler.lastName}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Email</span>
+                      <span className="font-medium">{leadTraveler.email}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Phone</span>
+                      <span className="font-medium">{leadTraveler.phone}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Total Participants</span>
+                      <span className="font-medium">{participants} {participants === 1 ? 'person' : 'people'}</span>
+                    </div>
+                    {additionalTravelers && additionalTravelers.length > 0 && (
+                      <div className="pt-3 border-t border-gray-200">
+                        <div className="text-sm text-gray-600 mb-2">Additional Travelers:</div>
+                        {additionalTravelers.map((traveler, index) => (
+                          <div key={index} className="text-sm ml-4">
+                            • {traveler.firstName} {traveler.lastName}
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
-                  
+                </div>
+                
+                {/* Payment Summary */}
+                <div className="bg-gray-50 p-6 rounded-lg mb-6">
+                  <h3 className="font-semibold text-lg text-gray-900 mb-4">Payment Summary</h3>
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Tour Price ({participants} × ${priceNumber})</span>
+                      <span className="font-medium">${priceNumber * participants}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Service Fee</span>
+                      <span className="font-medium">${Math.round(priceNumber * participants * 0.1)}</span>
+                    </div>
+                    <div className="pt-3 border-t border-gray-200 flex justify-between">
+                      <span className="font-semibold text-lg">Total Amount</span>
+                      <span className="font-bold text-lg text-blue-600">
+                        ${priceNumber * participants + Math.round(priceNumber * participants * 0.1)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Next Steps */}
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
+                  <h3 className="font-semibold text-gray-900 mb-3 flex items-center">
+                    <CheckCircleIcon size={20} className="mr-2 text-blue-600" />
+                    What&apos;s Next?
+                  </h3>
+                  <ol className="space-y-2 text-sm text-gray-700">
+                    <li className="flex">
+                      <span className="font-medium mr-2">1.</span>
+                      <span>You&apos;ll receive a confirmation email at <strong>{leadTraveler.email}</strong> within 24 hours</span>
+                    </li>
+                    <li className="flex">
+                      <span className="font-medium mr-2">2.</span>
+                      <span>Our team will send payment instructions and additional trip details</span>
+                    </li>
+                    <li className="flex">
+                      <span className="font-medium mr-2">3.</span>
+                      <span>You&apos;ll receive a pre-trip information packet 7 days before departure</span>
+                    </li>
+                    <li className="flex">
+                      <span className="font-medium mr-2">4.</span>
+                      <span>Your guide will contact you 24 hours before the trip to confirm meeting details</span>
+                    </li>
+                  </ol>
+                </div>
+                
+                {/* Action Buttons */}
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <button
+                    onClick={() => window.print()}
+                    className="flex-1 border border-gray-300 text-gray-700 font-medium py-3 px-6 rounded-lg hover:bg-gray-50"
+                  >
+                    Print Confirmation
+                  </button>
                   <button
                     onClick={() => router.push('/')}
-                    className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-8 rounded-lg"
+                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg"
                   >
                     Return to Home
                   </button>
