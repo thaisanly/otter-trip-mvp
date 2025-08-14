@@ -484,7 +484,12 @@ const ExpertDetail = () => {
                             <button 
                               onClick={(e) => {
                                 e.stopPropagation();
-                                router.push(`/booking/${tour.id}`);
+                                const params = new URLSearchParams({
+                                  title: tour.title,
+                                  expert: expert.name,
+                                  price: tour.price
+                                });
+                                router.push(`/booking/${tour.id}?${params.toString()}`);
                               }}
                               className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg text-sm transition-colors">
                               Book Now

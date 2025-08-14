@@ -11,7 +11,6 @@ import {
   ShieldIcon,
   CheckIcon,
 } from 'lucide-react';
-import { tourData } from '../../../mock/tours';
 
 const BookingFlow = () => {
   const params = useParams();
@@ -23,12 +22,77 @@ const BookingFlow = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [bookingComplete, setBookingComplete] = useState(false);
   const [bookingReference, setBookingReference] = useState('');
+  const [tour, setTour] = useState<any>(null);
+  const [loadingTour, setLoadingTour] = useState(true);
   
-  // Get tour data from existing mock
-  const tour = tourData[id] || tourData['bali-hidden-waterfalls'];
+  // Fetch tour data from API
+  useEffect(() => {
+    const fetchTour = async () => {
+      try {
+        const response = await fetch(`/api/tours?id=${id}`);
+        if (response.ok) {
+          const data = await response.json();
+          setTour(data);
+        } else {
+          // Get tour title from URL if available (for expert tours)
+          const tourTitle = searchParams.get('title') || 'Tour Package';
+          const expertName = searchParams.get('expert') || 'Local Guide';
+          const price = searchParams.get('price') || '$245';
+          
+          // If not found in database, create a default tour structure
+          setTour({
+            id: id,
+            title: tourTitle,
+            location: 'Various Locations',
+            price: price,
+            duration: '1 day',
+            heroImage: 'https://images.unsplash.com/photo-1512100356356-de1b84283e18?ixlib=rb-4.0.3&auto=format&fit=crop&w=1024&q=80',
+            guide: {
+              name: expertName,
+              image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.0.3&auto=format&fit=crop&w=128&q=80'
+            },
+            dates: [
+              { id: 'd1', date: 'Jun 15-17, 2024', spotsLeft: 3, price: price },
+              { id: 'd2', date: 'Jun 22-24, 2024', spotsLeft: 6, price: price },
+              { id: 'd3', date: 'Jul 5-7, 2024', spotsLeft: 2, price: price }
+            ]
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching tour:', error);
+        // Get tour title from URL if available (for expert tours)
+        const tourTitle = searchParams.get('title') || 'Tour Package';
+        const expertName = searchParams.get('expert') || 'Local Guide';
+        const price = searchParams.get('price') || '$245';
+        
+        // Fallback tour data
+        setTour({
+          id: id,
+          title: tourTitle,
+          location: 'Various Locations',
+          price: price,
+          duration: '1 day',
+          heroImage: 'https://images.unsplash.com/photo-1512100356356-de1b84283e18?ixlib=rb-4.0.3&auto=format&fit=crop&w=1024&q=80',
+          guide: {
+            name: expertName,
+            image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.0.3&auto=format&fit=crop&w=128&q=80'
+          },
+          dates: [
+            { id: 'd1', date: 'Jun 15-17, 2024', spotsLeft: 3, price: price },
+            { id: 'd2', date: 'Jun 22-24, 2024', spotsLeft: 6, price: price },
+            { id: 'd3', date: 'Jul 5-7, 2024', spotsLeft: 2, price: price }
+          ]
+        });
+      } finally {
+        setLoadingTour(false);
+      }
+    };
+    
+    fetchTour();
+  }, [id, searchParams]);
   
   // Transform dates to have proper structure
-  const availableDates = tour.dates ? tour.dates.map(date => {
+  const availableDates = tour?.dates ? tour.dates.map((date: any) => {
     // Handle different date formats
     if (date.date) {
       // Format: { id: 'd1', date: 'Jun 15-17, 2023', spotsLeft: 3, price: '$8,000' }
@@ -158,7 +222,40 @@ const BookingFlow = () => {
     window.scrollTo(0, 0);
   };
 
-  const priceNumber = parseInt(tour.price?.replace(/[^0-9]/g, '') || '245');
+  const priceNumber = parseInt(tour?.price?.replace(/[^0-9]/g, '') || '245');
+
+  // Show loading state while fetching tour data
+  if (loadingTour) {
+    return (
+      <div className="bg-gray-50 min-h-screen py-8">
+        <div className="container mx-auto px-4">
+          <div className="flex justify-center items-center h-64">
+            <div className="text-gray-500">Loading tour details...</div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error if tour not found
+  if (!tour) {
+    return (
+      <div className="bg-gray-50 min-h-screen py-8">
+        <div className="container mx-auto px-4">
+          <div className="text-center">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">Tour not found</h2>
+            <p className="text-gray-600 mb-6">The tour you're looking for doesn't exist.</p>
+            <button
+              onClick={() => router.push('/')}
+              className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg"
+            >
+              Return to Home
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-gray-50 min-h-screen py-8">
@@ -477,12 +574,12 @@ const BookingFlow = () => {
                   {tour.guide && (
                     <>
                       <img
-                        src={tour.guide.image}
-                        alt={tour.guide.name}
+                        src={typeof tour.guide === 'string' ? JSON.parse(tour.guide).image : tour.guide.image}
+                        alt={typeof tour.guide === 'string' ? JSON.parse(tour.guide).name : tour.guide.name}
                         className="w-8 h-8 rounded-full mr-2"
                       />
                       <div>
-                        <div className="text-sm font-medium">with {tour.guide.name}</div>
+                        <div className="text-sm font-medium">with {typeof tour.guide === 'string' ? JSON.parse(tour.guide).name : tour.guide.name}</div>
                         <div className="text-xs text-gray-500">{tour.location}</div>
                       </div>
                     </>
