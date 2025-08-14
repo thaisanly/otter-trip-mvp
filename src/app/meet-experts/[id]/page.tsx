@@ -32,6 +32,7 @@ import {
 } from 'lucide-react';
 import InvitationCodeModal from '@/components/booking/InvitationCodeModal';
 import ConsultationBookingModal from '@/components/booking/ConsultationBookingModal';
+import ExpertInquiryForm from '@/components/forms/ExpertInquiryForm';
 import { expertsData } from '../../../mock/experts';
 import { getRelatedExperts } from '../../../mock/mockUtils';
 const ExpertDetail = () => {
@@ -955,62 +956,10 @@ const ExpertDetail = () => {
             )}
             {/* Contact Section */}
             <section id="contact" ref={contactRef} className="mb-12">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">Contact {expertData.name}</h2>
-              <div className="bg-white rounded-xl shadow-sm p-6">
-                <div className="border-t border-gray-100 pt-6">
-                  <h3 className="font-medium text-gray-900 mb-4">Send an Inquiry</h3>
-                  <form>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Your Name
-                        </label>
-                        <input
-                          type="text"
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                          placeholder="Enter your name"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Email Address
-                        </label>
-                        <input
-                          type="email"
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                          placeholder="Enter your email"
-                        />
-                      </div>
-                    </div>
-                    <div className="mb-4">
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Subject
-                      </label>
-                      <input
-                        type="text"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                        placeholder="What is your inquiry about?"
-                      />
-                    </div>
-                    <div className="mb-4">
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Message
-                      </label>
-                      <textarea
-                        rows={4}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                        placeholder="Type your message here..."
-                      ></textarea>
-                    </div>
-                    <button
-                      type="submit"
-                      className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
-                    >
-                      Send Inquiry
-                    </button>
-                  </form>
-                </div>
-              </div>
+              <ExpertInquiryForm 
+                expertName={expertData.name}
+                expertId={expertId as string}
+              />
             </section>
           </div>
           {/* Sidebar */}

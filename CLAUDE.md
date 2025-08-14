@@ -10,6 +10,16 @@ When starting work on this codebase, ALWAYS read these files first:
 3. **CHANGELOG.md** - Track recent changes and understand project evolution
 4. **CLAUDE.md** (this file) - Project-specific instructions and guidelines
 
+## Documentation Guidelines
+
+### IMPORTANT: Documentation Rules
+- **NEVER create new markdown files** for documentation purposes
+- **ALWAYS update README.md** when adding documentation
+- If documentation becomes too large, organize it with clear sections in README.md
+- The only exception is API documentation that should live with the code itself as comments
+- Do not create files like README_FEATURE.md, SETUP.md, or any other separate documentation files
+- Keep all project documentation centralized in README.md for easier maintenance and discovery
+
 ## Task Analysis and Delegation
 
 ### Always Analyze Tasks First
