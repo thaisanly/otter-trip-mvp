@@ -162,6 +162,10 @@ const BookingFlow = () => {
       setStep(2);
       window.scrollTo(0, 0);
     } else if (step === 2) {
+      // Move to review step
+      setStep(3);
+      window.scrollTo(0, 0);
+    } else if (step === 3) {
       // Complete booking and send email
       await handleCompleteBooking();
     }
@@ -200,7 +204,7 @@ const BookingFlow = () => {
       if (response.ok) {
         setBookingReference(bookingRef);
         setBookingComplete(true);
-        setStep(3);
+        setStep(4);
       } else {
         throw new Error(result.error || 'Failed to send booking confirmation');
       }
@@ -210,7 +214,7 @@ const BookingFlow = () => {
       const bookingRef = `BOOKING-${Date.now().toString(36).toUpperCase()}${Math.random().toString(36).substring(2, 5).toUpperCase()}`;
       setBookingReference(bookingRef);
       setBookingComplete(true);
-      setStep(3);
+      setStep(4);
     } finally {
       setIsLoading(false);
       window.scrollTo(0, 0);
@@ -316,47 +320,49 @@ const BookingFlow = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2">
-            {/* Progress Steps */}
-            <div className="bg-white rounded-xl shadow-md p-6 mb-8">
-              <div className="flex justify-between items-center">
-                <div className="flex flex-col items-center">
-                  <div
-                    className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                      step >= 1 ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-500'
-                    }`}
-                  >
-                    {step > 1 ? <CheckCircleIcon size={20} /> : '1'}
+            {/* Progress Steps - Hide on final confirmation */}
+            {step < 4 && (
+              <div className="bg-white rounded-xl shadow-md p-6 mb-8">
+                <div className="flex justify-between items-center">
+                  <div className="flex flex-col items-center">
+                    <div
+                      className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                        step >= 1 ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-500'
+                      }`}
+                    >
+                      {step > 1 ? <CheckCircleIcon size={20} /> : '1'}
+                    </div>
+                    <span className="text-sm mt-2">Trip Details</span>
                   </div>
-                  <span className="text-sm mt-2">Trip Details</span>
-                </div>
-                <div
-                  className={`flex-1 h-1 mx-4 ${step >= 2 ? 'bg-blue-600' : 'bg-gray-200'}`}
-                ></div>
-                <div className="flex flex-col items-center">
                   <div
-                    className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                      step >= 2 ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-500'
-                    }`}
-                  >
-                    {step > 2 ? <CheckCircleIcon size={20} /> : '2'}
+                    className={`flex-1 h-1 mx-4 ${step >= 2 ? 'bg-blue-600' : 'bg-gray-200'}`}
+                  ></div>
+                  <div className="flex flex-col items-center">
+                    <div
+                      className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                        step >= 2 ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-500'
+                      }`}
+                    >
+                      {step > 2 ? <CheckCircleIcon size={20} /> : '2'}
+                    </div>
+                    <span className="text-sm mt-2">Traveler Info</span>
                   </div>
-                  <span className="text-sm mt-2">Traveler Info</span>
-                </div>
-                <div
-                  className={`flex-1 h-1 mx-4 ${step >= 3 ? 'bg-blue-600' : 'bg-gray-200'}`}
-                ></div>
-                <div className="flex flex-col items-center">
                   <div
-                    className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                      step >= 3 ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-500'
-                    }`}
-                  >
-                    {step === 3 ? <CheckCircleIcon size={20} /> : '3'}
+                    className={`flex-1 h-1 mx-4 ${step >= 3 ? 'bg-blue-600' : 'bg-gray-200'}`}
+                  ></div>
+                  <div className="flex flex-col items-center">
+                    <div
+                      className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                        step >= 3 ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-500'
+                      }`}
+                    >
+                      {step > 3 ? <CheckCircleIcon size={20} /> : '3'}
+                    </div>
+                    <span className="text-sm mt-2">Review</span>
                   </div>
-                  <span className="text-sm mt-2">Confirmation</span>
                 </div>
               </div>
-            </div>
+            )}
             
             {/* Step 1: Trip Details */}
             {step === 1 && (
@@ -569,14 +575,133 @@ const BookingFlow = () => {
                     onClick={handleContinue}
                     disabled={isLoading || !leadTraveler.firstName || !leadTraveler.email}
                   >
+                    Next
+                  </button>
+                </div>
+              </div>
+            )}
+            
+            {/* Step 3: Review & Complete */}
+            {step === 3 && !bookingComplete && (
+              <div className="bg-white rounded-xl shadow-md p-6 mb-8">
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">Review & Complete Booking</h2>
+                
+                {/* Booking Summary */}
+                <div className="bg-gray-50 rounded-lg p-6 mb-6">
+                  <h3 className="font-semibold text-lg text-gray-900 mb-4">Booking Summary</h3>
+                  
+                  <div className="space-y-4">
+                    {/* Tour Details */}
+                    <div className="pb-4 border-b border-gray-200">
+                      <h4 className="font-medium text-gray-700 mb-2">Tour Details</h4>
+                      <div className="space-y-2 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Tour:</span>
+                          <span className="font-medium">{tour.title}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Location:</span>
+                          <span className="font-medium">{tour.location}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Dates:</span>
+                          <span className="font-medium">{selectedDate?.start} - {selectedDate?.end}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Duration:</span>
+                          <span className="font-medium">{tour.duration}</span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Traveler Details */}
+                    <div className="pb-4 border-b border-gray-200">
+                      <h4 className="font-medium text-gray-700 mb-2">Traveler Information</h4>
+                      <div className="space-y-2 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Lead Traveler:</span>
+                          <span className="font-medium">{leadTraveler.firstName} {leadTraveler.lastName}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Email:</span>
+                          <span className="font-medium">{leadTraveler.email}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Phone:</span>
+                          <span className="font-medium">{leadTraveler.phone}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Total Participants:</span>
+                          <span className="font-medium">{participants} {participants === 1 ? 'person' : 'people'}</span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Price Breakdown */}
+                    <div>
+                      <h4 className="font-medium text-gray-700 mb-2">Price Details</h4>
+                      <div className="space-y-2 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Tour Price ({participants} × ${priceNumber}):</span>
+                          <span className="font-medium">${priceNumber * participants}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Service Fee:</span>
+                          <span className="font-medium">${Math.round(priceNumber * participants * 0.1)}</span>
+                        </div>
+                        <div className="pt-3 mt-3 border-t border-gray-200">
+                          <div className="flex justify-between text-base">
+                            <span className="font-semibold">Total Amount:</span>
+                            <span className="font-bold text-blue-600">
+                              ${priceNumber * participants + Math.round(priceNumber * participants * 0.1)}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Terms and Conditions */}
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+                  <div className="flex items-start">
+                    <CheckCircleIcon size={20} className="text-yellow-600 mr-2 mt-0.5 flex-shrink-0" />
+                    <div className="text-sm text-gray-700">
+                      <p className="font-medium mb-1">Booking Terms</p>
+                      <ul className="space-y-1 text-xs">
+                        <li>• Payment instructions will be sent via email within 24 hours</li>
+                        <li>• Full payment is required 7 days before the tour date</li>
+                        <li>• Cancellation policy applies as per our terms and conditions</li>
+                        <li>• Travel insurance is recommended but not included</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Action Buttons */}
+                <div className="flex flex-col md:flex-row gap-4">
+                  <button
+                    className="md:flex-1 border border-gray-300 text-gray-700 font-medium py-3 px-6 rounded-lg hover:bg-gray-50"
+                    onClick={handleBack}
+                    disabled={isLoading}
+                  >
+                    Back
+                  </button>
+                  <button
+                    className={`md:flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg ${
+                      isLoading ? 'opacity-50 cursor-not-allowed' : ''
+                    }`}
+                    onClick={handleContinue}
+                    disabled={isLoading}
+                  >
                     {isLoading ? 'Processing...' : 'Complete Booking'}
                   </button>
                 </div>
               </div>
             )}
             
-            {/* Step 3: Confirmation */}
-            {step === 3 && bookingComplete && (
+            {/* Step 4: Confirmation */}
+            {step === 4 && bookingComplete && (
               <div className="bg-white rounded-xl shadow-md p-6 mb-8">
                 <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
                   <CheckIcon size={40} className="text-green-600" />
@@ -702,17 +827,11 @@ const BookingFlow = () => {
                   </ol>
                 </div>
                 
-                {/* Action Buttons */}
-                <div className="flex flex-col sm:flex-row gap-3">
-                  <button
-                    onClick={() => window.print()}
-                    className="flex-1 border border-gray-300 text-gray-700 font-medium py-3 px-6 rounded-lg hover:bg-gray-50"
-                  >
-                    Print Confirmation
-                  </button>
+                {/* Action Button */}
+                <div className="flex justify-center">
                   <button
                     onClick={() => router.push('/')}
-                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg"
+                    className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-8 rounded-lg"
                   >
                     Return to Home
                   </button>
