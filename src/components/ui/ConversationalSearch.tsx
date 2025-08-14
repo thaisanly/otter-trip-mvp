@@ -1,5 +1,7 @@
+'use client'
+
 import React, { useEffect, useState, useRef, Component } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 import { SearchIcon, XIcon } from 'lucide-react';
 type Suggestion = {
   id: string;
@@ -50,7 +52,7 @@ const mockSuggestions: Suggestion[] = [
   },
 ];
 const ConversationalSearch = () => {
-  const navigate = useNavigate();
+  const router = useRouter();
   const [query, setQuery] = useState('');
   const [isFocused, setIsFocused] = useState(false);
   const [filteredSuggestions, setFilteredSuggestions] = useState<Suggestion[]>([]);
@@ -85,7 +87,7 @@ const ConversationalSearch = () => {
   }, []);
   const handleSearch = (searchQuery: string = query) => {
     if (searchQuery.trim()) {
-      navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
+      router.push(`/search?q=${encodeURIComponent(searchQuery)}`);
     }
   };
   const handleSuggestionClick = (suggestion: Suggestion) => {

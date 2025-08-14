@@ -1,5 +1,7 @@
+'use client'
+
 import React, { useEffect, useState, useRef, memo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 import {
   quizQuestions,
   personalityTypes,
@@ -7,7 +9,7 @@ import {
   type QuizOption,
   type PersonalityType,
   type ExpertMatch,
-} from '../../mock/travelPersonalityQuiz';
+} from '@/mock/travelPersonalityQuiz';
 import {
   ChevronRightIcon,
   CheckIcon,
@@ -29,7 +31,7 @@ import {
 } from 'lucide-react';
 
 const TravelPersonalityQuiz = () => {
-  const navigate = useNavigate();
+  const router = useRouter();
   // State for quiz flow
   const [quizStarted, setQuizStarted] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
@@ -501,7 +503,7 @@ const TravelPersonalityQuiz = () => {
                   Retake Quiz
                 </button>
                 <button
-                  onClick={() => navigate('/meet-experts')}
+                  onClick={() => router.push('/meet-experts')}
                   className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg transition-colors"
                 >
                   Browse All Matching Guides

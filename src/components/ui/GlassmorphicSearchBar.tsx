@@ -1,5 +1,7 @@
+'use client'
+
 import React, { useEffect, useState, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 import {
   SearchIcon,
   MapPinIcon,
@@ -13,7 +15,7 @@ type GlassmorphicSearchBarProps = {
   className?: string;
 };
 const GlassmorphicSearchBar = ({ className = '' }: GlassmorphicSearchBarProps) => {
-  const navigate = useNavigate();
+  const router = useRouter();
   const [searchMode, setSearchMode] = useState<'experts' | 'tours'>('experts');
   const [location, setLocation] = useState('');
   const [date, setDate] = useState('');
@@ -56,10 +58,10 @@ const GlassmorphicSearchBar = ({ className = '' }: GlassmorphicSearchBarProps) =
     if (date) params.append('date', date);
     if (searchMode === 'experts') {
       if (language) params.append('language', language);
-      navigate(`/meet-experts?${params.toString()}`);
+      router.push(`/meet-experts?${params.toString()}`);
     } else {
       if (guests) params.append('guests', guests);
-      navigate(`/search?${params.toString()}`);
+      router.push(`/search?${params.toString()}`);
     }
   };
   // Handle Enter key press

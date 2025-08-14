@@ -1,5 +1,7 @@
+'use client'
+
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from 'next/link';
 import { MapPinIcon, StarIcon } from 'lucide-react';
 import Rating from './Rating';
 type TourLeaderCardProps = {
@@ -40,7 +42,7 @@ const TourLeaderCard = ({
   };
   const matchPercentage = calculateMatchPercentage();
   return (
-    <Link to={`/tour-leader/${id}`} className="block group">
+    <Link href={`/tour-leader/${id}`} className="block group">
       <div className="bg-white rounded-xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md hover:translate-y-[-4px]">
         <div className="relative">
           <div className="aspect-[3/2]">

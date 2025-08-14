@@ -1,3 +1,5 @@
+'use client'
+
 import React from 'react';
 import { SearchIcon, UsersIcon, CalendarIcon, HeartIcon } from 'lucide-react';
 const HowItWorks = () => {

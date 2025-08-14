@@ -1,5 +1,7 @@
+'use client'
+
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import { HeartIcon, StarIcon } from 'lucide-react';
 interface TourCardProps {
   tour: {
@@ -30,7 +32,7 @@ const TourCard: React.FC<TourCardProps> = ({ tour, onFavorite }) => {
     }
   };
   return (
-    <Link to={`/tour/${tour.id}`} className="block">
+    <Link href={`/tour/${tour.id}`} className="block">
       <div className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow">
         <div className="relative">
           <img src={tour.image} alt={tour.title} className="w-full h-48 object-cover" />

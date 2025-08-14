@@ -1,3 +1,5 @@
+'use client'
+
 import React from 'react';
 import { CheckCircleIcon, AwardIcon, ShieldIcon } from 'lucide-react';
 type Certification = {

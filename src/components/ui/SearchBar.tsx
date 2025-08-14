@@ -1,11 +1,13 @@
+'use client'
+
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 import { SearchIcon, MapPinIcon, CalendarIcon, UsersIcon, ArrowRightIcon } from 'lucide-react';
 interface SearchBarProps {
   className?: string;
 }
 const SearchBar = ({ className = '' }: SearchBarProps) => {
-  const navigate = useNavigate();
+  const router = useRouter();
   const [destination, setDestination] = useState('');
   const [dates, setDates] = useState('');
   const [travelers, setTravelers] = useState('');
@@ -17,7 +19,7 @@ const SearchBar = ({ className = '' }: SearchBarProps) => {
     if (dates) params.append('dates', dates);
     if (travelers) params.append('travelers', travelers);
     // Navigate to search results
-    navigate(`/search?${params.toString()}`);
+    router.push(`/search?${params.toString()}`);
   };
   return (
     <div className={`${className}`}>

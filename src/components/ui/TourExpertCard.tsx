@@ -1,5 +1,8 @@
+'use client'
+
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import {
   MapPinIcon,
   GlobeIcon,
@@ -48,17 +51,17 @@ const TourExpertCard: React.FC<TourExpertProps> = ({
   liveStreams,
   tours,
 }) => {
-  const navigate = useNavigate();
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const handleCardClick = () => {
     setIsLoading(true);
-    navigate(`/meet-experts/${id}`);
+    router.push(`/meet-experts/${id}`);
   };
   const handleViewProfileClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     setIsLoading(true);
-    navigate(`/meet-experts/${id}`);
+    router.push(`/meet-experts/${id}`);
   };
   return (
     <div

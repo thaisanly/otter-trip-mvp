@@ -1,3 +1,5 @@
+'use client'
+
 import React, { useState } from 'react';
 import { HeartIcon, MessageCircleIcon, ShareIcon } from 'lucide-react';
 import InterestTag from '../ui/InterestTag';

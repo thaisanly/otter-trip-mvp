@@ -1,5 +1,7 @@
+'use client'
+
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from 'next/link';
 import { HeartIcon, MapPinIcon, GlobeIcon, CheckCircleIcon, StarIcon } from 'lucide-react';
 export interface TourManagerProps {
   id: string;
@@ -130,7 +132,7 @@ const TourManagerCard: React.FC<TourManagerProps> = ({
         </div>
         <div className="flex w-full gap-2">
           <Link
-            to={`/tour-leader/${id}`}
+            href={`/tour-leader/${id}`}
             className="flex-1 text-center border border-blue-600 text-blue-600 hover:bg-blue-50 font-medium py-2 px-4 rounded-lg text-sm transition-colors"
           >
             View Profile

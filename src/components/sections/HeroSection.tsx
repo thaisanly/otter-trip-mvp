@@ -1,5 +1,8 @@
+'use client'
+
 import React from 'react';
 import SearchBar from '../ui/SearchBar';
+
 const HeroSection = () => {
   return (
     <div className="relative bg-blue-900 text-white">
@@ -56,4 +59,5 @@ const HeroSection = () => {
     </div>
   );
 };
+
 export default HeroSection;

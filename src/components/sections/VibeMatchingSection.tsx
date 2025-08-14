@@ -1,4 +1,6 @@
-import { Link } from 'react-router-dom';
+'use client'
+
+import { Link } from 'next/link';
 import InterestTag from '../ui/InterestTag';
 const personalityTraits = [
   {
@@ -88,7 +90,7 @@ const VibeMatchingSection = () => {
                 </div>
               </div>
               <Link
-                to="/search"
+                href="/search"
                 className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-8 rounded-lg"
               >
                 Find Your Guide Match

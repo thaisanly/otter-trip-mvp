@@ -1,5 +1,7 @@
+'use client'
+
 import React, { useEffect, useState, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 import {
   SearchIcon,
   MapPinIcon,
@@ -165,7 +167,7 @@ type DualSearchBarProps = {
   className?: string;
 };
 const DualSearchBar = ({ className = '' }: DualSearchBarProps) => {
-  const navigate = useNavigate();
+  const router = useRouter();
   const [searchMode, setSearchMode] = useState<'expert' | 'tour'>('expert');
   const [isLoading, setIsLoading] = useState(false);
   // Dropdowns state
@@ -282,7 +284,7 @@ const DualSearchBar = ({ className = '' }: DualSearchBarProps) => {
       if (selectedLanguages.length > 0) params.append('languages', selectedLanguages.join(','));
       if (expertSearchQuery) params.append('q', expertSearchQuery);
       // Navigate to search results
-      navigate(`/meet-experts?${params.toString()}`);
+      router.push(`/meet-experts?${params.toString()}`);
     } else {
       // Build query parameters for tour search
       const params = new URLSearchParams();
@@ -290,7 +292,7 @@ const DualSearchBar = ({ className = '' }: DualSearchBarProps) => {
       if (tourMonth) params.append('month', tourMonth);
       if (travelers > 0) params.append('travelers', travelers.toString());
       // Navigate to search results
-      navigate(`/search?${params.toString()}`);
+      router.push(`/search?${params.toString()}`);
     }
   };
   // Toggle language selection

@@ -1,197 +1,36 @@
-# Otter Trip - Travel Platform
-
-A React-based travel platform connecting travelers with expert local guides.
-
-## Project Status
-
-**First Release**: Using static JSON data for all content and functionality.
-
-## Tech Stack
-
-- React 18
-- TypeScript  
-- Vite
-- Tailwind CSS
-- React Router v6
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
 
-### Local Development
+First, run the development server:
 
 ```bash
-# Install dependencies
-yarn install
-
-# Start development server
+npm run dev
+# or
 yarn dev
-
-# Build for production
-yarn build
-
-# Preview production build
-yarn preview
+# or
+pnpm dev
+# or
+bun dev
 ```
 
-**Note**: For local development, always use `yarn dev`. Docker is only for production server deployment.
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-## Production Deployment
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-### Prerequisites
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-- A server with a public IP address
-- Domain name pointing to your server
-- Docker and Docker Compose installed on server
-- Ports 80 and 443 open
-- User must be in docker group (see Ubuntu/Linux Setup below)
+## Learn More
 
-### Deployment Steps
+To learn more about Next.js, take a look at the following resources:
 
-#### 1. Upload Files to Server
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-```bash
-# Use the deploy script
-./deploy.sh
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-# Or manually with rsync
-rsync -avz ./ user@server:~/otter-trip-mvp/
-```
+## Deploy on Vercel
 
-#### 2. Configure Environment on Server
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
-```bash
-cd ~/otter-trip-mvp
-
-# Create .env file
-cat > .env << EOF
-DOMAIN=yourdomain.com
-SSL_EMAIL=admin@yourdomain.com
-STAGING=false
-VITE_API_BASE_URL=https://api.yourdomain.com
-EOF
-```
-
-#### 3. Deploy with Docker Compose
-
-```bash
-# Build and start services (use --build on first run)
-docker compose -f docker-compose.production.yml up -d --build
-
-# Check status
-docker compose -f docker-compose.production.yml ps
-
-# View logs
-docker compose -f docker-compose.production.yml logs -f
-```
-
-#### Ubuntu/Linux Docker Setup
-
-If you get a permission denied error, add your user to the docker group:
-
-```bash
-# Add user to docker group
-sudo usermod -aG docker $USER
-
-# Apply changes (or logout/login)
-newgrp docker
-
-# Verify docker works
-docker ps
-```
-
-### SSL Certificate Management
-
-The nginx-proxy container automatically handles SSL certificates using Let's Encrypt:
-
-- Certificates are generated automatically on first deployment
-- Auto-renewal runs twice daily via cron
-- Supports both staging (testing) and production certificates
-
-#### Certificate Commands
-
-```bash
-# List all certificates
-docker compose -f docker-compose.production.yml exec nginx-proxy list-certificates
-
-# Manual renewal
-docker compose -f docker-compose.production.yml exec nginx-proxy certbot-renew
-
-# Add new domain
-docker compose -f docker-compose.production.yml exec nginx-proxy \
-  add-domain newdomain.com app:3000 admin@newdomain.com false
-
-# Remove domain
-docker compose -f docker-compose.production.yml exec nginx-proxy \
-  remove-domain olddomain.com
-```
-
-### Multiple Domains
-
-To proxy multiple domains to different services, configure in docker-compose.production.yml:
-
-```yaml
-environment:
-  - AUTO_DOMAINS=example.com:app:3000,api.example.com:api:8080
-  - SSL_EMAIL=admin@example.com
-```
-
-## File Structure
-
-```
-.
-├── Dockerfile                    # Production Dockerfile (server only)
-├── docker-compose.production.yml # Production deployment with nginx proxy & SSL
-├── nginx.conf                   # Simple nginx config for app container
-├── deploy.sh                    # Deployment script
-├── .rsyncignore                # Files to ignore during deployment
-└── docker/
-    └── nginx-proxy/            # Production proxy with Certbot
-        ├── Dockerfile
-        ├── nginx.conf
-        ├── nginx-templates/
-        └── scripts/
-```
-
-## Architecture
-
-### Local Development
-```
-yarn dev → Vite Dev Server → http://localhost:5173
-```
-
-### Production Server
-```
-Internet (HTTPS:443) → nginx-proxy (SSL/Certbot) → app:3000 → Static React files
-```
-
-## Troubleshooting
-
-### Certificate Issues
-
-```bash
-# Check DNS
-dig +short yourdomain.com
-
-# Use staging for testing
-STAGING=true docker compose -f docker-compose.production.yml up -d
-
-# Force renewal
-docker compose -f docker-compose.production.yml exec nginx-proxy \
-  certbot renew --force-renewal
-```
-
-### Connection Issues
-
-```bash
-# Check if services are running
-docker compose -f docker-compose.production.yml ps
-
-# Check nginx configuration
-docker compose -f docker-compose.production.yml exec nginx-proxy nginx -t
-
-# Check app connectivity
-docker compose -f docker-compose.production.yml exec nginx-proxy ping app
-```
-
-## Data Source
-
-The first release uses static JSON data stored locally. Future releases will integrate with a backend API.
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.

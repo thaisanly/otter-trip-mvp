@@ -10,6 +10,8 @@ README.md
 .env.development.local
 .env.test.local
 .env.production.local
+.next
+out
 dist
 build
 .DS_Store
@@ -35,4 +37,8 @@ deploy.sh
 .rsyncignore
 Dockerfile
 docker-compose.yml
+docker-compose.production.yml
 .dockerignore
+otter-trip-react
+coverage
+.nyc_output

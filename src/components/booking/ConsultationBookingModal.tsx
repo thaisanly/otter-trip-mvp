@@ -1,3 +1,5 @@
+'use client'
+
 import React, { useEffect, useState, Fragment } from 'react';
 import {
   CalendarIcon,

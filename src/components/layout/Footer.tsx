@@ -1,5 +1,7 @@
+'use client'
+
 import React from 'react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import {
   FacebookIcon,
   TwitterIcon,
@@ -10,8 +12,10 @@ import {
   MailIcon,
   ChevronRightIcon,
 } from 'lucide-react';
+
 const Footer = () => {
   const currentYear = new Date().getFullYear();
+
   return (
     <footer className="bg-gray-900 text-white">
       <div className="container mx-auto px-4 py-12">
@@ -39,6 +43,7 @@ const Footer = () => {
             </div>
           </div>
         </div>
+
         {/* Top section */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
           {/* Company info */}
@@ -65,13 +70,14 @@ const Footer = () => {
               </a>
             </div>
           </div>
+
           {/* Quick links */}
           <div>
             <h3 className="font-bold text-lg mb-4">Quick Links</h3>
             <ul className="space-y-3">
               <li>
                 <Link
-                  to="/about"
+                  href="/about"
                   className="text-gray-400 hover:text-white transition-colors flex items-center"
                 >
                   <ChevronRightIcon size={16} className="mr-2" />
@@ -80,7 +86,7 @@ const Footer = () => {
               </li>
               <li>
                 <Link
-                  to="/faq"
+                  href="/faq"
                   className="text-gray-400 hover:text-white transition-colors flex items-center"
                 >
                   <ChevronRightIcon size={16} className="mr-2" />
@@ -109,22 +115,23 @@ const Footer = () => {
             </ul>
           </div>
         </div>
+
         {/* Bottom section */}
         <div className="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center">
           <div className="text-gray-400 text-sm mb-4 md:mb-0">
             © {currentYear} OtterTrip. All rights reserved.
           </div>
           <div className="flex flex-wrap justify-center gap-4 text-sm">
-            <Link to="/terms" className="text-gray-400 hover:text-white transition-colors">
+            <Link href="/terms" className="text-gray-400 hover:text-white transition-colors">
               Terms & Conditions
             </Link>
-            <Link to="/privacy" className="text-gray-400 hover:text-white transition-colors">
+            <Link href="/privacy" className="text-gray-400 hover:text-white transition-colors">
               Privacy Policy
             </Link>
-            <Link to="/cookies" className="text-gray-400 hover:text-white transition-colors">
+            <Link href="/cookies" className="text-gray-400 hover:text-white transition-colors">
               Cookie Policy
             </Link>
-            <Link to="/sitemap" className="text-gray-400 hover:text-white transition-colors">
+            <Link href="/sitemap" className="text-gray-400 hover:text-white transition-colors">
               Sitemap
             </Link>
           </div>
@@ -133,4 +140,5 @@ const Footer = () => {
     </footer>
   );
 };
+
 export default Footer;

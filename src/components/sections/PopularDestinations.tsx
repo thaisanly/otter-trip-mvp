@@ -1,7 +1,9 @@
+'use client'
+
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from 'next/link';
 // Destinations moved to mock file
-import { destinations } from '../../mock/destinations';
+import { destinations } from '@/mock/destinations';
 const PopularDestinations = () => {
   return (
     <div className="container mx-auto px-4 py-16">
