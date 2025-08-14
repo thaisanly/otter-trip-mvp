@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
 
 // Lazy load email libraries
 async function getEmailProvider() {
@@ -169,6 +170,24 @@ export async function POST(request: NextRequest) {
 
     // Generate booking reference if not provided
     const bookingReference = body.bookingReference || `BOOKING-${Date.now().toString(36).toUpperCase()}${Math.random().toString(36).substring(2, 5).toUpperCase()}`;
+
+    // Save booking to database
+    const booking = await prisma.booking.create({
+      data: {
+        bookingReference,
+        tourId: body.tourId,
+        tourTitle: body.tourTitle,
+        location: body.location || '',
+        selectedDate: body.selectedDate,
+        participants: body.participants,
+        pricePerPerson: body.pricePerPerson,
+        totalPrice: body.totalPrice,
+        leadTraveler: body.leadTraveler,
+        additionalTravelers: body.additionalTravelers || [],
+        specialRequests: body.specialRequests || null,
+        status: 'pending',
+      },
+    });
 
     // Prepare email data
     const emailData = {

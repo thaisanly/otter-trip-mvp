@@ -1,0 +1,145 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model TourLeader {
+  id            String   @id @default(cuid())
+  name          String
+  image         String
+  location      String
+  rating        Float
+  reviewCount   Int
+  specialty     String
+  description   String
+  price         String
+  isSuperhost   Boolean  @default(false)
+  languages     Json     // Array of languages
+  experience    String?
+  certifications Json?   // Array of certifications
+  bio           String?
+  expertise     Json?    // Array of expertise areas
+  tours         Json?    // Array of tour objects
+  reviews       Json?    // Array of review objects
+  availability  Json?    // Availability data
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("tour_leaders")
+}
+
+model Tour {
+  id            String   @id @default(cuid())
+  code          String   @unique
+  title         String
+  heroImage     String
+  duration      String
+  price         String
+  totalJoined   Int      @default(0)
+  rating        Float    @default(0)
+  reviewCount   Int      @default(0)
+  location      String
+  categories    Json     // Array of category strings
+  overview      Json     // Array of overview paragraphs
+  highlights    Json     // Array of highlight strings
+  contentImage  String?
+  videoUrl      String?
+  galleryImages Json?    // Array of image URLs
+  inclusions    Json?    // Array of inclusion strings
+  exclusions    Json?    // Array of exclusion strings
+  itinerary     Json?    // Array of itinerary objects
+  additionalInfo Json?   // Array of additional info objects
+  guide         Json?    // Guide object with details
+  dates         Json?    // Array of available dates
+  reviews       Json?    // Array of review objects
+  description   String?
+  groupSize     Int?
+  spotsLeft     Int?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("tours")
+}
+
+model Expert {
+  id            String   @id @default(cuid())
+  name          String
+  title         String
+  image         String
+  location      String
+  rating        Float
+  reviewCount   Int
+  hourlyRate    String
+  languages     Json     // Array of languages
+  expertise     Json     // Array of expertise areas
+  certifications Json?   // Array of certifications
+  availability  Json?    // Availability data
+  bio           String?
+  experience    String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("experts")
+}
+
+model Booking {
+  id                String   @id @default(cuid())
+  bookingReference  String   @unique
+  tourId            String
+  tourTitle         String
+  location          String?
+  selectedDate      String
+  participants      Int
+  pricePerPerson    Float
+  totalPrice        Float
+  leadTraveler      Json     // Object with firstName, lastName, email, phone
+  additionalTravelers Json?  // Array of traveler objects
+  specialRequests   String?
+  status            String   @default("pending")
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@map("bookings")
+}
+
+model ConsultationBooking {
+  id              String   @id @default(cuid())
+  expertId        String
+  expertName      String
+  name            String
+  email           String
+  phone           String?
+  company         String?
+  preferredDate   String?
+  preferredTime   String?
+  message         String?
+  invitationCode  String?
+  status          String   @default("pending")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("consultation_bookings")
+}
+
+model Inquiry {
+  id            String   @id @default(cuid())
+  name          String
+  email         String
+  phone         String?
+  destination   String
+  preferredDate String?
+  tripDuration  String?
+  message       String?
+  status        String   @default("pending")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("inquiries")
+}

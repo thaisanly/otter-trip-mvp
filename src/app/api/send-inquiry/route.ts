@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
 
 // Lazy load email libraries
 async function getEmailProvider() {
@@ -124,6 +125,20 @@ export async function POST(request: NextRequest) {
 
     // Get email provider configuration
     const { emailProvider, adminEmail, resend, smtpTransporter } = await getEmailProvider();
+
+    // Save inquiry to database
+    const inquiry = await prisma.inquiry.create({
+      data: {
+        name: userName,
+        email: userEmail,
+        phone: phone || null,
+        destination: message, // Using message as destination for now
+        preferredDate: preferredDate || null,
+        tripDuration: tripDuration || null,
+        message: message || null,
+        status: 'pending',
+      },
+    });
 
     // Send email based on provider
     let result;

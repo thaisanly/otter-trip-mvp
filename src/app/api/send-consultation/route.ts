@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
 
 // Lazy load email libraries
 async function getEmailProvider() {
@@ -216,6 +217,23 @@ export async function POST(request: NextRequest) {
 
     // Get email provider configuration
     const { emailProvider, adminEmail, resend, smtpTransporter } = await getEmailProvider();
+
+    // Save consultation booking to database
+    const consultationBooking = await prisma.consultationBooking.create({
+      data: {
+        expertId: expertId || 'unknown',
+        expertName: expertName,
+        name: userName,
+        email: userEmail,
+        phone: phone || null,
+        company: company || null,
+        preferredDate: selectedDate || null,
+        preferredTime: selectedTime || null,
+        message: message || null,
+        invitationCode: invitationCode || null,
+        status: 'pending',
+      },
+    });
 
     // Prepare email data - use the invitation code provided by user
     const emailData = {
