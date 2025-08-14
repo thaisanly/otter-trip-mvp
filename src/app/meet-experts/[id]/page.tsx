@@ -50,6 +50,7 @@ const ExpertDetail = () => {
   // New states for booking flow
   const [isInvitationModalOpen, setIsInvitationModalOpen] = useState(false);
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
+  const [userInvitationCode, setUserInvitationCode] = useState('');
   // Refs for scrolling to sections
   const aboutRef = useRef(null);
   const toursRef = useRef(null);
@@ -168,7 +169,9 @@ const ExpertDetail = () => {
     setIsInvitationModalOpen(true);
   };
   // Function to handle valid invitation code
-  const handleValidInvitationCode = () => {
+  const handleValidInvitationCode = (code: string) => {
+    // Store the invitation code
+    setUserInvitationCode(code);
     // Close the invitation modal
     setIsInvitationModalOpen(false);
     // Open the booking modal after a short delay
@@ -1081,6 +1084,8 @@ const ExpertDetail = () => {
         onClose={() => setIsBookingModalOpen(false)}
         expertName={expertData?.name || ''}
         expertImage={expertData?.image || ''}
+        expertId={params.id}
+        invitationCode={userInvitationCode}
         price={expertData?.consultationPrice || '$250'}
       />
     </div>

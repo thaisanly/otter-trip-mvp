@@ -12,7 +12,7 @@ import Modal from '../ui/Modal';
 interface InvitationCodeModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onValidCode: () => void;
+  onValidCode: (code: string) => void;
 }
 const InvitationCodeModal: React.FC<InvitationCodeModalProps> = ({
   isOpen,
@@ -63,7 +63,7 @@ const InvitationCodeModal: React.FC<InvitationCodeModalProps> = ({
         setValidationState('success');
         // Wait a moment to show success state before proceeding
         setTimeout(() => {
-          onValidCode();
+          onValidCode(invitationCode);
         }, 800);
       } else {
         setValidationState('error');

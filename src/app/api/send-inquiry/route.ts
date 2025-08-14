@@ -1,24 +1,31 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { Resend } from 'resend';
-import nodemailer from 'nodemailer';
 
-// Email configuration
-const emailProvider = process.env.EMAIL_PROVIDER || 'smtp';
-const adminEmail = process.env.ADMIN_EMAIL || 'contact@ottertrip.com';
-
-// Initialize Resend if needed
-const resend = emailProvider === 'resend' ? new Resend(process.env.RESEND_API_KEY) : null;
-
-// Initialize SMTP transporter if needed
-const smtpTransporter = emailProvider === 'smtp' ? nodemailer.createTransport({
-  host: process.env.SMTP_HOST || 'localhost',
-  port: parseInt(process.env.SMTP_PORT || '1025'),
-  secure: process.env.SMTP_SECURE === 'true',
-  auth: process.env.SMTP_USER && process.env.SMTP_PASS ? {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  } : undefined,
-}) : null;
+// Lazy load email libraries
+async function getEmailProvider() {
+  const emailProvider = process.env.EMAIL_PROVIDER || 'smtp';
+  const adminEmail = process.env.ADMIN_EMAIL || 'contact@ottertrip.com';
+  
+  let resend = null;
+  let smtpTransporter = null;
+  
+  if (emailProvider === 'resend') {
+    const { Resend } = await import('resend');
+    resend = new Resend(process.env.RESEND_API_KEY);
+  } else if (emailProvider === 'smtp') {
+    const nodemailer = await import('nodemailer');
+    smtpTransporter = nodemailer.createTransport({
+      host: process.env.SMTP_HOST || 'localhost',
+      port: parseInt(process.env.SMTP_PORT || '1025'),
+      secure: process.env.SMTP_SECURE === 'true',
+      auth: process.env.SMTP_USER && process.env.SMTP_PASS ? {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
+      } : undefined,
+    });
+  }
+  
+  return { emailProvider, adminEmail, resend, smtpTransporter };
+}
 
 // Email templates
 const getAdminEmailHtml = (data: any) => `
@@ -54,7 +61,7 @@ const getAdminEmailHtml = (data: any) => `
   </div>
 `;
 
-async function sendWithResend(data: any) {
+async function sendWithResend(data: any, resend: any, adminEmail: string) {
   if (!resend) {
     throw new Error('Resend is not configured');
   }
@@ -75,7 +82,7 @@ async function sendWithResend(data: any) {
   return adminResult.data;
 }
 
-async function sendWithSMTP(data: any) {
+async function sendWithSMTP(data: any, smtpTransporter: any, adminEmail: string) {
   if (!smtpTransporter) {
     throw new Error('SMTP is not configured');
   }
@@ -115,12 +122,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Get email provider configuration
+    const { emailProvider, adminEmail, resend, smtpTransporter } = await getEmailProvider();
+
     // Send email based on provider
     let result;
     if (emailProvider === 'resend') {
-      result = await sendWithResend(body);
+      result = await sendWithResend(body, resend, adminEmail);
     } else if (emailProvider === 'smtp') {
-      result = await sendWithSMTP(body);
+      result = await sendWithSMTP(body, smtpTransporter, adminEmail);
     } else {
       throw new Error(`Unknown email provider: ${emailProvider}`);
     }
@@ -134,6 +144,7 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error('Error sending email:', error);
+    const emailProvider = process.env.EMAIL_PROVIDER || 'smtp';
     return NextResponse.json(
       { 
         error: 'Failed to send inquiry',

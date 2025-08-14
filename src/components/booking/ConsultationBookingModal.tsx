@@ -22,6 +22,8 @@ interface ConsultationBookingModalProps {
   onClose: () => void;
   expertName: string;
   expertImage: string;
+  expertId?: string;
+  invitationCode?: string;
   price: number | string;
 }
 type TimeSlot = {
@@ -34,6 +36,8 @@ const ConsultationBookingModal: React.FC<ConsultationBookingModalProps> = ({
   onClose,
   expertName,
   expertImage,
+  expertId,
+  invitationCode,
   price,
 }) => {
   const [step, setStep] = useState(1);
@@ -47,13 +51,18 @@ const ConsultationBookingModal: React.FC<ConsultationBookingModalProps> = ({
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [message, setMessage] = useState('');
-  // Reset state when modal opens
+  // Reset state when modal opens or closes
   useEffect(() => {
     if (isOpen) {
       setStep(1);
       setSelectedDate(null);
       setSelectedTimeSlot(null);
       setIsBookingComplete(false);
+      // Clear form fields
+      setName('');
+      setEmail('');
+      setPhone('');
+      setMessage('');
     }
   }, [isOpen]);
   // Generate some sample dates (next 7 days)
@@ -108,17 +117,73 @@ const ConsultationBookingModal: React.FC<ConsultationBookingModalProps> = ({
   const handleTimeSlotSelect = (slotId: string) => {
     setSelectedTimeSlot(slotId);
   };
-  const handleContinue = () => {
+  const handleContinue = async () => {
     if (step === 2) {
       // Process booking
       setIsLoading(true);
-      // Simulate API call
-      setTimeout(() => {
+      
+      const generatedRef = `OT-${Math.floor(100000 + Math.random() * 900000)}`;
+      
+      try {
+        // Send booking confirmation email to admin only
+        const response = await fetch('/api/send-consultation', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            expertName,
+            expertId: expertId || 'unknown',
+            userName: name,
+            userEmail: email,
+            phone,
+            message,
+            selectedDate: getSelectedDateFormatted(),
+            selectedTime: getSelectedTimeFormatted(),
+            price: typeof price === 'number' ? price : 500,
+            bookingReference: generatedRef,
+            invitationCode: invitationCode || 'N/A',
+          }),
+        });
+
+        const result = await response.json();
+        
+        if (!response.ok) {
+          throw new Error(result.error || 'Failed to send booking confirmation');
+        }
+        
         setIsLoading(false);
         setIsBookingComplete(true);
-        setBookingReference(`OT-${Math.floor(100000 + Math.random() * 900000)}`);
+        setBookingReference(generatedRef);
         setStep(3);
-      }, 2000);
+        
+        // Clear form data after successful booking
+        setTimeout(() => {
+          setName('');
+          setEmail('');
+          setPhone('');
+          setMessage('');
+          setSelectedDate(null);
+          setSelectedTimeSlot(null);
+        }, 100);
+      } catch (error) {
+        console.error('Error sending booking email:', error);
+        setIsLoading(false);
+        // Still complete the booking even if email fails
+        setIsBookingComplete(true);
+        setBookingReference(generatedRef);
+        setStep(3);
+        
+        // Clear form data even on error
+        setTimeout(() => {
+          setName('');
+          setEmail('');
+          setPhone('');
+          setMessage('');
+          setSelectedDate(null);
+          setSelectedTimeSlot(null);
+        }, 100);
+      }
     } else {
       setStep(step + 1);
     }
