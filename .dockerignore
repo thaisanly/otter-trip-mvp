@@ -21,10 +21,6 @@ build
 *.swp
 *.swo
 *~
-.firebase
-.firebaserc
-firebase.json
-firebase-debug.log
 .claude
 CLAUDE.md
 CLAUDE.local.md

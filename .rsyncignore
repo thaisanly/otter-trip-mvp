@@ -234,31 +234,8 @@ CHANGELOG.md
 .serena/
 docs/
 
-# Firebase files
-firebase.json
-.firebaserc
-.firebase/
-firebase-debug.log
-firebase-debug.*.log
-firestore.rules
-firestore.indexes.json
-storage.rules
-database.rules.json
-remoteconfig.template.json
-hosting.*
-functions/
-firebase-export-*/
-firestore-debug.log
-pubsub-debug.log
-ui-debug.log
-database-debug.log
-firebase-tools.json
-.firebaserc.local
-
 # Additional exclusions
 .claude
 .devcontainer
-.firebase
-.firebaserc
 .mcp.json
 .mcp.json.*
