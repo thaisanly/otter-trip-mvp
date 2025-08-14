@@ -9,13 +9,9 @@
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx,css,md}\"",
     "format:check": "prettier --check \"src/**/*.{js,jsx,ts,tsx,css,md}\"",
-    "preview": "npx vite preview",
-    "deploy": "yarn build && firebase deploy --only hosting",
-    "deploy:all": "yarn build && firebase deploy",
-    "deploy:preview": "yarn build && firebase hosting:channel:deploy preview"
+    "preview": "npx vite preview"
   },
   "dependencies": {
-    "firebase": "^12.1.0",
     "lucide-react": "^0.441.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",

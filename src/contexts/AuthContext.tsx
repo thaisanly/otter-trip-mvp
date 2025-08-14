@@ -1,19 +1,11 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import {
-  User,
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-  signOut,
-  onAuthStateChanged,
-  sendPasswordResetEmail,
-  updateProfile,
-  GoogleAuthProvider,
-  signInWithPopup,
-  FacebookAuthProvider,
-  signInWithRedirect,
-  getRedirectResult,
-} from 'firebase/auth';
-import { auth } from '../config/firebase';
+
+interface User {
+  uid: string;
+  email: string | null;
+  displayName: string | null;
+  photoURL: string | null;
+}
 
 interface AuthContextType {
   currentUser: User | null;
@@ -41,72 +33,88 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Mock authentication functions for demo purposes
   const signup = async (email: string, password: string, displayName?: string) => {
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    if (displayName) {
-      await updateProfile(userCredential.user, { displayName });
-    }
+    // Mock signup - in a real app, this would call an API
+    const mockUser: User = {
+      uid: 'mock-' + Date.now(),
+      email,
+      displayName: displayName || null,
+      photoURL: null,
+    };
+    setCurrentUser(mockUser);
+    localStorage.setItem('mockUser', JSON.stringify(mockUser));
   };
 
   const login = async (email: string, password: string) => {
-    await signInWithEmailAndPassword(auth, email, password);
+    // Mock login - in a real app, this would call an API
+    const mockUser: User = {
+      uid: 'mock-' + Date.now(),
+      email,
+      displayName: email.split('@')[0],
+      photoURL: null,
+    };
+    setCurrentUser(mockUser);
+    localStorage.setItem('mockUser', JSON.stringify(mockUser));
   };
 
   const logout = async () => {
-    await signOut(auth);
+    setCurrentUser(null);
+    localStorage.removeItem('mockUser');
   };
 
   const resetPassword = async (email: string) => {
-    await sendPasswordResetEmail(auth, email);
+    // Mock password reset
+    console.log('Password reset email would be sent to:', email);
   };
 
   const updateUserProfile = async (displayName?: string, photoURL?: string) => {
     if (currentUser) {
-      const updates: { displayName?: string; photoURL?: string } = {};
-      if (displayName !== undefined) updates.displayName = displayName;
-      if (photoURL !== undefined) updates.photoURL = photoURL;
-      await updateProfile(currentUser, updates);
+      const updatedUser = {
+        ...currentUser,
+        displayName: displayName !== undefined ? displayName : currentUser.displayName,
+        photoURL: photoURL !== undefined ? photoURL : currentUser.photoURL,
+      };
+      setCurrentUser(updatedUser);
+      localStorage.setItem('mockUser', JSON.stringify(updatedUser));
     }
   };
 
   const loginWithGoogle = async () => {
-    const provider = new GoogleAuthProvider();
-    try {
-      await signInWithPopup(auth, provider);
-    } catch (error: any) {
-      // If popup blocked, fallback to redirect
-      if (error.code === 'auth/popup-blocked') {
-        await signInWithRedirect(auth, provider);
-      } else {
-        throw error;
-      }
-    }
+    // Mock Google login
+    const mockUser: User = {
+      uid: 'google-' + Date.now(),
+      email: 'user@gmail.com',
+      displayName: 'Google User',
+      photoURL: null,
+    };
+    setCurrentUser(mockUser);
+    localStorage.setItem('mockUser', JSON.stringify(mockUser));
   };
 
   const loginWithFacebook = async () => {
-    const provider = new FacebookAuthProvider();
-    try {
-      await signInWithPopup(auth, provider);
-    } catch (error: any) {
-      // If popup blocked, fallback to redirect
-      if (error.code === 'auth/popup-blocked') {
-        await signInWithRedirect(auth, provider);
-      } else {
-        throw error;
-      }
-    }
+    // Mock Facebook login
+    const mockUser: User = {
+      uid: 'facebook-' + Date.now(),
+      email: 'user@facebook.com',
+      displayName: 'Facebook User',
+      photoURL: null,
+    };
+    setCurrentUser(mockUser);
+    localStorage.setItem('mockUser', JSON.stringify(mockUser));
   };
 
   useEffect(() => {
-    // Check for redirect result on mount
-    getRedirectResult(auth).catch(console.error);
-
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setCurrentUser(user);
-      setLoading(false);
-    });
-
-    return unsubscribe;
+    // Check for saved user in localStorage
+    const savedUser = localStorage.getItem('mockUser');
+    if (savedUser) {
+      try {
+        setCurrentUser(JSON.parse(savedUser));
+      } catch (error) {
+        console.error('Failed to parse saved user:', error);
+      }
+    }
+    setLoading(false);
   }, []);
 
   const value: AuthContextType = {

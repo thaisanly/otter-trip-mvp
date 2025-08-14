@@ -79,6 +79,10 @@ deploy_app() {
         "${SSH_HOST}:${SERVER_DEST}/"
     
     print_status "Application upload completed successfully!"
+    print_status ""
+    print_status "To deploy with Docker and SSL on the server, run:"
+    print_status "  cd ${SERVER_DEST}"
+    print_status "  docker compose -f docker-compose.production.yml up -d"
 }
 
 # Function to test server connection

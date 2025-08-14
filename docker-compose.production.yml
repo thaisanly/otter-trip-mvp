@@ -1,0 +1,68 @@
+services:
+  # Main application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        NODE_ENV: production
+        VITE_APP_NAME: "Otter Trip"
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-}
+    container_name: otter-trip-app
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - proxy-network
+    # No ports exposed - only accessible through proxy
+
+  # Nginx proxy with integrated Certbot
+  nginx-proxy:
+    build:
+      context: ./docker/nginx-proxy
+      dockerfile: Dockerfile
+    container_name: nginx-proxy
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      # Single domain configuration
+      - DOMAIN=${DOMAIN}
+      - UPSTREAM_HOST=app
+      - UPSTREAM_PORT=3000
+      - SSL_EMAIL=${SSL_EMAIL}
+      - STAGING=${STAGING:-false}
+      # OR multiple domains (comma-separated)
+      # Format: domain:upstream_host:upstream_port,domain2:upstream_host2:upstream_port2
+      # - AUTO_DOMAINS=example.com:app:3000,api.example.com:api:8080
+    volumes:
+      # Persistent storage for certificates
+      - letsencrypt:/etc/letsencrypt
+      - certbot-webroot:/var/www/certbot
+      # Logs
+      - ./logs/nginx:/var/log/nginx
+      - ./logs/letsencrypt:/var/log/letsencrypt
+    depends_on:
+      - app
+    restart: unless-stopped
+    networks:
+      - proxy-network
+
+volumes:
+  letsencrypt:
+    driver: local
+  certbot-webroot:
+    driver: local
+
+networks:
+  proxy-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
