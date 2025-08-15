@@ -31,6 +31,12 @@ interface Tour {
   categories: string[];
   groupSize?: number;
   spotsLeft?: number;
+  tourLeaderId?: string;
+  tourLeader?: {
+    id: string;
+    name: string;
+    specialty: string;
+  };
   createdAt: string;
   updatedAt: string;
 }
@@ -206,6 +212,9 @@ export default function ToursManagement({ admin }: ToursManagementProps) {
                     Location
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Tour Leader
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Duration & Price
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -252,6 +261,16 @@ export default function ToursManagement({ admin }: ToursManagementProps) {
                         <MapPinIcon className="w-4 h-4 mr-1 text-gray-400" />
                         {tour.location}
                       </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {tour.tourLeader ? (
+                        <div className="text-sm">
+                          <div className="font-medium text-gray-900">{tour.tourLeader.name}</div>
+                          <div className="text-xs text-gray-500">{tour.tourLeader.specialty}</div>
+                        </div>
+                      ) : (
+                        <span className="text-sm text-gray-400">Not assigned</span>
+                      )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900">

@@ -37,7 +37,6 @@ interface TourLeader {
   specialty: string;
   tourCompleteCount?: number;
   averageResponseTime?: string;
-  rate?: string;
   description: string;
   price: string;
   isSuperhost: boolean;
@@ -112,7 +111,6 @@ export default function TourLeaderDetailAdmin({ tourLeader, admin }: TourLeaderD
     countrySpecializations: JSON.stringify(tourLeader.countrySpecializations || []),
     tourCompleteCount: tourLeader.tourCompleteCount || 0,
     averageResponseTime: tourLeader.averageResponseTime || '',
-    rate: tourLeader.rate || '',
     rating: tourLeader.rating,
   });
   
@@ -163,7 +161,6 @@ export default function TourLeaderDetailAdmin({ tourLeader, admin }: TourLeaderD
       countrySpecializations: countrySpecializations,
       tourCompleteCount: formData.tourCompleteCount,
       averageResponseTime: formData.averageResponseTime || undefined,
-      rate: formData.rate || undefined,
       rating: formData.rating,
       reviewCount: tourLeader.reviewCount || 0,
     };
@@ -331,7 +328,6 @@ export default function TourLeaderDetailAdmin({ tourLeader, admin }: TourLeaderD
       countrySpecializations: JSON.stringify(tourLeader.countrySpecializations || []),
       tourCompleteCount: tourLeader.tourCompleteCount || 0,
       averageResponseTime: tourLeader.averageResponseTime || '',
-      rate: tourLeader.rate || '',
       rating: tourLeader.rating,
     });
     setIsEditing(false);
@@ -509,7 +505,6 @@ export default function TourLeaderDetailAdmin({ tourLeader, admin }: TourLeaderD
   "reviewCount": 127,
   "tourCompleteCount": 156,
   "averageResponseTime": "2 hours",
-  "rate": "$80/hour",
   
   "languages": [
     "English",
@@ -871,15 +866,6 @@ export default function TourLeaderDetailAdmin({ tourLeader, admin }: TourLeaderD
                     </div>
                     <p className="text-sm text-gray-500">{tourLeader.reviewCount} reviews</p>
                   </div>
-                  {tourLeader.rate && (
-                    <div className="text-center">
-                      <div className="flex items-center justify-center mb-2">
-                        <DollarSignIcon className="w-5 h-5 text-blue-500" />
-                        <span className="ml-1 text-lg font-semibold">{tourLeader.rate}</span>
-                      </div>
-                      <p className="text-sm text-gray-500">Hourly rate</p>
-                    </div>
-                  )}
                   {tourLeader.tourCompleteCount !== undefined && (
                     <div className="text-center">
                       <div className="flex items-center justify-center mb-2">

@@ -76,7 +76,6 @@ export async function GET(
       // Additional data
       curatedTours: tourLeader.curatedTours as string[] || [],
       upcomingTours: tourLeader.upcomingTours as string[] || [],
-      rate: tourLeader.rate,
       availability: tourLeader.availability,
     };
 

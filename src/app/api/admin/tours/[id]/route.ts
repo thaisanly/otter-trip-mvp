@@ -12,7 +12,10 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
     const tour = await prisma.tour.findUnique({
-      where: { id }
+      where: { id },
+      include: {
+        tourLeader: true
+      }
     });
 
     if (!tour) {
@@ -95,6 +98,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
         description: body.description,
         groupSize: body.groupSize,
         spotsLeft: body.spotsLeft,
+        tourLeaderId: body.tourLeaderId || null,
       }
     });
 

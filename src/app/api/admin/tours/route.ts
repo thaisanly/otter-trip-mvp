@@ -26,7 +26,11 @@ export async function GET(request: NextRequest) {
         location: true,
         rating: true,
         reviewCount: true,
-        categories: true
+        categories: true,
+        tourLeaderId: true
+      } : undefined,
+      include: !compact ? {
+        tourLeader: true
       } : undefined,
       orderBy: {
         createdAt: 'desc'
@@ -93,6 +97,7 @@ export async function POST(request: NextRequest) {
         description: body.description,
         groupSize: body.groupSize,
         spotsLeft: body.spotsLeft,
+        tourLeaderId: body.tourLeaderId || null,
       }
     });
 

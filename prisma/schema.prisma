@@ -34,7 +34,6 @@ model TourLeader {
   countrySpecializations Json? // Array of country specialization objects
   tourCompleteCount Int?  // Number of completed tours
   averageResponseTime String? // Average response time
-  rate          String?  // Hourly or daily rate
   tours         Tour[]   // Relation to tours
   reviews       Json?    // Array of review objects
   availability  Json?    // Availability data

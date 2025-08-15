@@ -63,7 +63,6 @@ export async function POST(request: NextRequest) {
         countrySpecializations: data.countrySpecializations || [],
         tourCompleteCount: data.tourCompleteCount || null,
         averageResponseTime: data.averageResponseTime || null,
-        rate: data.rate || null,
         tours: data.tours || [],
         reviews: data.reviews || [],
         availability: data.availability || null,

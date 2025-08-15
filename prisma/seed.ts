@@ -305,11 +305,6 @@ function generateAverageResponseTime() {
   return responseTimes[Math.floor(Math.random() * responseTimes.length)];
 }
 
-// Generate rate (3-5 range)
-function generateRate() {
-  const rates = ['$35/hour', '$45/hour', '$55/hour', '$65/hour', '$75/hour'];
-  return rates[Math.floor(Math.random() * rates.length)];
-}
 
 // Generate tour completion count
 function generateTourCompleteCount() {
@@ -567,7 +562,6 @@ async function main() {
         countrySpecializations: generateCountrySpecializations(), // Add country specializations
         tourCompleteCount: generateTourCompleteCount(), // Add tour completion count
         averageResponseTime: generateAverageResponseTime(), // Add average response time
-        rate: generateRate(), // Add rate (3-5 range)
         reviews: leader.reviews || [],
         availability: leader.availability || null,
       },

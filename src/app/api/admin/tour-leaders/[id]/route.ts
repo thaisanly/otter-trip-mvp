@@ -38,7 +38,6 @@ export async function PUT(
         countrySpecializations: data.countrySpecializations,
         tourCompleteCount: data.tourCompleteCount,
         averageResponseTime: data.averageResponseTime,
-        rate: data.rate,
         tours: data.tours,
         reviews: data.reviews,
         availability: data.availability,

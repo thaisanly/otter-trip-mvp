@@ -20,6 +20,7 @@ import {
   PlusIcon,
   MinusIcon,
   CodeIcon,
+  UserIcon,
 } from 'lucide-react';
 
 // Tour interface matching Prisma schema
@@ -46,6 +47,7 @@ interface Tour {
   description?: string;
   groupSize?: number;
   spotsLeft?: number;
+  tourLeaderId?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -70,6 +72,14 @@ interface TourFormData {
   description: string;
   rating: number;
   itinerary: string;
+  tourLeaderId: string;
+}
+
+interface TourLeader {
+  id: string;
+  name: string;
+  specialty: string;
+  location: string;
 }
 
 interface TourFormProps {
@@ -87,6 +97,8 @@ export default function TourForm({ admin, mode, tour }: TourFormProps) {
   const [jsonError, setJsonError] = useState<string>('');
   const [showPreview, setShowPreview] = useState(false);
   const [previewData, setPreviewData] = useState<any>(null);
+  const [tourLeaders, setTourLeaders] = useState<TourLeader[]>([]);
+  const [loadingTourLeaders, setLoadingTourLeaders] = useState(false);
   
   const [formData, setFormData] = useState<TourFormData>({
     code: '',
@@ -107,7 +119,13 @@ export default function TourForm({ admin, mode, tour }: TourFormProps) {
     description: '',
     rating: 5.0,
     itinerary: '',
+    tourLeaderId: '',
   });
+
+  // Fetch tour leaders on mount
+  useEffect(() => {
+    fetchTourLeaders();
+  }, []);
 
   // Initialize form data for edit mode
   useEffect(() => {
@@ -133,9 +151,26 @@ export default function TourForm({ admin, mode, tour }: TourFormProps) {
         itinerary: Array.isArray(tour.itinerary) ? 
           tour.itinerary.map((item: any) => `${item.day || item.title || 'Day'}: ${item.description || item.activities || ''}`).join('\n') : 
           (tour.itinerary ? String(tour.itinerary) : ''),
+        tourLeaderId: tour.tourLeaderId || '',
       });
     }
   }, [mode, tour]);
+
+  // Fetch tour leaders from API
+  const fetchTourLeaders = async () => {
+    try {
+      setLoadingTourLeaders(true);
+      const response = await fetch('/api/admin/tour-leaders');
+      if (response.ok) {
+        const data = await response.json();
+        setTourLeaders(data);
+      }
+    } catch (error) {
+      console.error('Error fetching tour leaders:', error);
+    } finally {
+      setLoadingTourLeaders(false);
+    }
+  };
 
   // Generate tour code based on title
   const generateTourCode = (title: string): string => {
@@ -182,6 +217,7 @@ export default function TourForm({ admin, mode, tour }: TourFormProps) {
         }),
       description: formData.description || undefined,
       rating: formData.rating,
+      tourLeaderId: formData.tourLeaderId || undefined,
     };
     setJsonData(JSON.stringify(jsonObj, null, 2));
   };
@@ -198,6 +234,7 @@ export default function TourForm({ admin, mode, tour }: TourFormProps) {
       groupSize: 8,
       spotsLeft: 8,
       rating: 5.0,
+      tourLeaderId: null,
       categories: ["adventure", "cultural"],
       overview: ["First paragraph about the tour", "Second paragraph with more details"],
       highlights: ["Stunning views", "Expert guides", "All meals included"],
@@ -365,6 +402,7 @@ export default function TourForm({ admin, mode, tour }: TourFormProps) {
         ...validation.data,
         totalJoined: mode === 'edit' ? tour?.totalJoined || 0 : 0,
         reviewCount: mode === 'edit' ? tour?.reviewCount || 0 : 0,
+        tourLeaderId: validation.data.tourLeaderId || null,
       };
     } else {
       if (!validateForm()) {
@@ -399,6 +437,7 @@ export default function TourForm({ admin, mode, tour }: TourFormProps) {
           }),
         totalJoined: mode === 'edit' ? tour?.totalJoined || 0 : 0,
         reviewCount: mode === 'edit' ? tour?.reviewCount || 0 : 0,
+        tourLeaderId: formData.tourLeaderId || null,
       };
     }
 
@@ -586,6 +625,7 @@ export default function TourForm({ admin, mode, tour }: TourFormProps) {
   "rating": 4.8,        // Default: 5.0
   "totalJoined": 0,     // Default: 0
   "reviewCount": 0,     // Default: 0
+  "tourLeaderId": "john-doe", // Optional: Tour leader ID
   
   // Categories (at least one required)
   "categories": [
@@ -643,7 +683,19 @@ export default function TourForm({ admin, mode, tour }: TourFormProps) {
   ],
   
   // Optional Detailed Description
-  "description": "Embark on an unforgettable journey..."
+  "description": "Embark on an unforgettable journey...",
+  
+  // Itinerary (array of day objects)
+  "itinerary": [
+    {
+      "day": "Day 1",
+      "description": "Arrival and orientation"
+    },
+    {
+      "day": "Day 2", 
+      "description": "Main activities"
+    }
+  ]
 }
 
 // Validation Rules:
@@ -748,6 +800,30 @@ export default function TourForm({ admin, mode, tour }: TourFormProps) {
                     {errors.duration && (
                       <p className="mt-1 text-sm text-red-600">{errors.duration}</p>
                     )}
+                  </div>
+
+                  {/* Tour Leader */}
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <UserIcon className="inline w-4 h-4 mr-1" />
+                      Tour Leader
+                    </label>
+                    <select
+                      value={formData.tourLeaderId}
+                      onChange={(e) => handleInputChange('tourLeaderId', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                      disabled={loadingTourLeaders}
+                    >
+                      <option value="">Select a tour leader (optional)</option>
+                      {tourLeaders.map((leader) => (
+                        <option key={leader.id} value={leader.id}>
+                          {leader.name} - {leader.specialty} ({leader.location})
+                        </option>
+                      ))}
+                    </select>
+                    <p className="mt-1 text-xs text-gray-500">
+                      Assign a tour leader to this tour package
+                    </p>
                   </div>
                 </div>
               </div>

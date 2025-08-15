@@ -196,19 +196,6 @@ const TourLeaderClient = ({ tourLeader }: TourLeaderProps) => {
                     </div>
                   </div>
                 </div>
-                <div className="bg-gray-50 rounded-lg p-3">
-                  <div className="flex items-center">
-                    <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mr-2">
-                      <span className="text-green-600 font-bold text-xs">$</span>
-                    </div>
-                    <div>
-                      <div className="text-xs text-gray-500">Rate</div>
-                      <div className="font-medium text-gray-900 text-sm">
-                        {tourLeader.rate || 'Contact for pricing'}
-                      </div>
-                    </div>
-                  </div>
-                </div>
               </div>
               <div className="mt-4 flex flex-wrap items-center">
                 <div className="flex items-center mr-6 mb-2">
