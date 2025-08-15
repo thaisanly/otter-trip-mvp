@@ -1,10 +1,10 @@
 'use client'
 
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { SearchIcon, XIcon } from 'lucide-react';
 import TourExpertCard from '@/components/ui/TourExpertCard';
-import { experts } from '../../mock/experts';
+import { TourExpertProps } from '@/components/ui/TourExpertCard';
 
 // Filter modal component
 const FilterModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
@@ -227,22 +227,171 @@ const FilterModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void
   );
 };
 
+// Database Expert type
+interface Expert {
+  id: string;
+  name: string;
+  title: string;
+  image: string;
+  location: string;
+  rating: number;
+  reviewCount: number;
+  hourlyRate: string;
+  languages: string[];
+  expertise: string[];
+  certifications?: string[];
+  availability?: any;
+  bio?: string;
+  experience?: string;
+  featuredTours?: string[];
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
 const MeetExperts = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [activeFilter, setActiveFilter] = useState('all');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [experts, setExperts] = useState<Expert[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const itemsPerPage = 9; // 3 columns x 3 rows
+
+  // Fetch experts data from API (only active experts)
+  useEffect(() => {
+    const fetchExperts = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch('/api/experts?active=true');
+        if (!response.ok) {
+          throw new Error('Failed to fetch experts');
+        }
+        const data = await response.json();
+        setExperts(data);
+        setError(null);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to fetch experts');
+        setExperts([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchExperts();
+  }, []);
+
+  // Transform Expert data to TourExpertProps
+  const transformExpertToCardProps = (expert: Expert): TourExpertProps => {
+    return {
+      id: expert.id,
+      name: expert.name,
+      image: expert.image,
+      location: expert.location,
+      countryCode: '', // Not available in database, could be derived from location
+      verified: true, // Could be based on certifications or a separate field
+      rating: expert.rating,
+      reviews: expert.reviewCount,
+      experience: expert.experience ? parseInt(expert.experience.replace(/\D/g, '')) || 0 : 0,
+      languages: expert.languages,
+      specialties: expert.expertise,
+      followers: Math.floor(Math.random() * 10000) + 1000, // Mock data for now
+      isLive: false, // Mock data for now
+      isTopCreator: expert.rating >= 4.8, // Based on high rating
+      isRisingStar: expert.reviewCount < 50 && expert.rating >= 4.5, // New experts with good ratings
+      videos: Math.floor(Math.random() * 100) + 10, // Mock data for now
+      liveStreams: Math.floor(Math.random() * 20) + 5, // Mock data for now
+      tours: expert.featuredTours ? expert.featuredTours.length : Math.floor(Math.random() * 10) + 1,
+    };
+  };
 
   const handleFilterChange = (filter: string) => {
     setActiveFilter(filter);
+    setCurrentPage(1); // Reset to first page when filter changes
   };
 
-  // Filter experts based on active filter
-  const filteredExperts = experts.filter((expert: any) => {
-    if (activeFilter === 'live-now') return expert.isLive;
-    if (activeFilter === 'top-creators') return expert.isTopCreator;
-    if (activeFilter === 'rising-stars') return expert.isRisingStar;
-    return true;
+  // Filter experts based on active filter and search query
+  const filteredExperts = experts.filter((expert: Expert) => {
+    const expertCardProps = transformExpertToCardProps(expert);
+    const matchesFilter = 
+      activeFilter === 'all' ||
+      (activeFilter === 'live-now' && expertCardProps.isLive) ||
+      (activeFilter === 'top-creators' && expertCardProps.isTopCreator) ||
+      (activeFilter === 'rising-stars' && expertCardProps.isRisingStar);
+    
+    const matchesSearch = searchQuery === '' || 
+      expert.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      expert.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      expert.expertise.some((specialty: string) => 
+        specialty.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    
+    return matchesFilter && matchesSearch;
   });
+
+  // Calculate pagination
+  const totalPages = Math.ceil(filteredExperts.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentExperts = filteredExperts.slice(startIndex, endIndex);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handlePrevious = () => {
+    if (currentPage > 1) {
+      handlePageChange(currentPage - 1);
+    }
+  };
+
+  const handleNext = () => {
+    if (currentPage < totalPages) {
+      handlePageChange(currentPage + 1);
+    }
+  };
+
+  // Generate page numbers to display
+  const getPageNumbers = () => {
+    const pages = [];
+    const maxVisiblePages = 5;
+    
+    if (totalPages <= maxVisiblePages) {
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      // Always show first page
+      pages.push(1);
+      
+      if (currentPage > 3) {
+        pages.push('...');
+      }
+      
+      // Show pages around current page
+      const start = Math.max(2, currentPage - 1);
+      const end = Math.min(totalPages - 1, currentPage + 1);
+      
+      for (let i = start; i <= end; i++) {
+        if (i !== 1 && i !== totalPages) {
+          pages.push(i);
+        }
+      }
+      
+      if (currentPage < totalPages - 2) {
+        pages.push('...');
+      }
+      
+      // Always show last page if more than 1 page
+      if (totalPages > 1) {
+        pages.push(totalPages);
+      }
+    }
+    
+    return pages;
+  };
 
   return (
     <div className="bg-gray-50 min-h-screen pb-12">
@@ -266,7 +415,7 @@ const MeetExperts = () => {
             <h1 className="text-3xl font-bold text-gray-900 flex items-center">
               Meet Experts
               <span className="ml-3 bg-blue-100 text-blue-800 text-sm font-medium px-2.5 py-0.5 rounded-full">
-                156
+                {filteredExperts.length}
               </span>
             </h1>
             <p className="text-gray-600 mt-2">
@@ -286,47 +435,107 @@ const MeetExperts = () => {
             placeholder="Search experts by name, location, or specialty..."
             className="w-full pl-10 pr-4 py-3 bg-white border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              setCurrentPage(1); // Reset to first page when search changes
+            }}
           />
         </div>
 
-        {/* Experts Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredExperts.map((expert: any) => (
-            <TourExpertCard key={expert.id} {...expert} />
-          ))}
-        </div>
+        {/* Loading state */}
+        {loading && (
+          <div className="flex justify-center items-center py-12">
+            <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+            <span className="ml-3 text-gray-600">Loading experts...</span>
+          </div>
+        )}
 
-        {/* Pagination */}
-        <div className="mt-10 flex justify-center">
-          <nav className="flex items-center space-x-1">
-            <button className="px-3 py-2 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50">
-              Previous
+        {/* Error state */}
+        {error && (
+          <div className="text-center py-12">
+            <p className="text-red-500 text-lg">Error loading experts</p>
+            <p className="text-gray-400 mt-2">{error}</p>
+            <button 
+              onClick={() => window.location.reload()} 
+              className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            >
+              Try Again
             </button>
-            <button className="px-3 py-2 rounded-md bg-blue-600 text-white border border-blue-600">
-              1
-            </button>
-            <button className="px-3 py-2 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50">
-              2
-            </button>
-            <button className="px-3 py-2 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50">
-              3
-            </button>
-            <span className="px-3 py-2 text-gray-500">...</span>
-            <button className="px-3 py-2 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50">
-              10
-            </button>
-            <button className="px-3 py-2 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50">
-              Next
-            </button>
-          </nav>
-        </div>
+          </div>
+        )}
+
+        {/* Experts Grid */}
+        {!loading && !error && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {currentExperts.map((expert: Expert) => (
+              <TourExpertCard key={expert.id} {...transformExpertToCardProps(expert)} />
+            ))}
+          </div>
+        )}
+
+        {/* Show message if no experts found */}
+        {!loading && !error && filteredExperts.length === 0 && (
+          <div className="text-center py-12">
+            <p className="text-gray-500 text-lg">No experts found matching your criteria.</p>
+            <p className="text-gray-400 mt-2">Try adjusting your search or filters.</p>
+          </div>
+        )}
+
+        {/* Pagination - Only show if there are more than 1 page */}
+        {!loading && !error && totalPages > 1 && (
+          <div className="mt-10 flex justify-center">
+            <nav className="flex items-center space-x-1">
+              <button 
+                onClick={handlePrevious}
+                disabled={currentPage === 1}
+                className={`px-3 py-2 rounded-md border ${
+                  currentPage === 1 
+                    ? 'border-gray-200 text-gray-400 cursor-not-allowed' 
+                    : 'border-gray-300 text-gray-700 hover:bg-gray-50'
+                }`}
+              >
+                Previous
+              </button>
+              
+              {getPageNumbers().map((page, index) => (
+                <React.Fragment key={index}>
+                  {page === '...' ? (
+                    <span className="px-3 py-2 text-gray-500">...</span>
+                  ) : (
+                    <button
+                      onClick={() => handlePageChange(page as number)}
+                      className={`px-3 py-2 rounded-md border ${
+                        currentPage === page
+                          ? 'bg-blue-600 text-white border-blue-600'
+                          : 'border-gray-300 text-gray-700 hover:bg-gray-50'
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  )}
+                </React.Fragment>
+              ))}
+              
+              <button 
+                onClick={handleNext}
+                disabled={currentPage === totalPages}
+                className={`px-3 py-2 rounded-md border ${
+                  currentPage === totalPages 
+                    ? 'border-gray-200 text-gray-400 cursor-not-allowed' 
+                    : 'border-gray-300 text-gray-700 hover:bg-gray-50'
+                }`}
+              >
+                Next
+              </button>
+            </nav>
+          </div>
+        )}
       </div>
 
       {/* Filter Modal */}
       <FilterModal isOpen={isFilterModalOpen} onClose={() => setIsFilterModalOpen(false)} />
     </div>
   );
-};
+}
 
 export default MeetExperts;

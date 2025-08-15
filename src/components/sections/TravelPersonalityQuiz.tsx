@@ -39,6 +39,7 @@ const TravelPersonalityQuiz = () => {
   const [showResults, setShowResults] = useState(false);
   const [personalityResult, setPersonalityResult] = useState<PersonalityType | null>(null);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [isCalculating, setIsCalculating] = useState(false);
   // Refs for scroll management
   const quizRef = useRef<HTMLDivElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
@@ -112,49 +113,73 @@ const TravelPersonalityQuiz = () => {
       calculateResults();
     }
   };
-  // Calculate personality type based on answers
-  const calculateResults = () => {
-    // This is a simplified algorithm - in a real app, this would be more sophisticated
-    // For demo purposes, we'll just pick a personality type based on some of the answers
-    // Get the activities answer as it's most deterministic for our demo
-    const activitiesAnswer = answers['activities'];
-    let result: PersonalityType;
-    if (Array.isArray(activitiesAnswer)) {
-      // If multiple activities selected, use the first one
-      if (activitiesAnswer.includes('adventure')) {
-        result = personalityTypes.find((p) => p.id === 'adventure-seeker')!;
-      } else if (activitiesAnswer.includes('food')) {
-        result = personalityTypes.find((p) => p.id === 'culinary-enthusiast')!;
-      } else if (activitiesAnswer.includes('culture')) {
-        result = personalityTypes.find((p) => p.id === 'cultural-explorer')!;
-      } else if (activitiesAnswer.includes('relaxation')) {
-        result = personalityTypes.find((p) => p.id === 'relaxation-seeker')!;
-      } else {
-        // Default to cultural explorer if somehow no activities were selected
-        result = personalityTypes.find((p) => p.id === 'cultural-explorer')!;
+  // Calculate personality type based on answers using API
+  const calculateResults = async () => {
+    setIsCalculating(true);
+    try {
+      const response = await fetch('/api/quiz/match-experts', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ answers }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch quiz results');
       }
-    } else {
-      // If we don't have activities (shouldn't happen), use planning style
-      const planningStyle = answers['planning'] as string;
-      if (planningStyle === 'spontaneous') {
-        result = personalityTypes.find((p) => p.id === 'adventure-seeker')!;
-      } else if (planningStyle === 'detailed') {
-        result = personalityTypes.find((p) => p.id === 'cultural-explorer')!;
+
+      const data = await response.json();
+      setPersonalityResult(data.personalityType);
+      setShowResults(true);
+      
+      // Scroll to results after a brief delay
+      setTimeout(() => {
+        if (resultsRef.current) {
+          resultsRef.current.scrollIntoView({
+            behavior: 'smooth',
+          });
+        }
+      }, 100);
+    } catch (error) {
+      console.error('Error calculating results:', error);
+      // Fallback to mock data if API fails
+      const activitiesAnswer = answers['activities'];
+      let result: PersonalityType;
+      if (Array.isArray(activitiesAnswer)) {
+        if (activitiesAnswer.includes('adventure')) {
+          result = personalityTypes.find((p) => p.id === 'adventure-seeker')!;
+        } else if (activitiesAnswer.includes('food')) {
+          result = personalityTypes.find((p) => p.id === 'culinary-enthusiast')!;
+        } else if (activitiesAnswer.includes('culture')) {
+          result = personalityTypes.find((p) => p.id === 'cultural-explorer')!;
+        } else if (activitiesAnswer.includes('relaxation')) {
+          result = personalityTypes.find((p) => p.id === 'relaxation-seeker')!;
+        } else {
+          result = personalityTypes.find((p) => p.id === 'cultural-explorer')!;
+        }
       } else {
-        // Default to culinary for flexible planners
-        result = personalityTypes.find((p) => p.id === 'culinary-enthusiast')!;
+        const planningStyle = answers['planning'] as string;
+        if (planningStyle === 'spontaneous') {
+          result = personalityTypes.find((p) => p.id === 'adventure-seeker')!;
+        } else if (planningStyle === 'detailed') {
+          result = personalityTypes.find((p) => p.id === 'cultural-explorer')!;
+        } else {
+          result = personalityTypes.find((p) => p.id === 'culinary-enthusiast')!;
+        }
       }
+      setPersonalityResult(result);
+      setShowResults(true);
+      setTimeout(() => {
+        if (resultsRef.current) {
+          resultsRef.current.scrollIntoView({
+            behavior: 'smooth',
+          });
+        }
+      }, 100);
+    } finally {
+      setIsCalculating(false);
     }
-    setPersonalityResult(result);
-    setShowResults(true);
-    // Scroll to results after a brief delay
-    setTimeout(() => {
-      if (resultsRef.current) {
-        resultsRef.current.scrollIntoView({
-          behavior: 'smooth',
-        });
-      }
-    }, 100);
   };
   // Reset the quiz
   const resetQuiz = () => {
@@ -344,14 +369,18 @@ const TravelPersonalityQuiz = () => {
                     <div className="flex justify-end">
                       <button
                         onClick={handleNext}
-                        disabled={!hasValidAnswer()}
+                        disabled={!hasValidAnswer() || isCalculating}
                         className={`
                           flex items-center justify-center py-2.5 px-6 rounded-lg font-medium transition-colors
-                          ${hasValidAnswer() ? 'bg-blue-600 hover:bg-blue-700 text-white' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}
+                          ${hasValidAnswer() && !isCalculating ? 'bg-blue-600 hover:bg-blue-700 text-white' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}
                         `}
                       >
-                        {currentStep === quizQuestions.length - 1 ? 'See Results' : 'Next'}
-                        <ArrowRightIcon size={16} className="ml-2" />
+                        {currentStep === quizQuestions.length - 1 && isCalculating 
+                          ? 'Finding Your Matches...' 
+                          : currentStep === quizQuestions.length - 1 
+                            ? 'See Results' 
+                            : 'Next'}
+                        {!isCalculating && <ArrowRightIcon size={16} className="ml-2" />}
                       </button>
                     </div>
                   )}
@@ -361,11 +390,16 @@ const TravelPersonalityQuiz = () => {
                     hasValidAnswer() && (
                       <div className="flex justify-end mt-6">
                         <button
-                          onClick={calculateResults}
-                          className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 px-6 rounded-lg flex items-center transition-colors"
+                          onClick={() => calculateResults()}
+                          disabled={isCalculating}
+                          className={`font-medium py-2.5 px-6 rounded-lg flex items-center transition-colors ${
+                            isCalculating 
+                              ? 'bg-gray-400 cursor-not-allowed text-white' 
+                              : 'bg-blue-600 hover:bg-blue-700 text-white'
+                          }`}
                         >
-                          See Results
-                          <ArrowRightIcon size={16} className="ml-2" />
+                          {isCalculating ? 'Finding Your Matches...' : 'See Results'}
+                          {!isCalculating && <ArrowRightIcon size={16} className="ml-2" />}
                         </button>
                       </div>
                     )}
@@ -438,7 +472,7 @@ const TravelPersonalityQuiz = () => {
                           <img
                             src={expert.image}
                             alt={expert.name}
-                            className="w-full h-32 object-cover"
+                            className="w-full h-48 object-cover"
                           />
                           <div className="absolute top-2 right-2 bg-blue-600 text-white text-xs font-bold px-2 py-1 rounded-full">
                             {expert.matchPercentage}% Match
@@ -484,7 +518,10 @@ const TravelPersonalityQuiz = () => {
                             </div>
                           </div>
                           <div className="w-full">
-                            <button className="w-full text-center border border-blue-600 text-blue-600 hover:bg-blue-50 font-medium py-2 px-4 rounded-lg text-sm transition-colors">
+                            <button 
+                              onClick={() => router.push(`/meet-experts/${expert.id}`)}
+                              className="w-full text-center border border-blue-600 text-blue-600 hover:bg-blue-50 font-medium py-2 px-4 rounded-lg text-sm transition-colors"
+                            >
                               View Profile
                             </button>
                           </div>

@@ -41,6 +41,7 @@ const Header = () => {
     return pathname.startsWith('/meet-experts');
   };
 
+
   return (
     <header
       className={`sticky top-0 z-50 w-full transition-all duration-300 ${isScrolled ? 'bg-white shadow-md' : 'bg-white shadow-sm'}`}
@@ -75,7 +76,7 @@ const Header = () => {
                 <ChevronDownIcon size={16} className="ml-1" />
               </button>
               {isExploreOpen && (
-                <div className="absolute top-full left-0 mt-1 w-48 bg-white rounded-lg shadow-lg p-2 border border-gray-100 z-50">
+                <div className="absolute top-full right-0 mt-1 w-56 bg-white rounded-lg shadow-lg p-2 border border-gray-100 z-50">
                   <Link
                     href="/explore/adventure"
                     className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-md"

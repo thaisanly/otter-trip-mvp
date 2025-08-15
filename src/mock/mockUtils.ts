@@ -29,6 +29,7 @@ export function convertTourDetailToCategoryTour(tour: TourDetail): CategoryTour 
     rating: tour.rating,
     reviews: tour.reviewCount,
     talents: tour.totalJoined,
+    hasAvailableDates: tour.dates.length > 0,
     guide: {
       name: tour.guide.name,
       image: tour.guide.image,

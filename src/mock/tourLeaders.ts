@@ -46,7 +46,8 @@ export interface TravelStory {
   title: string;
   location: string;
   date: string;
-  image: string;
+  image?: string; // Keep for backward compatibility
+  images?: string[]; // New array structure
   content: string;
   likes: number;
   traits: string[];

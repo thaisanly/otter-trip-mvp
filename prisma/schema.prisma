@@ -14,6 +14,7 @@ model TourLeader {
   id            String   @id @default(cuid())
   name          String
   image         String
+  coverImage    String?  // Cover image for profile page
   location      String
   rating        Float
   reviewCount   Int
@@ -26,7 +27,15 @@ model TourLeader {
   certifications Json?   // Array of certifications
   bio           String?
   expertise     Json?    // Array of expertise areas
-  tours         Json?    // Array of tour objects
+  travelStyle   Json?    // Array of travel style preferences
+  travelStories Json?    // Array of travel story objects
+  curatedTours  Json?    // Array of curated tour IDs
+  upcomingTours Json?    // Array of upcoming tour IDs
+  countrySpecializations Json? // Array of country specialization objects
+  tourCompleteCount Int?  // Number of completed tours
+  averageResponseTime String? // Average response time
+  rate          String?  // Hourly or daily rate
+  tours         Tour[]   // Relation to tours
   reviews       Json?    // Array of review objects
   availability  Json?    // Availability data
   createdAt     DateTime @default(now())
@@ -36,34 +45,36 @@ model TourLeader {
 }
 
 model Tour {
-  id            String   @id @default(cuid())
-  code          String   @unique
+  id            String      @id @default(cuid())
+  code          String      @unique
   title         String
   heroImage     String
   duration      String
   price         String
-  totalJoined   Int      @default(0)
-  rating        Float    @default(0)
-  reviewCount   Int      @default(0)
+  totalJoined   Int         @default(0)
+  rating        Float       @default(0)
+  reviewCount   Int         @default(0)
   location      String
-  categories    Json     // Array of category strings
-  overview      Json     // Array of overview paragraphs
-  highlights    Json     // Array of highlight strings
+  categories    Json        // Array of category strings
+  overview      Json        // Array of overview paragraphs
+  highlights    Json        // Array of highlight strings
   contentImage  String?
   videoUrl      String?
-  galleryImages Json?    // Array of image URLs
-  inclusions    Json?    // Array of inclusion strings
-  exclusions    Json?    // Array of exclusion strings
-  itinerary     Json?    // Array of itinerary objects
-  additionalInfo Json?   // Array of additional info objects
-  guide         Json?    // Guide object with details
-  dates         Json?    // Array of available dates
-  reviews       Json?    // Array of review objects
+  galleryImages Json?       // Array of image URLs
+  inclusions    Json?       // Array of inclusion strings
+  exclusions    Json?       // Array of exclusion strings
+  itinerary     Json?       // Array of itinerary objects
+  additionalInfo Json?      // Array of additional info objects
+  guide         Json?       // Guide object with details (deprecated - use tourLeader relation)
+  dates         Json?       // Array of available dates
+  reviews       Json?       // Array of review objects
   description   String?
   groupSize     Int?
   spotsLeft     Int?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  tourLeaderId  String?     // Foreign key to TourLeader
+  tourLeader    TourLeader? @relation(fields: [tourLeaderId], references: [id])
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
 
   @@map("tours")
 }
@@ -73,6 +84,7 @@ model Expert {
   name          String
   title         String
   image         String
+  banner        String?  // Banner/cover image URL
   location      String
   rating        Float
   reviewCount   Int
@@ -83,6 +95,10 @@ model Expert {
   availability  Json?    // Availability data
   bio           String?
   experience    String?
+  featuredTours Json?    // Array of featured tour IDs
+  socialMedia   Json?    // Social media links object
+  latestVideos  Json?    // Array of video objects {id, title, url, thumbnail, viewCount}
+  isActive      Boolean  @default(true)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
@@ -128,6 +144,35 @@ model ConsultationBooking {
   @@map("consultation_bookings")
 }
 
+model ConsultationCode {
+  id          String    @id @default(cuid())
+  code        String    @unique
+  status      String    @default("active") // active | inactive | expired
+  description String?   // Optional description for the code
+  maxUses     Int?      // Maximum number of times this code can be used (null = unlimited)
+  usedCount   Int       @default(0) // Number of times this code has been used
+  expiresAt   DateTime? // Optional expiration date
+  createdBy   String?   // Who created this code
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@map("consultation_codes")
+}
+
+model Admin {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String   // Hashed password
+  name      String
+  role      String   @default("admin") // admin | super_admin
+  isActive  Boolean  @default(true)
+  lastLogin DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("admins")
+}
+
 model Inquiry {
   id            String   @id @default(cuid())
   name          String
@@ -142,4 +187,33 @@ model Inquiry {
   updatedAt     DateTime @updatedAt
 
   @@map("inquiries")
+}
+
+model TourCategory {
+  id          String   @id // Slug as primary key (e.g., "adventure", "cultural")
+  name        String   // Display name (e.g., "Adventure Tours")
+  description String   // Detailed description
+  coverImage  String   // Cover image URL
+  icon        String?  // Optional icon name or URL
+  interests   Json?    // Array of interest tags
+  isActive    Boolean  @default(true)
+  displayOrder Int     @default(0) // For sorting categories
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("tour_categories")
+}
+
+model Newsletter {
+  id               String    @id @default(cuid())
+  email            String    @unique
+  confirmationToken String?  @unique
+  isConfirmed      Boolean   @default(false)
+  confirmedAt      DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  @@index([email])
+  @@index([confirmationToken])
+  @@map("newsletters")
 }

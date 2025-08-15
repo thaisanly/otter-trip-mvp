@@ -18,6 +18,7 @@ export interface CategoryTour {
   rating: number;
   reviews: number;
   talents: number;
+  hasAvailableDates: boolean;
   guide?: {
     name: string;
     image: string;

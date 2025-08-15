@@ -77,8 +77,8 @@ const TourExpertCard: React.FC<TourExpertProps> = ({
           <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
         </div>
       )}
-      {/* Status indicators */}
-      <div className="relative">
+      {/* Status indicators - Hidden for now */}
+      {/* <div className="relative">
         {isLive && (
           <div className="absolute top-4 left-4 bg-red-600 text-white text-xs font-medium px-2 py-1 rounded-full flex items-center z-10">
             <span className="w-2 h-2 bg-white rounded-full mr-1 animate-pulse"></span>
@@ -95,7 +95,7 @@ const TourExpertCard: React.FC<TourExpertProps> = ({
             RISING STAR
           </div>
         )}
-      </div>
+      </div> */}
       <div className="p-6 flex flex-col items-center">
         {/* Profile image with verification */}
         <div className="relative mb-4 cursor-pointer" onClick={handleViewProfileClick}>
@@ -107,9 +107,10 @@ const TourExpertCard: React.FC<TourExpertProps> = ({
               <CheckCircleIcon size={16} />
             </div>
           )}
-          {isLive && (
+          {/* Live indicator - Hidden for now */}
+          {/* {isLive && (
             <div className="absolute top-0 right-0 w-4 h-4 bg-red-600 rounded-full border-2 border-white animate-pulse"></div>
-          )}
+          )} */}
         </div>
         {/* Name and location */}
         <h3

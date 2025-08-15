@@ -52,6 +52,7 @@ export interface Tour {
  * - languages: Languages spoken
  * - price: Daily rate as number
  * - availability: Availability status text
+ * - travelStyle: Array of travel style preferences (e.g., ["Adventure", "Cultural"])
  */
 export interface TourLeader {
   id: string;
@@ -65,6 +66,7 @@ export interface TourLeader {
   languages: string[];
   price: number;
   availability: string;
+  travelStyle: string[];
 }
 
 /**
@@ -512,6 +514,52 @@ export interface UserPreferences {
  * Usage: Booking state management
  */
 export type BookingStatus = 'pending' | 'confirmed' | 'cancelled' | 'completed' | 'refunded';
+export interface Booking {
+  id: string;
+  bookingReference: string;
+  tourId: string;
+  tourTitle: string;
+  location?: string;
+  selectedDate: string;
+  participants: number;
+  pricePerPerson: number;
+  totalPrice: number;
+  leadTraveler: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string;
+  };
+  additionalTravelers?: Array<{
+    firstName: string;
+    lastName: string;
+  }>;
+  specialRequests?: string;
+  status: BookingStatus;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface BookingSearchFilters {
+  status?: BookingStatus;
+  dateRange?: {
+    start: string;
+    end: string;
+  };
+  location?: string;
+  tourTitle?: string;
+  bookingReference?: string;
+  sortBy?: 'createdAt' | 'selectedDate' | 'totalPrice';
+  sortOrder?: 'asc' | 'desc';
+}
+
+export interface BookingListResponse {
+  success: boolean;
+  bookings: Booking[];
+  total: number;
+  page: number;
+  limit: number;
+}
 
 /**
  * Payment method

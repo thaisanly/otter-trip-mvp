@@ -1,26 +1,67 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { validateConsultationCodeFormat } from '@/utils/codeGenerator';
+import { z } from 'zod';
+import { env } from '@/lib/env';
+
+// Type definitions
+interface ConsultationEmailData {
+  expertName: string;
+  expertId: string;
+  userName: string;
+  userEmail: string;
+  phone: string;
+  message?: string;
+  selectedDate: string;
+  selectedTime: string;
+  selectedDateFormatted?: string;
+  invitationCode: string;
+  price: number;
+  bookingReference: string;
+}
+
+interface EmailProvider {
+  emailProvider: string;
+  adminEmail: string;
+  resend: any;
+  smtpTransporter: any;
+}
+
+// Input validation schema
+const consultationBookingSchema = z.object({
+  expertName: z.string().min(1, 'Expert name is required'),
+  expertId: z.string().min(1, 'Expert ID is required'),
+  userName: z.string().min(1, 'User name is required'),
+  userEmail: z.string().email('Valid email is required'),
+  phone: z.string().min(1, 'Phone number is required'),
+  message: z.string().optional(),
+  selectedDate: z.string().min(1, 'Selected date is required'),
+  selectedTime: z.string().min(1, 'Selected time is required'),
+  selectedDateFormatted: z.string().optional(),
+  price: z.number().positive().optional(),
+  invitationCode: z.string().optional(),
+});
 
 // Lazy load email libraries
-async function getEmailProvider() {
-  const emailProvider = process.env.EMAIL_PROVIDER || 'smtp';
-  const adminEmail = process.env.ADMIN_EMAIL || 'contact@ottertrip.com';
+async function getEmailProvider(): Promise<EmailProvider> {
+  const emailProvider = env.EMAIL_PROVIDER;
+  const adminEmail = env.ADMIN_EMAIL;
   
   let resend = null;
   let smtpTransporter = null;
   
   if (emailProvider === 'resend') {
     const { Resend } = await import('resend');
-    resend = new Resend(process.env.RESEND_API_KEY);
+    resend = new Resend(env.RESEND_API_KEY);
   } else if (emailProvider === 'smtp') {
     const nodemailer = await import('nodemailer');
     smtpTransporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST || 'localhost',
-      port: parseInt(process.env.SMTP_PORT || '1025'),
-      secure: process.env.SMTP_SECURE === 'true',
-      auth: process.env.SMTP_USER && process.env.SMTP_PASS ? {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
+      host: env.SMTP_HOST!,
+      port: parseInt(env.SMTP_PORT!),
+      secure: env.SMTP_SECURE === 'true',
+      auth: env.SMTP_USER && env.SMTP_PASS ? {
+        user: env.SMTP_USER,
+        pass: env.SMTP_PASS,
       } : undefined,
     });
   }
@@ -31,7 +72,7 @@ async function getEmailProvider() {
 // No longer generating invitation codes - using user's provided code from real-world events
 
 // Email template for admin
-const getAdminEmailHtml = (data: any, adminEmail: string) => `
+const getAdminEmailHtml = (data: ConsultationEmailData, adminEmail: string): string => `
   <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
     <div style="background-color: #1e40af; color: white; padding: 20px; border-radius: 8px 8px 0 0;">
       <h1 style="margin: 0; font-size: 24px;">Consultation Booking</h1>
@@ -50,7 +91,7 @@ const getAdminEmailHtml = (data: any, adminEmail: string) => `
       <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
         <h3 style="color: #374151; margin-top: 0;">Booking Details:</h3>
         <p><strong>Reference:</strong> ${data.bookingReference}</p>
-        <p><strong>Date:</strong> ${data.selectedDate}</p>
+        <p><strong>Date:</strong> ${data.selectedDateFormatted || data.selectedDate}</p>
         <p><strong>Time:</strong> ${data.selectedTime}</p>
         <p><strong>Duration:</strong> 60-minute consultation</p>
         <p><strong>Type:</strong> Video call</p>
@@ -69,15 +110,6 @@ const getAdminEmailHtml = (data: any, adminEmail: string) => `
         ` : ''}
       </div>
       
-      <div style="background-color: #f0fdf4; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-        <h3 style="color: #166534; margin-top: 0;">Payment Information:</h3>
-        <p><strong>Consultation Fee:</strong> $${data.price}</p>
-        <p><strong>Service Fee:</strong> $25</p>
-        <p style="font-size: 18px; font-weight: bold; color: #166534; margin-top: 10px;">
-          Total: $${data.price + 25}
-        </p>
-      </div>
-      
       <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
         <p style="color: #6b7280; font-size: 14px;">
           <strong>Next Steps:</strong><br>
@@ -92,7 +124,7 @@ const getAdminEmailHtml = (data: any, adminEmail: string) => `
 `;
 
 // Email template for client
-const getClientEmailHtml = (data: any, adminEmail: string) => `
+const getClientEmailHtml = (data: ConsultationEmailData, adminEmail: string): string => `
   <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
     <div style="background-color: #1e40af; color: white; padding: 20px; border-radius: 8px 8px 0 0;">
       <h1 style="margin: 0; font-size: 24px;">Consultation Confirmed!</h1>
@@ -120,7 +152,7 @@ const getClientEmailHtml = (data: any, adminEmail: string) => `
       <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
         <h3 style="color: #374151; margin-top: 0;">Consultation Details:</h3>
         <p><strong>Expert:</strong> ${data.expertName}</p>
-        <p><strong>Date:</strong> ${data.selectedDate}</p>
+        <p><strong>Date:</strong> ${data.selectedDateFormatted || data.selectedDate}</p>
         <p><strong>Time:</strong> ${data.selectedTime}</p>
         <p><strong>Duration:</strong> 60 minutes</p>
         <p><strong>Format:</strong> Video call (link will be sent separately)</p>
@@ -150,7 +182,7 @@ const getClientEmailHtml = (data: any, adminEmail: string) => `
   </div>
 `;
 
-async function sendWithResend(data: any, resend: any, adminEmail: string) {
+async function sendWithResend(data: ConsultationEmailData, resend: any, adminEmail: string) {
   if (!resend) {
     throw new Error('Resend is not configured');
   }
@@ -171,12 +203,12 @@ async function sendWithResend(data: any, resend: any, adminEmail: string) {
   return adminResult.data;
 }
 
-async function sendWithSMTP(data: any, smtpTransporter: any, adminEmail: string) {
+async function sendWithSMTP(data: ConsultationEmailData, smtpTransporter: any, adminEmail: string) {
   if (!smtpTransporter) {
     throw new Error('SMTP is not configured');
   }
 
-  const fromEmail = process.env.SMTP_FROM || 'noreply@ottertrip.com';
+  const fromEmail = env.SMTP_FROM!;
 
   // Send email to admin only
   await smtpTransporter.sendMail({
@@ -193,26 +225,81 @@ async function sendWithSMTP(data: any, smtpTransporter: any, adminEmail: string)
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { 
-      expertName,
-      expertId,
-      userName, 
-      userEmail, 
-      phone, 
-      message,
-      selectedDate,
-      selectedTime,
-      price,
-      bookingReference,
-      invitationCode
-    } = body;
-
-    // Validate required fields
-    if (!expertName || !userName || !userEmail || !phone || !selectedDate || !selectedTime) {
+    
+    // Validate input data
+    const validationResult = consultationBookingSchema.safeParse(body);
+    
+    if (!validationResult.success) {
       return NextResponse.json(
-        { error: 'Missing required fields' },
+        { error: 'Invalid input data', details: validationResult.error.issues },
         { status: 400 }
       );
+    }
+    
+    const data = validationResult.data;
+    
+    // Validate consultation code if provided
+    if (data.invitationCode) {
+      // Check format
+      if (!validateConsultationCodeFormat(data.invitationCode)) {
+        return NextResponse.json(
+          { error: 'Invalid consultation code format' },
+          { status: 400 }
+        );
+      }
+      
+      // Check if code exists and is valid in database
+      const consultationCode = await prisma.consultationCode.findUnique({
+        where: { code: data.invitationCode }
+      });
+      
+      if (!consultationCode) {
+        return NextResponse.json(
+          { error: 'Consultation code not found' },
+          { status: 400 }
+        );
+      }
+      
+      if (consultationCode.status !== 'active') {
+        return NextResponse.json(
+          { error: `Consultation code is ${consultationCode.status}` },
+          { status: 400 }
+        );
+      }
+      
+      // Check if code has expired
+      if (consultationCode.expiresAt && consultationCode.expiresAt < new Date()) {
+        // Update status to expired
+        await prisma.consultationCode.update({
+          where: { id: consultationCode.id },
+          data: { status: 'expired' }
+        });
+        
+        return NextResponse.json(
+          { error: 'Consultation code has expired' },
+          { status: 400 }
+        );
+      }
+      
+      // Check if code has reached max uses
+      if (consultationCode.maxUses && consultationCode.usedCount >= consultationCode.maxUses) {
+        // Update status to expired
+        await prisma.consultationCode.update({
+          where: { id: consultationCode.id },
+          data: { status: 'expired' }
+        });
+        
+        return NextResponse.json(
+          { error: 'Consultation code has reached maximum usage limit' },
+          { status: 400 }
+        );
+      }
+      
+      // Code is valid - increment usage count
+      await prisma.consultationCode.update({
+        where: { id: consultationCode.id },
+        data: { usedCount: consultationCode.usedCount + 1 }
+      });
     }
 
     // Get email provider configuration
@@ -221,25 +308,37 @@ export async function POST(request: NextRequest) {
     // Save consultation booking to database
     const consultationBooking = await prisma.consultationBooking.create({
       data: {
-        expertId: expertId || 'unknown',
-        expertName: expertName,
-        name: userName,
-        email: userEmail,
-        phone: phone || null,
-        company: company || null,
-        preferredDate: selectedDate || null,
-        preferredTime: selectedTime || null,
-        message: message || null,
-        invitationCode: invitationCode || null,
+        expertId: data.expertId,
+        expertName: data.expertName,
+        name: data.userName,
+        email: data.userEmail,
+        phone: data.phone,
+        company: null,
+        preferredDate: data.selectedDate,
+        preferredTime: data.selectedTime,
+        message: data.message || null,
+        invitationCode: data.invitationCode || null,
         status: 'pending',
       },
     });
 
+    // Generate booking reference using database ID
+    const bookingReference = `OT-${consultationBooking.id.slice(-9).toUpperCase()}`;
+
     // Prepare email data - use the invitation code provided by user
-    const emailData = {
-      ...body,
-      invitationCode: invitationCode || 'Not provided',
-      price: typeof price === 'number' ? price : 500 // Default price if not provided
+    const emailData: ConsultationEmailData = {
+      expertName: data.expertName,
+      expertId: data.expertId,
+      userName: data.userName,
+      userEmail: data.userEmail,
+      phone: data.phone,
+      message: data.message,
+      selectedDate: data.selectedDate,
+      selectedTime: data.selectedTime,
+      selectedDateFormatted: data.selectedDateFormatted,
+      invitationCode: data.invitationCode || 'Not provided',
+      price: data.price || 500, // Default price if not provided
+      bookingReference: bookingReference // Use the database-based reference
     };
 
     // Send email based on provider
@@ -252,7 +351,7 @@ export async function POST(request: NextRequest) {
       throw new Error(`Unknown email provider: ${emailProvider}`);
     }
 
-    console.log(`Consultation booking email sent via ${emailProvider}:`, result);
+    console.log(`[API] Consultation booking email sent via ${emailProvider}:`, result);
 
     return NextResponse.json({ 
       success: true, 
@@ -263,13 +362,16 @@ export async function POST(request: NextRequest) {
       provider: emailProvider 
     });
   } catch (error) {
-    console.error('Error sending consultation booking email:', error);
-    const emailProvider = process.env.EMAIL_PROVIDER || 'smtp';
+    console.error('[API] Error sending consultation booking email:', error);
+    
+    // Don't expose internal error details in production
+    const isDevelopment = process.env.NODE_ENV === 'development';
+    
     return NextResponse.json(
       { 
         error: 'Failed to send booking confirmation',
-        details: error instanceof Error ? error.message : 'Unknown error',
-        provider: emailProvider
+        ...(isDevelopment && { details: error instanceof Error ? error.message : 'Unknown error' }),
+        provider: env.EMAIL_PROVIDER
       },
       { status: 500 }
     );

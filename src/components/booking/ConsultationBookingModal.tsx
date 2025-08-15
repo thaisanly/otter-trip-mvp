@@ -4,7 +4,6 @@ import React, { useEffect, useState, Fragment } from 'react';
 import {
   CalendarIcon,
   ClockIcon,
-  CreditCardIcon,
   CheckIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -15,6 +14,10 @@ import {
   LockIcon,
   AlertCircleIcon,
   CheckCircleIcon,
+  InfoIcon,
+  XCircleIcon,
+  LoaderIcon,
+  HelpCircleIcon,
 } from 'lucide-react';
 import Modal from '../ui/Modal';
 interface ConsultationBookingModalProps {
@@ -46,11 +49,19 @@ const ConsultationBookingModal: React.FC<ConsultationBookingModalProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [isBookingComplete, setIsBookingComplete] = useState(false);
   const [bookingReference, setBookingReference] = useState('');
+  const [availabilityData, setAvailabilityData] = useState<any>(null);
+  const [isLoadingAvailability, setIsLoadingAvailability] = useState(false);
   // Form state
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [message, setMessage] = useState('');
+  const [enteredInvitationCode, setEnteredInvitationCode] = useState('');
+  const [validationState, setValidationState] = useState<
+    'idle' | 'loading' | 'success' | 'error' | 'format-error'
+  >('idle');
+  const [errorMessage, setErrorMessage] = useState('');
+  
   // Reset state when modal opens or closes
   useEffect(() => {
     if (isOpen) {
@@ -58,58 +69,49 @@ const ConsultationBookingModal: React.FC<ConsultationBookingModalProps> = ({
       setSelectedDate(null);
       setSelectedTimeSlot(null);
       setIsBookingComplete(false);
+      setAvailabilityData(null);
       // Clear form fields
       setName('');
       setEmail('');
       setPhone('');
       setMessage('');
+      setEnteredInvitationCode(invitationCode || '');
+      setValidationState('idle');
+      setErrorMessage('');
     }
-  }, [isOpen]);
-  // Generate some sample dates (next 7 days)
-  const generateDates = () => {
-    const dates = [];
-    const today = new Date();
-    for (let i = 1; i <= 14; i++) {
-      const date = new Date(today);
-      date.setDate(today.getDate() + i);
-      // Skip weekends for this example
-      if (date.getDay() !== 0 && date.getDay() !== 6) {
-        dates.push({
-          date: date.toISOString().split('T')[0],
-          day: date.getDate(),
-          month: date.toLocaleString('default', {
-            month: 'short',
-          }),
-          dayName: date.toLocaleString('default', {
-            weekday: 'short',
-          }),
-          available: Math.random() > 0.3, // Randomly mark some dates as unavailable
-        });
+  }, [isOpen, invitationCode]);
+
+  // Fetch availability data when needed
+  useEffect(() => {
+    const fetchAvailability = async () => {
+      if (step === 2 && expertId && !availabilityData) {
+        setIsLoadingAvailability(true);
+        try {
+          const response = await fetch(`/api/experts/${expertId}/availability`);
+          if (response.ok) {
+            const data = await response.json();
+            setAvailabilityData(data);
+          } else {
+            console.error('Failed to fetch availability data');
+          }
+        } catch (error) {
+          console.error('Error fetching availability:', error);
+        } finally {
+          setIsLoadingAvailability(false);
+        }
       }
-    }
-    return dates;
-  };
-  const availableDates = generateDates();
-  // Generate time slots for the selected date
-  const generateTimeSlots = (): TimeSlot[] => {
-    if (!selectedDate) return [];
-    const slots = [];
-    const startHour = 9; // 9 AM
-    const endHour = 17; // 5 PM
-    for (let hour = startHour; hour <= endHour; hour++) {
-      // Skip lunch hour
-      if (hour !== 12) {
-        const time = `${hour % 12 || 12}:00 ${hour >= 12 ? 'PM' : 'AM'}`;
-        slots.push({
-          id: `slot-${hour}`,
-          time,
-          available: Math.random() > 0.4, // Randomly mark some slots as unavailable
-        });
-      }
-    }
-    return slots;
-  };
-  const timeSlots = generateTimeSlots();
+    };
+
+    fetchAvailability();
+  }, [step, expertId, availabilityData]);
+
+  // Get available dates from API data
+  const availableDates = availabilityData?.availableDates || [];
+  
+  // Get time slots for the selected date
+  const timeSlots: TimeSlot[] = selectedDate 
+    ? (availableDates.find((d: any) => d.date === selectedDate)?.timeSlots || [])
+    : [];
   const handleDateSelect = (date: string) => {
     setSelectedDate(date);
     setSelectedTimeSlot(null); // Reset time slot when date changes
@@ -118,11 +120,44 @@ const ConsultationBookingModal: React.FC<ConsultationBookingModalProps> = ({
     setSelectedTimeSlot(slotId);
   };
   const handleContinue = async () => {
-    if (step === 2) {
+    if (step === 1) {
+      // Basic format validation
+      if (enteredInvitationCode.trim() === '') {
+        setValidationState('format-error');
+        setErrorMessage('Please enter an invitation code');
+        return;
+      }
+      
+      // Check format (example: OT-XXXX-XXXX)
+      const codePattern = /^OT-[A-Z0-9]{4}-[A-Z0-9]{4}$/;
+      if (!codePattern.test(enteredInvitationCode)) {
+        setValidationState('format-error');
+        setErrorMessage('Invalid code format. Expected: OT-XXXX-XXXX');
+        return;
+      }
+      
+      // Simulate API validation
+      setValidationState('loading');
+      
+      // For demo purposes, check against known valid codes
+      setTimeout(() => {
+        // Accept specific codes as valid (including those in database)
+        const validCodes = ['OT-1234-ABCD', 'OT-TEST-CODE', 'OT-7482-ZZOO', 'OT-5607-JMXO'];
+        if (validCodes.includes(enteredInvitationCode)) {
+          setValidationState('success');
+          // Wait a moment to show success state before proceeding
+          setTimeout(() => {
+            setStep(2);
+            setValidationState('idle'); // Reset for next time
+          }, 800);
+        } else {
+          setValidationState('error');
+          setErrorMessage('Invalid invitation code. Please check and try again.');
+        }
+      }, 1500);
+    } else if (step === 3) {
       // Process booking
       setIsLoading(true);
-      
-      const generatedRef = `OT-${Math.floor(100000 + Math.random() * 900000)}`;
       
       try {
         // Send booking confirmation email to admin only
@@ -138,50 +173,63 @@ const ConsultationBookingModal: React.FC<ConsultationBookingModalProps> = ({
             userEmail: email,
             phone,
             message,
-            selectedDate: getSelectedDateFormatted(),
+            selectedDate: selectedDate, // Use raw date format for database
             selectedTime: getSelectedTimeFormatted(),
+            selectedDateFormatted: getSelectedDateFormatted(), // Keep formatted for email
             price: typeof price === 'number' ? price : 500,
-            bookingReference: generatedRef,
-            invitationCode: invitationCode || 'N/A',
+            invitationCode: enteredInvitationCode || invitationCode || '',
           }),
         });
 
         const result = await response.json();
         
         if (!response.ok) {
+          // Check if it's a code validation error
+          if (result.error && result.error.toLowerCase().includes('code')) {
+            setValidationState('error');
+            setErrorMessage(result.error);
+            setStep(1); // Go back to code validation step
+            setIsLoading(false);
+            return;
+          }
           throw new Error(result.error || 'Failed to send booking confirmation');
         }
         
         setIsLoading(false);
         setIsBookingComplete(true);
-        setBookingReference(generatedRef);
-        setStep(3);
+        setBookingReference(result.data.bookingReference); // Use booking reference from API
+        setStep(4);
         
-        // Clear form data after successful booking
+        // Clear form data after successful booking (but keep date/time for confirmation display)
         setTimeout(() => {
           setName('');
           setEmail('');
           setPhone('');
           setMessage('');
-          setSelectedDate(null);
-          setSelectedTimeSlot(null);
+          setEnteredInvitationCode('');
         }, 100);
       } catch (error) {
         console.error('Error sending booking email:', error);
         setIsLoading(false);
-        // Still complete the booking even if email fails
+        // Check if it's a code validation error
+        if (error instanceof Error && error.message.toLowerCase().includes('code')) {
+          setValidationState('error');
+          setErrorMessage(error.message);
+          setStep(1); // Go back to code validation step
+          return;
+        }
+        // Still complete the booking even if email fails (for other errors)
         setIsBookingComplete(true);
-        setBookingReference(generatedRef);
-        setStep(3);
+        setBookingReference(result?.data?.bookingReference || 'OT-ERROR');
+        setStep(4);
         
-        // Clear form data even on error
+        // Clear form data even on error (but keep date/time for confirmation display)
         setTimeout(() => {
           setName('');
           setEmail('');
           setPhone('');
           setMessage('');
-          setSelectedDate(null);
-          setSelectedTimeSlot(null);
+          setEnteredInvitationCode('');
         }, 100);
       }
     } else {
@@ -207,21 +255,22 @@ const ConsultationBookingModal: React.FC<ConsultationBookingModalProps> = ({
     return slot ? slot.time : '';
   };
   const isNextDisabled = () => {
-    if (step === 1) return !selectedDate || !selectedTimeSlot;
-    if (step === 2) return !name || !email || !phone;
+    if (step === 1) return validationState === 'loading' || validationState === 'success';
+    if (step === 2) return !selectedDate || !selectedTimeSlot;
+    if (step === 3) return !name || !email || !phone;
     return false;
   };
   const renderStepIndicator = () => {
     return (
       <div className="flex items-center justify-center mb-6">
-        {[1, 2].map((stepNumber) => (
+        {[1, 2, 3].map((stepNumber) => (
           <Fragment key={stepNumber}>
             <div
               className={`w-8 h-8 rounded-full flex items-center justify-center ${stepNumber === step ? 'bg-blue-600 text-white' : stepNumber < step ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-600'}`}
             >
               {stepNumber < step ? <CheckIcon size={16} /> : stepNumber}
             </div>
-            {stepNumber < 2 && (
+            {stepNumber < 3 && (
               <div className={`w-12 h-1 ${stepNumber < step ? 'bg-green-500' : 'bg-gray-200'}`} />
             )}
           </Fragment>
@@ -229,12 +278,125 @@ const ConsultationBookingModal: React.FC<ConsultationBookingModalProps> = ({
       </div>
     );
   };
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.toUpperCase();
+    setEnteredInvitationCode(value);
+    // Reset validation state when typing
+    if (validationState !== 'idle' && validationState !== 'loading') {
+      setValidationState('idle');
+      setErrorMessage('');
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && validationState !== 'loading' && step === 1) {
+      handleContinue();
+    }
+  };
+
+  const renderInvitationCodeStep = () => {
+    return (
+      <div className="space-y-5">
+        <p className="text-gray-600">
+          Please enter your invitation code to book a consultation with {expertName}.
+        </p>
+        
+        <div className="relative">
+          <input
+            type="text"
+            value={enteredInvitationCode}
+            onChange={handleInputChange}
+            onKeyDown={handleKeyDown}
+            placeholder="e.g., OT-1234-ABCD"
+            className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 transition-colors ${
+              validationState === 'success' 
+                ? 'border-green-500 focus:ring-green-200' 
+                : validationState === 'error' || validationState === 'format-error' 
+                ? 'border-red-500 focus:ring-red-200' 
+                : 'border-gray-300 focus:ring-blue-200 focus:border-blue-500'
+            }`}
+            disabled={validationState === 'loading' || validationState === 'success'}
+          />
+          
+          {/* Status icons */}
+          {validationState === 'success' && (
+            <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-green-500">
+              <CheckCircleIcon size={20} />
+            </div>
+          )}
+          {(validationState === 'error' || validationState === 'format-error') && (
+            <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-red-500">
+              <XCircleIcon size={20} />
+            </div>
+          )}
+          {validationState === 'loading' && (
+            <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-blue-500">
+              <LoaderIcon size={20} className="animate-spin" />
+            </div>
+          )}
+        </div>
+        
+        {/* Validation messages */}
+        {(validationState === 'error' || validationState === 'format-error') && (
+          <div className="text-red-500 text-sm flex items-start">
+            <AlertCircleIcon size={16} className="mr-1 mt-0.5 flex-shrink-0" />
+            <span>{errorMessage}</span>
+          </div>
+        )}
+        {validationState === 'success' && (
+          <div className="text-green-500 text-sm flex items-center">
+            <CheckCircleIcon size={16} className="mr-1" />
+            <span>Valid code! Proceeding to booking...</span>
+          </div>
+        )}
+        {validationState === 'idle' && (
+          <div className="text-gray-500 text-sm flex items-start">
+            <HelpCircleIcon size={16} className="mr-1 mt-0.5 flex-shrink-0" />
+            <span>
+              Your invitation code can be found in your email invitation or from your travel agent.
+            </span>
+          </div>
+        )}
+        
+        <div className="bg-blue-50 p-4 rounded-lg">
+          <div className="text-sm text-blue-800">
+            <strong>Need an invitation code?</strong>
+            <p className="mt-1">
+              Contact your travel agent or email{' '}
+              <a href="mailto:support@ottertrip.com" className="text-blue-600 hover:underline">
+                support@ottertrip.com
+              </a>{' '}
+              to request access to our consultation services.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   const renderDateSelection = () => {
+    if (isLoadingAvailability) {
+      return (
+        <div className="text-center py-12">
+          <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading available dates...</p>
+        </div>
+      );
+    }
+
+    if (!availabilityData) {
+      return (
+        <div className="text-center py-12">
+          <p className="text-red-600">Unable to load availability. Please try again.</p>
+        </div>
+      );
+    }
+
     return (
       <div>
         <h3 className="text-lg font-medium text-gray-900 mb-4">Select Date</h3>
         <div className="flex overflow-x-auto pb-2 mb-6 space-x-2">
-          {availableDates.map((date) => (
+          {availableDates.map((date: any) => (
             <button
               key={date.date}
               onClick={() => date.available && handleDateSelect(date.date)}
@@ -247,6 +409,7 @@ const ConsultationBookingModal: React.FC<ConsultationBookingModalProps> = ({
             </button>
           ))}
         </div>
+        
         <h3 className="text-lg font-medium text-gray-900 mb-4">Select Time</h3>
         {selectedDate ? (
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
@@ -260,6 +423,9 @@ const ConsultationBookingModal: React.FC<ConsultationBookingModalProps> = ({
                 <div className="flex items-center justify-center">
                   <ClockIcon size={14} className="mr-1" />
                   <span>{slot.time}</span>
+                  {!slot.available && (
+                    <span className="ml-2 text-xs">(Booked)</span>
+                  )}
                 </div>
               </button>
             ))}
@@ -267,6 +433,14 @@ const ConsultationBookingModal: React.FC<ConsultationBookingModalProps> = ({
         ) : (
           <div className="text-center py-8 text-gray-500">
             Please select a date to view available time slots
+          </div>
+        )}
+        
+        {availabilityData?.totalBookedSlots > 0 && (
+          <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+            <p className="text-sm text-blue-800">
+              <strong>Note:</strong> {availabilityData.totalBookedSlots} time slots are already booked and unavailable for selection.
+            </p>
           </div>
         )}
       </div>
@@ -358,112 +532,6 @@ const ConsultationBookingModal: React.FC<ConsultationBookingModalProps> = ({
       </div>
     );
   };
-  const renderPaymentDetails = () => {
-    return (
-      <div>
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Payment Details</h3>
-        <div className="bg-blue-50 p-4 rounded-lg mb-6">
-          <div className="flex items-start">
-            <div className="mr-3 mt-1">
-              <CalendarIcon size={20} className="text-blue-600" />
-            </div>
-            <div>
-              <h4 className="font-medium text-gray-900">Booking Summary</h4>
-              <p className="text-sm text-gray-600 mt-1">60-minute consultation with {expertName}</p>
-              <p className="text-sm text-gray-600">
-                {getSelectedDateFormatted()} at {getSelectedTimeFormatted()}
-              </p>
-            </div>
-          </div>
-        </div>
-        <div className="border border-gray-200 rounded-lg p-4 mb-6">
-          <div className="flex justify-between items-center mb-4">
-            <h4 className="font-medium text-gray-900">Payment Method</h4>
-            <div className="flex items-center text-sm text-green-600">
-              <LockIcon size={14} className="mr-1" />
-              Secure Payment
-            </div>
-          </div>
-          <div className="space-y-4">
-            <label className="flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer bg-white">
-              <input type="radio" name="paymentMethod" className="mr-3" defaultChecked />
-              <div>
-                <div className="font-medium">Credit or Debit Card</div>
-                <div className="text-sm text-gray-500 mt-1">Visa, Mastercard, American Express</div>
-              </div>
-            </label>
-            <div className="space-y-3">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Card Number</label>
-                <div className="relative">
-                  <input
-                    type="text"
-                    className="w-full pl-4 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="1234 5678 9012 3456"
-                  />
-                  <CreditCardIcon
-                    size={18}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Expiration Date
-                  </label>
-                  <input
-                    type="text"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="MM/YY"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Security Code
-                  </label>
-                  <input
-                    type="text"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="CVC"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="border-t border-gray-200 pt-4 mb-6">
-          <div className="flex justify-between mb-2">
-            <span className="text-gray-600">Consultation Fee</span>
-            <span>{typeof price === 'number' ? `$${price}` : price}</span>
-          </div>
-          <div className="flex justify-between mb-2">
-            <span className="text-gray-600">Service Fee</span>
-            <span>$25</span>
-          </div>
-          <div className="flex justify-between font-bold text-lg pt-2 border-t border-gray-200 mt-2">
-            <span>Total</span>
-            <span>${typeof price === 'number' ? price + 25 : price}</span>
-          </div>
-        </div>
-        <div className="mb-6">
-          <label className="flex items-start">
-            <input type="checkbox" className="mt-1 mr-3" defaultChecked />
-            <span className="text-sm text-gray-700">
-              I agree to the{' '}
-              <a href="#" className="text-blue-600 hover:underline">
-                Terms of Service
-              </a>{' '}
-              and{' '}
-              <a href="#" className="text-blue-600 hover:underline">
-                Cancellation Policy
-              </a>
-            </span>
-          </label>
-        </div>
-      </div>
-    );
-  };
   const renderConfirmation = () => {
     return (
       <div className="text-center py-6">
@@ -505,14 +573,6 @@ const ConsultationBookingModal: React.FC<ConsultationBookingModalProps> = ({
             </div>
           </div>
         </div>
-        <div className="text-gray-600 mb-8">
-          <p>
-            We've sent a confirmation email to <strong>{email}</strong>
-          </p>
-          <p className="mt-2">
-            You'll receive a calendar invitation and Zoom link for your session.
-          </p>
-        </div>
         <button
           onClick={onClose}
           className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition-colors"
@@ -525,17 +585,19 @@ const ConsultationBookingModal: React.FC<ConsultationBookingModalProps> = ({
   const renderStepContent = () => {
     switch (step) {
       case 1:
-        return renderDateSelection();
+        return renderInvitationCodeStep();
       case 2:
-        return renderContactDetails();
+        return renderDateSelection();
       case 3:
+        return renderContactDetails();
+      case 4:
         return renderConfirmation();
       default:
         return null;
     }
   };
   const getModalTitle = () => {
-    if (step === 3) return 'Booking Confirmation';
+    if (step === 4) return 'Booking Confirmation';
     return 'Book Consultation';
   };
   return (
@@ -543,12 +605,12 @@ const ConsultationBookingModal: React.FC<ConsultationBookingModalProps> = ({
       isOpen={isOpen}
       onClose={onClose}
       title={getModalTitle()}
-      size={step === 3 ? 'lg' : 'xl'}
+      size={step === 4 ? 'lg' : 'xl'}
     >
       <div>
-        {step < 3 && renderStepIndicator()}
+        {step < 4 && renderStepIndicator()}
         <div className="mb-6">{renderStepContent()}</div>
-        {step < 3 && (
+        {step < 4 && (
           <div className="flex justify-between">
             {
               step > 1 ? (
@@ -573,9 +635,23 @@ const ConsultationBookingModal: React.FC<ConsultationBookingModalProps> = ({
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
                   Processing...
                 </>
+              ) : step === 1 ? (
+                validationState === 'loading' ? (
+                  <span className="flex items-center">
+                    <LoaderIcon size={16} className="animate-spin mr-2" />
+                    Verifying...
+                  </span>
+                ) : validationState === 'success' ? (
+                  <span className="flex items-center">
+                    <CheckCircleIcon size={16} className="mr-2" />
+                    Verified
+                  </span>
+                ) : (
+                  'Continue'
+                )
               ) : (
                 <>
-                  {step === 2 ? 'Complete Booking' : 'Continue'}
+                  {step === 3 ? 'Complete Booking' : 'Continue'}
                   <ChevronRightIcon size={16} className="ml-1" />
                 </>
               )}

@@ -189,7 +189,7 @@ const ExpertInquiryForm = ({ expertName, expertId }: ExpertInquiryFormProps) => 
         {submitStatus === 'success' && (
           <div className="flex items-center gap-2 p-4 bg-green-50 text-green-700 rounded-lg">
             <Check size={20} />
-            <span>Your inquiry has been sent successfully! Check your email for confirmation.</span>
+            <span>Your inquiry has been sent successfully!</span>
           </div>
         )}
 

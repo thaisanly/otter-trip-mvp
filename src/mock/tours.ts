@@ -93,7 +93,7 @@ export const tours: Record<string, TourDetail> = {
     ],
     contentImage:
       'https://images.unsplash.com/photo-1575527048208-933d8f4f44c9?ixlib=rb-4.0.3&auto=format&fit=crop&w=1024&q=80',
-    videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ', // Grand Canyon adventure video
+    videoUrl: 'https://www.youtube.com/embed/NuXGVjKMSIk', // Grand Canyon National Park video
     galleryImages: [
       'https://images.unsplash.com/photo-1602088693770-867f3fed105c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1024&q=80',
       'https://images.unsplash.com/photo-1578249949530-6e169da42303?ixlib=rb-4.0.3&auto=format&fit=crop&w=1024&q=80',
@@ -230,7 +230,7 @@ export const tours: Record<string, TourDetail> = {
     ],
     contentImage:
       'https://images.unsplash.com/photo-1531210483974-4f8c1f33fd35?ixlib=rb-4.0.3&auto=format&fit=crop&w=1024&q=80',
-    videoUrl: 'https://www.youtube.com/embed/M7lc1UVf-VE', // Swiss Alps adventure video
+    videoUrl: 'https://www.youtube.com/embed/zLLWR7qRtJ0', // Swiss Alps nature video
     galleryImages: [
       'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1024&q=80',
       'https://images.unsplash.com/photo-1527489377706-5bf97e608852?ixlib=rb-4.0.3&auto=format&fit=crop&w=1024&q=80',
@@ -378,7 +378,7 @@ export const tours: Record<string, TourDetail> = {
     ],
     contentImage:
       'https://images.unsplash.com/photo-1587595431973-160d0d94add1?ixlib=rb-4.0.3&auto=format&fit=crop&w=1024&q=80',
-    videoUrl: 'https://www.youtube.com/embed/ljvQXd8eJHE', // Machu Picchu trek video
+    videoUrl: 'https://www.youtube.com/embed/5IlS1JEXdgI', // Machu Picchu documentary video
     galleryImages: [],
     inclusions: ['Guide', 'Meals', 'Accommodation'],
     exclusions: ['Flights'],

@@ -112,7 +112,6 @@ const PersonalityMatch = ({
             <InterestTag
               key={trait}
               label={traitInfo.label}
-              icon={<span className="text-lg">{traitInfo.emoji}</span>}
               selected={isMatch}
               className={isMatch ? 'border-green-600 bg-green-50 text-green-800' : ''}
             />

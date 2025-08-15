@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import {
   ArrowLeftIcon,
   MapPinIcon,
@@ -30,17 +30,34 @@ import {
   CheckIcon,
   UserIcon,
 } from 'lucide-react';
-import InvitationCodeModal from '@/components/booking/InvitationCodeModal';
 import ConsultationBookingModal from '@/components/booking/ConsultationBookingModal';
 import ExpertInquiryForm from '@/components/forms/ExpertInquiryForm';
-import { expertsData } from '../../../mock/experts';
-import { getRelatedExperts } from '../../../mock/mockUtils';
+import VideoModal from '@/components/ui/VideoModal';
+import { formatViewCount } from '@/utils/formatters';
+// Default cover images from Unsplash (travel/adventure themed)
+const defaultCoverImages = [
+  'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Mountains
+  'https://images.unsplash.com/photo-1488646953014-85cb44e25828?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Travel planning
+  'https://images.unsplash.com/photo-1501785888041-af3ef285b470?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Lake and mountains
+  'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Boat on water
+  'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Road trip
+  'https://images.unsplash.com/photo-1527004013197-933c4bb611b3?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Norway coast
+];
+
+const getRandomDefaultCover = (expertId: string) => {
+  // Use expert ID to consistently get the same image for the same expert
+  const index = expertId ? expertId.charCodeAt(0) % defaultCoverImages.length : 0;
+  return defaultCoverImages[index];
+};
+
 const ExpertDetail = () => {
   const params = useParams(); const expertId = params.id;
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState('about');
   const [isLoading, setIsLoading] = useState(true);
-  const [expertData, setExpertData] = useState(null);
+  const [expertData, setExpertData] = useState<any>(null);
+  const [relatedExperts, setRelatedExperts] = useState<any[]>([]);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
   const [volume, setVolume] = useState(50);
@@ -48,9 +65,11 @@ const ExpertDetail = () => {
   const [isNavSticky, setIsNavSticky] = useState(false);
   const [tourFilter, setTourFilter] = useState('upcoming');
   // New states for booking flow
-  const [isInvitationModalOpen, setIsInvitationModalOpen] = useState(false);
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
-  const [userInvitationCode, setUserInvitationCode] = useState('');
+  // Video modal states
+  const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
+  const [currentVideoUrl, setCurrentVideoUrl] = useState('');
+  const [currentVideoTitle, setCurrentVideoTitle] = useState('');
   // Refs for scrolling to sections
   const aboutRef = useRef(null);
   const toursRef = useRef(null);
@@ -59,22 +78,94 @@ const ExpertDetail = () => {
   const contactRef = useRef(null);
   const navRef = useRef(null);
   useEffect(() => {
-    // Simulate API fetch
-    setIsLoading(true);
-    setTimeout(() => {
-      const expert = expertsData[expertId];
-      if (expert) {
-        setExpertData(expert);
+    const fetchExpertData = async () => {
+      setIsLoading(true);
+      try {
+        // Fetch expert data from API
+        const response = await fetch(`/api/experts?id=${expertId}`);
+        if (!response.ok) {
+          throw new Error('Expert not found');
+        }
+        const expert = await response.json();
+        
+        // Transform database expert to match expected format
+        const transformedExpert = {
+          ...expert,
+          countryCode: '', // Could be derived from location or use flag emoji
+          verified: true,
+          specialties: expert.expertise || [],
+          reviews: expert.reviewCount || 0,
+          tours: expert.featuredTours?.length || 0,
+          audioTrack: null,
+          isLive: false,
+          consultationPrice: expert.hourlyRate || '$250',
+          socialLinks: expert.socialMedia ? {
+            instagram: expert.socialMedia.instagram,
+            youtube: expert.socialMedia.youtube,
+            twitter: expert.socialMedia.twitter,
+            facebook: expert.socialMedia.facebook,
+            linkedin: expert.socialMedia.linkedin,
+          } : {},
+          latestVideos: expert.latestVideos || [],
+          featuredTours: [], // Will be fetched separately
+        };
+        
+        setExpertData(transformedExpert);
         // Update document title for SEO
         document.title = `${expert.name} - Travel Expert | OtterTrip`;
-      } else {
+        
+        // Fetch featured tours if available
+        if (expert.featuredTours && expert.featuredTours.length > 0) {
+          try {
+            const toursResponse = await fetch(`/api/admin/experts/${expertId}/featured-tours`);
+            if (toursResponse.ok) {
+              const toursData = await toursResponse.json();
+              setExpertData((prev: any) => ({
+                ...prev,
+                featuredTours: toursData.featuredTours.map((tour: any) => ({
+                  id: tour.id,
+                  title: tour.title,
+                  description: tour.overview ? (Array.isArray(tour.overview) ? tour.overview[0] : tour.overview) : 'Experience an amazing tour',
+                  image: tour.heroImage,
+                  duration: tour.duration,
+                  price: tour.price,
+                  rating: tour.rating || 4.5
+                }))
+              }));
+            }
+          } catch (error) {
+            console.error('Error fetching featured tours:', error);
+          }
+        }
+        
+        // Fetch related experts
+        const relatedResponse = await fetch('/api/experts?active=true');
+        if (relatedResponse.ok) {
+          const allExperts = await relatedResponse.json();
+          // Get 3 random experts excluding current one
+          const filtered = allExperts.filter((e: any) => e.id !== expertId);
+          const shuffled = filtered.sort(() => 0.5 - Math.random());
+          setRelatedExperts(shuffled.slice(0, 3));
+        }
+      } catch (error) {
+        console.error('Error fetching expert:', error);
         // Handle expert not found
-        router.push('/meet-experts', {
-          replace: true,
-        });
+        router.push('/meet-experts');
+      } finally {
+        setIsLoading(false);
       }
-      setIsLoading(false);
-    }, 800);
+    };
+
+    if (expertId) {
+      fetchExpertData();
+    }
+    
+    // Check if coming from edit mode and clean up URL
+    const refresh = searchParams.get('refresh');
+    if (refresh === 'true') {
+      const newUrl = window.location.pathname;
+      window.history.replaceState({}, '', newUrl);
+    }
     // Add smooth scrolling behavior to the document
     document.documentElement.style.scrollBehavior = 'smooth';
     // Handle sticky navigation
@@ -109,7 +200,7 @@ const ExpertDetail = () => {
       window.removeEventListener('scroll', handleScroll);
       document.documentElement.style.scrollBehavior = 'auto';
     };
-  }, [expertId, router]);
+  }, [expertId, router, searchParams]);
   const scrollToSection = (sectionId) => {
     setActiveTab(sectionId);
     let ref = null;
@@ -166,18 +257,23 @@ const ExpertDetail = () => {
   };
   // New function to handle booking button click
   const handleBookConsultation = () => {
-    setIsInvitationModalOpen(true);
+    setIsBookingModalOpen(true);
   };
-  // Function to handle valid invitation code
-  const handleValidInvitationCode = (code: string) => {
-    // Store the invitation code
-    setUserInvitationCode(code);
-    // Close the invitation modal
-    setIsInvitationModalOpen(false);
-    // Open the booking modal after a short delay
-    setTimeout(() => {
-      setIsBookingModalOpen(true);
-    }, 500);
+
+  // Function to handle video clicks
+  const handleVideoClick = (video: any) => {
+    if (!video.url) return;
+    
+    // Check if it's YouTube or Vimeo for modal playback
+    if (video.url.includes('youtube.com') || video.url.includes('youtu.be') || video.url.includes('vimeo.com')) {
+      setCurrentVideoUrl(video.url);
+      setCurrentVideoTitle(video.title || 'Video');
+      setIsVideoModalOpen(true);
+    } 
+    // For other URLs, just open in new tab
+    else {
+      window.open(video.url, '_blank');
+    }
   };
   if (isLoading) {
     return (
@@ -212,11 +308,15 @@ const ExpertDetail = () => {
   return (
     <div className="bg-gray-50 min-h-screen pb-12">
       {/* Hero Section with Cover Photo - Enhanced Profile Header */}
-      <div className="relative h-[400px] md:h-[500px]">
+      <div className="relative h-[450px] md:h-[500px]">
         <img
-          src={expertData.coverImage}
-          alt={`${expertData.name}'s cover`}
+          src={expertData.banner || getRandomDefaultCover(expertId as string)}
+          alt={`${expertData.name}'s banner`}
           className="w-full h-full object-cover"
+          onError={(e) => {
+            // Fallback to a different image if the default fails
+            e.currentTarget.src = 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80';
+          }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent"></div>
         {/* Breadcrumb */}
@@ -267,10 +367,10 @@ const ExpertDetail = () => {
           </div>
         )}
         {/* Expert info overlay - Enhanced Profile Header */}
-        <div className="absolute bottom-0 left-0 w-full pb-8">
+        <div className="absolute bottom-0 left-0 w-full pb-16 md:pb-8">
           <div className="container mx-auto px-4">
             <div className="flex flex-col md:flex-row items-center md:items-end">
-              <div className="w-32 h-32 md:w-36 md:h-36 rounded-full border-4 border-white overflow-hidden -mt-16 md:mt-0 mb-4 md:mb-0 md:mr-6 relative z-10 bg-white shadow-lg group cursor-pointer">
+              <div className="w-32 h-32 md:w-36 md:h-36 rounded-full border-4 border-white overflow-hidden mb-4 md:mb-0 md:mr-6 relative z-10 bg-white shadow-lg group cursor-pointer">
                 <img
                   src={expertData.image}
                   alt={expertData.name}
@@ -343,6 +443,7 @@ const ExpertDetail = () => {
               <UserIcon size={16} className="inline mr-1.5" />
               About Me
             </button>
+            {expertData.featuredTours && expertData.featuredTours.length > 0 && (
             <button
               className={`px-6 py-4 font-medium text-sm whitespace-nowrap transition-colors ${activeTab === 'tours' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-600 hover:text-gray-900'}`}
               onClick={() => scrollToSection('tours')}
@@ -350,6 +451,9 @@ const ExpertDetail = () => {
               <ShoppingBagIcon size={16} className="inline mr-1.5" />
               Tours
             </button>
+            )}
+            {((expertData.socialLinks && Object.keys(expertData.socialLinks).filter(key => expertData.socialLinks[key]).length > 0) || 
+              (expertData.latestVideos && expertData.latestVideos.length > 0)) && (
             <button
               className={`px-6 py-4 font-medium text-sm whitespace-nowrap transition-colors ${activeTab === 'social' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-600 hover:text-gray-900'}`}
               onClick={() => scrollToSection('social')}
@@ -357,6 +461,7 @@ const ExpertDetail = () => {
               <VideoIcon size={16} className="inline mr-1.5" />
               Social
             </button>
+            )}
             <button
               className={`px-6 py-4 font-medium text-sm whitespace-nowrap transition-colors ${activeTab === 'contact' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-600 hover:text-gray-900'}`}
               onClick={() => scrollToSection('contact')}
@@ -406,7 +511,8 @@ const ExpertDetail = () => {
                 </div>
               </div>
             </section>
-            {/* Tours Section - Updated with Upcoming/Past Categories */}
+            {/* Tours Section - Updated with Upcoming/Past Categories - Only show if there are featured tours */}
+            {expertData.featuredTours && expertData.featuredTours.length > 0 && (
             <section id="tours" ref={toursRef} className="mb-12">
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-2xl font-bold text-gray-900">Featured Tours</h2>
@@ -427,10 +533,11 @@ const ExpertDetail = () => {
               </div>
               {tourFilter === 'upcoming' ? (
                 <div className="space-y-6">
-                  {expertData.featuredTours.map((tour) => (
+                  {expertData.featuredTours && expertData.featuredTours.length > 0 ? expertData.featuredTours.map((tour) => (
                     <div
                       key={tour.id}
                       className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow cursor-pointer"
+                      onClick={() => router.push(`/tour/${tour.id}`)}
                     >
                       <div className="flex flex-col md:flex-row">
                         <div className="md:w-1/3 h-48 md:h-auto relative">
@@ -486,7 +593,7 @@ const ExpertDetail = () => {
                                 e.stopPropagation();
                                 const params = new URLSearchParams({
                                   title: tour.title,
-                                  expert: expert.name,
+                                  expert: expertData.name,
                                   price: tour.price
                                 });
                                 router.push(`/booking/${tour.id}?${params.toString()}`);
@@ -498,12 +605,17 @@ const ExpertDetail = () => {
                         </div>
                       </div>
                     </div>
-                  ))}
+                  )) : (
+                    <div className="text-center py-12">
+                      <p className="text-gray-500">No upcoming tours available at this moment.</p>
+                    </div>
+                  )}
                 </div>
               ) : (
                 <div className="space-y-6">
                   {/* Past Tours */}
-                  <div className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow cursor-pointer">
+                  <div className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow cursor-pointer"
+                    onClick={() => router.push('/tour/singapore-night-safari')}>
                     <div className="flex flex-col md:flex-row">
                       <div className="md:w-1/3 h-48 md:h-auto relative">
                         <img
@@ -564,7 +676,8 @@ const ExpertDetail = () => {
                       </div>
                     </div>
                   </div>
-                  <div className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow cursor-pointer">
+                  <div className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow cursor-pointer"
+                    onClick={() => router.push('/tour/historical-singapore-tour')}>
                     <div className="flex flex-col md:flex-row">
                       <div className="md:w-1/3 h-48 md:h-auto relative">
                         <img
@@ -628,14 +741,17 @@ const ExpertDetail = () => {
                 </div>
               )}
             </section>
-            {/* Social Section */}
+            )}
+            {/* Social Section - Only show if there are social links or videos */}
+            {((expertData.socialLinks && Object.keys(expertData.socialLinks).filter(key => expertData.socialLinks[key]).length > 0) || 
+              (expertData.latestVideos && expertData.latestVideos.length > 0)) && (
             <section id="social" ref={socialRef} className="mb-12">
               <h2 className="text-2xl font-bold text-gray-900 mb-6">Social & Media</h2>
               {/* Social Links */}
               <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
                 <h3 className="font-medium text-gray-900 mb-4">Connect with {expertData.name}</h3>
                 <div className="flex flex-wrap gap-3">
-                  {expertData.socialLinks.instagram && (
+                  {expertData.socialLinks?.instagram && (
                     <a
                       href={expertData.socialLinks.instagram}
                       target="_blank"
@@ -646,7 +762,7 @@ const ExpertDetail = () => {
                       Instagram
                     </a>
                   )}
-                  {expertData.socialLinks.youtube && (
+                  {expertData.socialLinks?.youtube && (
                     <a
                       href={expertData.socialLinks.youtube}
                       target="_blank"
@@ -657,7 +773,7 @@ const ExpertDetail = () => {
                       YouTube
                     </a>
                   )}
-                  {expertData.socialLinks.twitter && (
+                  {expertData.socialLinks?.twitter && (
                     <a
                       href={expertData.socialLinks.twitter}
                       target="_blank"
@@ -668,7 +784,7 @@ const ExpertDetail = () => {
                       Twitter
                     </a>
                   )}
-                  {expertData.socialLinks.facebook && (
+                  {expertData.socialLinks?.facebook && (
                     <a
                       href={expertData.socialLinks.facebook}
                       target="_blank"
@@ -679,7 +795,7 @@ const ExpertDetail = () => {
                       Facebook
                     </a>
                   )}
-                  {expertData.socialLinks.linkedin && (
+                  {expertData.socialLinks?.linkedin && (
                     <a
                       href={expertData.socialLinks.linkedin}
                       target="_blank"
@@ -695,17 +811,15 @@ const ExpertDetail = () => {
               {/* Latest Videos */}
               {expertData.latestVideos && expertData.latestVideos.length > 0 && (
                 <div className="mb-8">
-                  <div className="flex justify-between items-center mb-4">
+                  <div className="mb-4">
                     <h3 className="text-xl font-bold text-gray-900">Latest Videos</h3>
-                    <a href="#" className="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                      View all videos
-                    </a>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {expertData.latestVideos.map((video) => (
+                    {expertData.latestVideos && expertData.latestVideos.length > 0 ? expertData.latestVideos.map((video) => (
                       <div
                         key={video.id}
                         className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow cursor-pointer"
+                        onClick={() => handleVideoClick(video)}
                       >
                         <div className="relative">
                           <img
@@ -714,24 +828,29 @@ const ExpertDetail = () => {
                             className="w-full aspect-video object-cover"
                           />
                           <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30 hover:bg-opacity-20 transition-opacity">
-                            <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center">
+                            <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center hover:scale-110 transition-transform">
                               <PlayIcon size={24} className="text-blue-600 ml-1" />
                             </div>
                           </div>
-                          <div className="absolute bottom-2 right-2 bg-black bg-opacity-70 text-white text-xs px-2 py-0.5 rounded">
-                            {video.duration}
-                          </div>
+                          {video.duration && (
+                            <div className="absolute bottom-2 right-2 bg-black bg-opacity-70 text-white text-xs px-2 py-0.5 rounded">
+                              {video.duration}
+                            </div>
+                          )}
                         </div>
                         <div className="p-3">
                           <h4 className="font-medium text-gray-900 line-clamp-1">{video.title}</h4>
-                          <div className="text-xs text-gray-500 mt-1">{video.views} views</div>
+                          <div className="text-xs text-gray-500 mt-1">{formatViewCount(video.viewCount || video.views || 0)} views</div>
                         </div>
                       </div>
-                    ))}
+                    )) : (
+                      <p className="text-gray-500 text-center py-8">No videos available</p>
+                    )}
                   </div>
                 </div>
               )}
             </section>
+            )}
             {/* Reviews Section - Removed */}
             {false && (
               <section id="reviews" ref={reviewsRef} className="mb-12">
@@ -1036,7 +1155,7 @@ const ExpertDetail = () => {
             <div>
               <h3 className="font-medium text-gray-900 mb-4">Similar Experts</h3>
               <div className="space-y-4">
-                {getRelatedExperts(expertId || '', 3).map((expert) => (
+                {relatedExperts.map((expert) => (
                   <div
                     key={expert.id}
                     className="bg-white rounded-xl shadow-sm p-4 hover:shadow-md transition-shadow cursor-pointer"
@@ -1082,12 +1201,6 @@ const ExpertDetail = () => {
           </div>
         </div>
       </div>
-      {/* Invitation Code Modal */}
-      <InvitationCodeModal
-        isOpen={isInvitationModalOpen}
-        onClose={() => setIsInvitationModalOpen(false)}
-        onValidCode={handleValidInvitationCode}
-      />
       {/* Consultation Booking Modal */}
       <ConsultationBookingModal
         isOpen={isBookingModalOpen}
@@ -1095,8 +1208,15 @@ const ExpertDetail = () => {
         expertName={expertData?.name || ''}
         expertImage={expertData?.image || ''}
         expertId={params.id}
-        invitationCode={userInvitationCode}
         price={expertData?.consultationPrice || '$250'}
+      />
+
+      {/* Video Modal */}
+      <VideoModal
+        isOpen={isVideoModalOpen}
+        onClose={() => setIsVideoModalOpen(false)}
+        videoUrl={currentVideoUrl}
+        title={currentVideoTitle}
       />
     </div>
   );
