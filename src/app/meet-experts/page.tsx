@@ -240,7 +240,7 @@ interface Expert {
   languages: string[];
   expertise: string[];
   certifications?: string[];
-  availability?: any;
+  availability?: string | { [key: string]: boolean };
   bio?: string;
   experience?: string;
   featuredTours?: string[];
@@ -252,7 +252,6 @@ interface Expert {
 const MeetExperts = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
-  const [activeFilter, setActiveFilter] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
   const [experts, setExperts] = useState<Expert[]>([]);
   const [loading, setLoading] = useState(true);
@@ -306,20 +305,9 @@ const MeetExperts = () => {
     };
   };
 
-  const handleFilterChange = (filter: string) => {
-    setActiveFilter(filter);
-    setCurrentPage(1); // Reset to first page when filter changes
-  };
 
-  // Filter experts based on active filter and search query
+  // Filter experts based on search query
   const filteredExperts = experts.filter((expert: Expert) => {
-    const expertCardProps = transformExpertToCardProps(expert);
-    const matchesFilter = 
-      activeFilter === 'all' ||
-      (activeFilter === 'live-now' && expertCardProps.isLive) ||
-      (activeFilter === 'top-creators' && expertCardProps.isTopCreator) ||
-      (activeFilter === 'rising-stars' && expertCardProps.isRisingStar);
-    
     const matchesSearch = searchQuery === '' || 
       expert.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       expert.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -327,7 +315,7 @@ const MeetExperts = () => {
         specialty.toLowerCase().includes(searchQuery.toLowerCase())
       );
     
-    return matchesFilter && matchesSearch;
+    return matchesSearch;
   });
 
   // Calculate pagination

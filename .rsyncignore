@@ -15,6 +15,7 @@ database/
 .env.local
 .env.development.local
 .env.test.local
+.env.production
 .env.production.local
 
 # IDE files
@@ -87,6 +88,7 @@ jspm_packages/
 
 # Nuxt.js build / generate output
 .nuxt
+.next-dry-run
 dist
 
 # Gatsby files

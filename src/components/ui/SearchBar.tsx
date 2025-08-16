@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { SearchIcon, MapPinIcon, CalendarIcon, UsersIcon, ArrowRightIcon } from 'lucide-react';
+import { SearchIcon, MapPinIcon, CalendarIcon, UsersIcon } from 'lucide-react';
 interface SearchBarProps {
   className?: string;
 }

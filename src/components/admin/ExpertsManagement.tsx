@@ -1,11 +1,11 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import {
   UserPlusIcon,
   TrashIcon,
-  EditIcon,
   RefreshCwIcon,
   SearchIcon,
   StarIcon,
@@ -13,7 +13,6 @@ import {
   GlobeIcon,
   UserIcon,
   BriefcaseIcon,
-  EyeIcon,
 } from 'lucide-react';
 
 interface Expert {
@@ -28,7 +27,7 @@ interface Expert {
   languages: string[];
   expertise: string[];
   certifications?: string[];
-  availability?: any;
+  availability?: Record<string, { available: boolean; start: string; end: string }>;
   bio?: string;
   experience?: string;
   createdAt: string;
@@ -53,9 +52,28 @@ export default function ExpertsManagement() {
     }
   }, []);
 
+  const filterExperts = useCallback(() => {
+    if (!searchQuery.trim()) {
+      setFilteredExperts(experts);
+      return;
+    }
+
+    const query = searchQuery.toLowerCase();
+    const filtered = experts.filter((expert) => {
+      return (
+        expert.name.toLowerCase().includes(query) ||
+        expert.title.toLowerCase().includes(query) ||
+        expert.location.toLowerCase().includes(query) ||
+        expert.languages?.some(lang => lang.toLowerCase().includes(query)) ||
+        expert.expertise?.some(exp => exp.toLowerCase().includes(query))
+      );
+    });
+    setFilteredExperts(filtered);
+  }, [experts, searchQuery]);
+
   useEffect(() => {
     filterExperts();
-  }, [experts, searchQuery]);
+  }, [filterExperts]);
 
   const fetchExperts = async () => {
     try {
@@ -71,24 +89,6 @@ export default function ExpertsManagement() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const filterExperts = () => {
-    if (!searchQuery.trim()) {
-      setFilteredExperts(experts);
-      return;
-    }
-
-    const query = searchQuery.toLowerCase();
-    const filtered = experts.filter(
-      (expert) =>
-        expert.name.toLowerCase().includes(query) ||
-        expert.title.toLowerCase().includes(query) ||
-        expert.location.toLowerCase().includes(query) ||
-        expert.expertise.some((exp) => exp.toLowerCase().includes(query)) ||
-        expert.languages.some((lang) => lang.toLowerCase().includes(query))
-    );
-    setFilteredExperts(filtered);
   };
 
 
@@ -232,17 +232,13 @@ export default function ExpertsManagement() {
                   >
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
-                        <div className="h-10 w-10 flex-shrink-0">
-                          <img
-                            className="h-10 w-10 rounded-full object-cover"
-                            src={expert.image}
+                        <div className="h-10 w-10 flex-shrink-0 relative">
+                          <Image
+                            className="rounded-full object-cover"
+                            src={expert.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(expert.name)}&background=3B82F6&color=ffffff`}
                             alt={expert.name}
-                            onError={(e) => {
-                              const target = e.target as HTMLImageElement;
-                              target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                                expert.name
-                              )}&background=3B82F6&color=ffffff`;
-                            }}
+                            fill
+                            sizes="40px"
                           />
                         </div>
                         <div className="ml-4">

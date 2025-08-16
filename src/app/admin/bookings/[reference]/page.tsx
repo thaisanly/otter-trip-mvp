@@ -3,17 +3,18 @@ import { getCurrentAdmin } from '@/lib/auth';
 import BookingDetailView from '@/components/admin/BookingDetailView';
 
 interface BookingDetailPageProps {
-  params: {
+  params: Promise<{
     reference: string;
-  };
+  }>;
 }
 
 export default async function BookingDetailPage({ params }: BookingDetailPageProps) {
   const admin = await getCurrentAdmin();
+  const { reference } = await params;
 
   if (!admin) {
     redirect('/admin');
   }
 
-  return <BookingDetailView admin={admin} bookingReference={params.reference} />;
+  return <BookingDetailView bookingReference={reference} />;
 }

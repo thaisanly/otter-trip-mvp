@@ -1,7 +1,8 @@
 'use client'
 
 import React from 'react';
-import { Link } from 'next/link';
+import Image from 'next/image';
+import Link from 'next/link';
 // Destinations moved to mock file
 import { destinations } from '@/mock/destinations';
 const PopularDestinations = () => {
@@ -19,14 +20,16 @@ const PopularDestinations = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {destinations.map((destination) => (
           <Link
-            to={`/search?destination=${destination.id}`}
+            href={`/search?destination=${destination.id}`}
             key={destination.id}
             className="group block relative overflow-hidden rounded-xl shadow-md aspect-[4/3]"
           >
-            <img
+            <Image
               src={destination.image}
               alt={`${destination.name}, ${destination.country}`}
               className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+              fill
+              sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
             <div className="absolute bottom-0 left-0 p-6 text-white">

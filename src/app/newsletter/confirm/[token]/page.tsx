@@ -1,13 +1,12 @@
 'use client'
 
 import React, { useEffect, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { CheckCircle, XCircle, Loader2 } from 'lucide-react';
 
 export default function NewsletterConfirmationPage() {
   const params = useParams();
-  const router = useRouter();
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
   const [message, setMessage] = useState('');
   const [email, setEmail] = useState('');
@@ -39,7 +38,7 @@ export default function NewsletterConfirmationPage() {
           setStatus('error');
           setMessage(data.error || 'Failed to confirm subscription');
         }
-      } catch (error) {
+      } catch {
         setStatus('error');
         setMessage('Failed to confirm subscription. Please try again later.');
       }
@@ -67,7 +66,7 @@ export default function NewsletterConfirmationPage() {
               <p className="text-gray-600 mb-2">{message}</p>
               {email && (
                 <p className="text-sm text-gray-500 mb-6">
-                  You'll receive our newsletter at <span className="font-semibold">{email}</span>
+                  You&apos;ll receive our newsletter at <span className="font-semibold">{email}</span>
                 </p>
               )}
               <div className="space-y-3">

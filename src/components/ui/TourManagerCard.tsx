@@ -1,7 +1,8 @@
 'use client'
 
 import React, { useState } from 'react';
-import { Link } from 'next/link';
+import Link from 'next/link';
+import Image from 'next/image';
 import { HeartIcon, MapPinIcon, GlobeIcon, CheckCircleIcon, StarIcon } from 'lucide-react';
 export interface TourManagerProps {
   id: string;
@@ -57,7 +58,7 @@ const TourManagerCard: React.FC<TourManagerProps> = ({
       <div className="p-5 flex flex-col items-center">
         <div className="relative">
           <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-gray-50 shadow-sm mb-3">
-            <img src={image} alt={name} className="w-full h-full object-cover" />
+            <Image src={image} alt={name} width={96} height={96} className="w-24 h-24 object-cover" />
           </div>
           {verified && (
             <div className="absolute bottom-3 right-0 bg-blue-500 text-white p-1 rounded-full">

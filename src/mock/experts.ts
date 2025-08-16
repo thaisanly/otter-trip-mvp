@@ -95,7 +95,7 @@ export const experts: Expert[] = [
 
     // === DETAIL PAGE SPECIFIC DATA ===
     coverImage:
-      'https://images.unsplash.com/photo-1596422846543-75c6fc197f11?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80',
+      'https://images.unsplash.com/photo-1525625293386-3f8f99389edd?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80',
     bio: "Hi there! I'm Sarah, a passionate travel guide based in Singapore. With eight years of experience, I specialise in creating immersive cultural experiences that showcase the authentic side of Singapore. From hidden hawker stalls with the best local food to off-the-beaten-path cultural sites, I love sharing my city's rich heritage and vibrant present with travellers from around the world.",
     consultationPrice: '$250',
     socialLinks: {

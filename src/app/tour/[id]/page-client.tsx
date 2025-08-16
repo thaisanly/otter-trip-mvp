@@ -5,25 +5,89 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import VideoModal from '@/components/ui/VideoModal';
 import {
-  CalendarIcon,
   UsersIcon,
   StarIcon,
   ClockIcon,
   HeartIcon,
-  ChevronRightIcon,
   CheckIcon,
   PlayIcon,
   InfoIcon,
   MapPinIcon,
-  DollarSignIcon,
   ShareIcon,
   GlobeIcon,
   TagIcon,
-  UserIcon,
+  X as XIcon,
 } from 'lucide-react';
+import Image from 'next/image';
 interface TourDetailProps {
-  tour: any;
-  similarTours: any[];
+  tour: {
+    id: string;
+    title: string;
+    breadcrumb?: string[];
+    code?: string;
+    description: string;
+    heroImage: string;
+    price: string;
+    duration: string;
+    location: string;
+    rating: number;
+    reviewCount: number;
+    maxGroupSize: number;
+    difficultyLevel: string;
+    highlights: string[];
+    overview: string[];
+    itinerary: Array<{
+      day: number;
+      title: string;
+      description: string;
+      image?: string;
+      meals?: string[];
+      activities?: string[];
+      accommodation?: string;
+    }>;
+    included: string[];
+    excluded: string[];
+    additionalInfo?: string[];
+    tourLeader: {
+      id: string;
+      name: string;
+      image: string;
+      bio: string;
+      experience: string;
+      rating: number;
+      languages: string[];
+      specialties?: string[];
+    };
+    dates: Array<{
+      id: string;
+      date: string;
+      spotsLeft: number;
+      price: string;
+    }>;
+    categories: string[];
+    totalJoined: number;
+    tags: string[];
+    galleries?: Array<{
+      id: string;
+      type: 'image' | 'video';
+      url: string;
+      title?: string;
+      thumbnail?: string;
+    }>;
+    videoUrl?: string;
+  };
+  similarTours: Array<{
+    id: string;
+    title: string;
+    image?: string;
+    heroImage?: string;
+    location: string;
+    rating: number;
+    reviewCount: number;
+    price: string;
+    duration: string;
+    overview?: string[];
+  }>;
 }
 
 const TourDetail: React.FC<TourDetailProps> = ({ tour, similarTours }) => {
@@ -78,16 +142,16 @@ const TourDetail: React.FC<TourDetailProps> = ({ tour, similarTours }) => {
     <div className="bg-gray-50 min-h-screen pb-12">
       {/* Hero Section */}
       <div className="relative h-[400px] md:h-[500px]">
-        <img src={tour.heroImage} alt={tour.title} className="w-full h-full object-cover" />
+        <Image src={tour.heroImage} alt={tour.title} fill className="object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent"></div>
         {/* Breadcrumb */}
         <div className="absolute top-4 left-0 w-full">
           <div className="container mx-auto px-4">
             <div className="flex items-center text-sm text-white">
-              {tour.breadcrumb.map((item, index) => (
+              {tour.breadcrumb?.map((item, index) => (
                 <Fragment key={index}>
                   {index > 0 && <span className="mx-2">&gt;</span>}
-                  {index === tour.breadcrumb.length - 1 ? (
+                  {index === (tour.breadcrumb?.length || 0) - 1 ? (
                     <span>{item}</span>
                   ) : (
                     <Link
@@ -137,20 +201,22 @@ const TourDetail: React.FC<TourDetailProps> = ({ tour, similarTours }) => {
             <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
-                  <img
-                    src={tour.guide.image}
-                    alt={tour.guide.name}
+                  <Image
+                    src={tour.tourLeader.image}
+                    alt={tour.tourLeader.name}
+                    width={64}
+                    height={64}
                     className="w-16 h-16 rounded-full object-cover mr-4"
                   />
                   <div>
-                    <h3 className="font-bold text-gray-900">Your Guide: {tour.guide.name}</h3>
+                    <h3 className="font-bold text-gray-900">Your Guide: {tour.tourLeader.name}</h3>
                     <p className="text-gray-600 text-sm">
-                      {tour.guide.experience} experience • {tour.guide.languages.join(', ')}
+                      {tour.tourLeader.experience} experience • {tour.tourLeader.languages.join(', ')}
                     </p>
                   </div>
                 </div>
                 <Link
-                  href={`/tour-leader/${tour.guide.id}`}
+                  href={`/tour-leader/${tour.tourLeader.id}`}
                   className="text-blue-600 hover:text-blue-800 font-medium text-sm"
                 >
                   View Profile
@@ -177,7 +243,7 @@ const TourDetail: React.FC<TourDetailProps> = ({ tour, similarTours }) => {
                     className={`px-6 py-3 font-medium text-sm whitespace-nowrap ${activeTab === 'inclusions' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-600 hover:text-gray-900'}`}
                     onClick={() => setActiveTab('inclusions')}
                   >
-                    What's Included
+                    What&apos;s Included
                   </button>
                 </div>
               </div>
@@ -207,18 +273,20 @@ const TourDetail: React.FC<TourDetailProps> = ({ tour, similarTours }) => {
                       </ul>
                     </div>
                     {/* Gallery */}
-                    {(tour.galleryImages && tour.galleryImages.length > 0) || tour.videoUrl ? (
+                    {(tour.galleries && tour.galleries.filter(g => g.url && g.url.trim() !== '').length > 0) || tour.videoUrl ? (
                       <div className="mt-8">
                         <h3 className="text-lg font-bold text-gray-900 mb-4">Gallery</h3>
                         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                           {/* Video thumbnail if available */}
                           {tour.videoUrl && (
                             <div className="aspect-square overflow-hidden rounded-lg relative cursor-pointer group"
-                                 onClick={() => handleVideoClick(tour.videoUrl)}>
-                              <img
+                                 onClick={() => handleVideoClick(tour.videoUrl || '')}>
+                              <Image
                                 src={tour.heroImage}
                                 alt={`${tour.title} - Video`}
                                 className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                                width={200}
+                                height={200}
                               />
                               <div className="absolute inset-0 bg-black bg-opacity-30 group-hover:bg-opacity-40 transition-colors flex items-center justify-center">
                                 <div className="w-12 h-12 bg-white bg-opacity-90 rounded-full flex items-center justify-center shadow-lg">
@@ -231,18 +299,22 @@ const TourDetail: React.FC<TourDetailProps> = ({ tour, similarTours }) => {
                             </div>
                           )}
                           {/* Gallery Images */}
-                          {tour.galleryImages && tour.galleryImages.map((image, index) => (
-                            <div key={index} className="aspect-square overflow-hidden rounded-lg">
-                              <img
-                                src={image}
-                                alt={`${tour.title} - image ${index + 1}`}
-                                className="w-full h-full object-cover hover:scale-110 transition-transform duration-300 cursor-pointer"
-                                onClick={() => {
-                                  // Optional: Open image in modal
-                                }}
-                              />
-                            </div>
-                          ))}
+                          {tour.galleries && tour.galleries
+                            .filter(gallery => gallery.url && gallery.url.trim() !== '')
+                            .map((gallery, index) => (
+                              <div key={index} className="aspect-square overflow-hidden rounded-lg">
+                                <Image
+                                  src={gallery.url}
+                                  alt={`${tour.title} - image ${index + 1}`}
+                                  className="w-full h-full object-cover hover:scale-110 transition-transform duration-300 cursor-pointer"
+                                  width={200}
+                                  height={200}
+                                  onClick={() => {
+                                    // Optional: Open image in modal
+                                  }}
+                                />
+                              </div>
+                            ))}
                         </div>
                       </div>
                     ) : null}
@@ -288,9 +360,9 @@ const TourDetail: React.FC<TourDetailProps> = ({ tour, similarTours }) => {
                   <div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                       <div>
-                        <h2 className="text-xl font-bold text-gray-900 mb-4">What's Included</h2>
+                        <h2 className="text-xl font-bold text-gray-900 mb-4">What&apos;s Included</h2>
                         <ul className="space-y-3">
-                          {tour.inclusions.map((item, index) => (
+                          {tour.included.map((item, index) => (
                             <li key={index} className="flex items-start">
                               <CheckIcon
                                 size={18}
@@ -304,7 +376,7 @@ const TourDetail: React.FC<TourDetailProps> = ({ tour, similarTours }) => {
                       <div>
                         <h2 className="text-xl font-bold text-gray-900 mb-4">Not Included</h2>
                         <ul className="space-y-3">
-                          {tour.exclusions.map((item, index) => (
+                          {tour.excluded.map((item, index) => (
                             <li key={index} className="flex items-start">
                               <XIcon size={18} className="text-red-600 mr-2 mt-0.5 flex-shrink-0" />
                               <span className="text-gray-700">{item}</span>
@@ -318,16 +390,13 @@ const TourDetail: React.FC<TourDetailProps> = ({ tour, similarTours }) => {
                         Additional Information
                       </h2>
                       <div className="space-y-4">
-                        {tour.additionalInfo.map((info, index) => (
+                        {tour.additionalInfo?.map((info, index) => (
                           <div key={index} className="flex items-start">
                             <InfoIcon
                               size={18}
                               className="text-blue-600 mr-2 mt-0.5 flex-shrink-0"
                             />
-                            <div>
-                              <h3 className="font-medium text-gray-900">{info.title}</h3>
-                              <p className="text-gray-700">{info.content}</p>
-                            </div>
+                            <span className="text-gray-700">{info}</span>
                           </div>
                         ))}
                       </div>
@@ -341,20 +410,22 @@ const TourDetail: React.FC<TourDetailProps> = ({ tour, similarTours }) => {
               <h2 className="text-xl font-bold text-gray-900 mb-4">About Your Guide</h2>
               <div className="flex flex-col md:flex-row gap-6">
                 <div className="md:w-1/3">
-                  <img
-                    src={tour.guide.image}
-                    alt={tour.guide.name}
+                  <Image
+                    src={tour.tourLeader.image}
+                    alt={tour.tourLeader.name}
                     className="w-full aspect-square object-cover rounded-xl"
+                    width={300}
+                    height={300}
                   />
                 </div>
                 <div className="md:w-2/3">
-                  <h3 className="text-lg font-bold text-gray-900 mb-1">{tour.guide.name}</h3>
-                  <p className="text-gray-600 mb-3">{tour.guide.experience} experience</p>
-                  <p className="text-gray-700 mb-4">{tour.guide.bio}</p>
+                  <h3 className="text-lg font-bold text-gray-900 mb-1">{tour.tourLeader.name}</h3>
+                  <p className="text-gray-600 mb-3">{tour.tourLeader.experience} experience</p>
+                  <p className="text-gray-700 mb-4">{tour.tourLeader.bio}</p>
                   <div className="mb-4">
                     <h4 className="font-medium text-gray-900 mb-2">Specialties:</h4>
                     <div className="flex flex-wrap gap-2">
-                      {tour.guide.specialties.map((specialty, index) => (
+                      {tour.tourLeader.specialties?.map((specialty, index) => (
                         <span
                           key={index}
                           className="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-sm"
@@ -367,7 +438,7 @@ const TourDetail: React.FC<TourDetailProps> = ({ tour, similarTours }) => {
                   <div>
                     <h4 className="font-medium text-gray-900 mb-2">Languages:</h4>
                     <div className="flex flex-wrap gap-2">
-                      {tour.guide.languages.map((language, index) => (
+                      {tour.tourLeader.languages.map((language, index) => (
                         <div key={index} className="flex items-center text-gray-700 text-sm">
                           <GlobeIcon size={14} className="mr-1" />
                           {language}
@@ -377,7 +448,7 @@ const TourDetail: React.FC<TourDetailProps> = ({ tour, similarTours }) => {
                   </div>
                   <div className="mt-4">
                     <Link
-                      href={`/tour-leader/${tour.guide.id}`}
+                      href={`/tour-leader/${tour.tourLeader.id}`}
                       className="text-blue-600 hover:text-blue-800 font-medium"
                     >
                       View Full Profile
@@ -472,7 +543,7 @@ const TourDetail: React.FC<TourDetailProps> = ({ tour, similarTours }) => {
                 <div className="space-y-3 text-sm">
                   <div className="flex justify-between">
                     <span className="text-gray-600">Tour Code</span>
-                    <span className="text-gray-900 font-medium">{tour.code}</span>
+                    <span className="text-gray-900 font-medium">{tour.code || 'N/A'}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Duration</span>
@@ -524,9 +595,11 @@ const TourDetail: React.FC<TourDetailProps> = ({ tour, similarTours }) => {
                 className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow"
               >
                 <div className="relative h-48">
-                  <img
-                    src={relatedTour.heroImage}
+                  <Image
+                    src={relatedTour.heroImage || relatedTour.image || '/images/placeholder.jpg'}
                     alt={relatedTour.title}
+                    width={400}
+                    height={200}
                     className="w-full h-full object-cover"
                   />
                   <div className="absolute bottom-3 left-3 bg-white/80 backdrop-blur-sm text-gray-800 text-xs px-2 py-1 rounded-full">
@@ -544,7 +617,7 @@ const TourDetail: React.FC<TourDetailProps> = ({ tour, similarTours }) => {
                     </div>
                   </div>
                   <p className="text-gray-600 text-sm mb-3 line-clamp-2">
-                    {relatedTour.overview[0]}
+                    {relatedTour.overview?.[0] || ''}
                   </p>
                   <div className="flex justify-between items-end">
                     <div>

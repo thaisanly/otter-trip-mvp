@@ -2,7 +2,8 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeftIcon, SaveIcon, ImageIcon, FileTextIcon, CodeIcon, LoaderIcon, EyeIcon, XIcon } from 'lucide-react';
+import { ArrowLeftIcon, SaveIcon, FileTextIcon, CodeIcon, LoaderIcon, EyeIcon, XIcon } from 'lucide-react';
+import Image from 'next/image';
 
 interface CategoryFormData {
   id: string; // ID is now the slug
@@ -45,7 +46,7 @@ const CategoryForm: React.FC<CategoryFormProps> = ({
   const [jsonData, setJsonData] = useState<string>('');
   const [jsonError, setJsonError] = useState<string>('');
   const [showPreview, setShowPreview] = useState(false);
-  const [previewData, setPreviewData] = useState<any>(null);
+  const [previewData, setPreviewData] = useState<CategoryFormData | null>(null);
 
   // Helper function to convert name to slug
   const generateSlug = (name: string): string => {
@@ -84,7 +85,7 @@ const CategoryForm: React.FC<CategoryFormProps> = ({
     setJsonData(JSON.stringify(categoryData, null, 2));
   };
 
-  const validateJson = (jsonString: string): { valid: boolean; data?: any; error?: string } => {
+  const validateJson = (jsonString: string): { valid: boolean; data?: CategoryFormData; error?: string } => {
     try {
       const data = JSON.parse(jsonString);
       
@@ -110,7 +111,7 @@ const CategoryForm: React.FC<CategoryFormProps> = ({
       }
       
       return { valid: true, data };
-    } catch (error) {
+    } catch {
       return { valid: false, error: 'Invalid JSON format' };
     }
   };
@@ -150,18 +151,20 @@ const CategoryForm: React.FC<CategoryFormProps> = ({
       };
     }
     
-    setPreviewData(dataToPreview);
-    setShowPreview(true);
+    if (dataToPreview) {
+      setPreviewData(dataToPreview as CategoryFormData);
+      setShowPreview(true);
+    }
   };
 
-  const handleInputChange = (field: keyof CategoryFormData, value: any) => {
+  const handleInputChange = (field: keyof CategoryFormData, value: string | number | boolean) => {
     const newData = {
       ...formData,
       [field]: value
     };
     
     // Auto-generate slug when name changes (only for new categories)
-    if (field === 'name' && isNew) {
+    if (field === 'name' && isNew && typeof value === 'string') {
       newData.id = generateSlug(value);
     }
     
@@ -330,7 +333,7 @@ const CategoryForm: React.FC<CategoryFormProps> = ({
                     const formatted = JSON.stringify(JSON.parse(jsonData), null, 2);
                     setJsonData(formatted);
                     setJsonError('');
-                  } catch (error) {
+                  } catch {
                     setJsonError('Invalid JSON format');
                   }
                 }}
@@ -455,10 +458,12 @@ const CategoryForm: React.FC<CategoryFormProps> = ({
           />
           {formData.coverImage && (
             <div className="mt-3">
-              <img
+              <Image
                 src={formData.coverImage}
                 alt="Cover preview"
                 className="w-full h-48 object-cover rounded-lg border border-gray-200"
+                width={600}
+                height={192}
                 onError={(e) => {
                   e.currentTarget.src = `https://via.placeholder.com/600x300/CBD5E1/64748B?text=Invalid+Image`;
                 }}
@@ -526,7 +531,7 @@ const CategoryForm: React.FC<CategoryFormProps> = ({
             <span className="text-sm font-medium text-gray-700">Active</span>
           </label>
           <p className="mt-1 text-xs text-gray-500 ml-6">
-            Inactive categories won't be shown on the website
+            Inactive categories won&apos;t be shown on the website
           </p>
         </div>
       </div>
@@ -552,10 +557,11 @@ const CategoryForm: React.FC<CategoryFormProps> = ({
               <div className="bg-gray-50 p-4 rounded-lg">
                 <div className="bg-white rounded-xl shadow-sm overflow-hidden max-w-sm mx-auto">
                   <div className="relative h-48">
-                    <img
+                    <Image
                       src={previewData.coverImage}
                       alt={previewData.name}
                       className="w-full h-full object-cover"
+                      fill
                       onError={(e) => {
                         e.currentTarget.src = `https://via.placeholder.com/400x300/CBD5E1/64748B?text=${encodeURIComponent(previewData.name)}`;
                       }}
@@ -583,7 +589,7 @@ const CategoryForm: React.FC<CategoryFormProps> = ({
                     <p className="text-xs text-gray-500 mb-3">/{previewData.id || generateSlug(previewData.name)}</p>
                     {previewData.interests && previewData.interests.length > 0 && (
                       <div className="flex flex-wrap gap-1">
-                        {previewData.interests.slice(0, 3).map((interest: string, index: number) => (
+                        {previewData.interests.split(',').map(interest => interest.trim()).filter(Boolean).slice(0, 3).map((interest: string, index: number) => (
                           <span
                             key={index}
                             className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-lg"

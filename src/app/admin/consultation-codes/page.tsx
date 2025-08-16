@@ -9,5 +9,5 @@ export default async function ConsultationCodesPage() {
     redirect('/admin');
   }
 
-  return <ConsultationCodesAdmin admin={admin} />;
+  return <ConsultationCodesAdmin />;
 }

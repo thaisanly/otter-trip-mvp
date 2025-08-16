@@ -25,6 +25,7 @@ const envSchema = z.object({
   
   // Application
   NEXT_PUBLIC_APP_NAME: z.string().default('Otter Trip'),
+  APP_BASE_URL: z.string().url('Invalid APP_BASE_URL format').default('http://localhost:3000'),
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
 });
 

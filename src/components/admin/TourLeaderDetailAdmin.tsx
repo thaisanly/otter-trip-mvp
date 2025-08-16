@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import {
   ArrowLeftIcon,
@@ -8,7 +9,6 @@ import {
   TrashIcon,
   MapPinIcon,
   StarIcon,
-  DollarSignIcon,
   GlobeIcon,
   AwardIcon,
   BriefcaseIcon,
@@ -68,26 +68,31 @@ interface TourLeader {
     level: string;
     yearCount: number;
   }[];
-  tours?: any[];
-  reviews?: any[];
-  availability?: any;
+  tours?: Array<{
+    id: string;
+    title: string;
+    duration?: string;
+    price?: string;
+    description?: string;
+  }>;
+  reviews?: Array<{ id: string; rating: number; comment: string; author?: string; date?: string; }>;
+  availability?: Record<string, { available: boolean; start: string; end: string }>;
   createdAt: string;
   updatedAt: string;
 }
 
 interface TourLeaderDetailAdminProps {
   tourLeader: TourLeader;
-  admin: any;
 }
 
-export default function TourLeaderDetailAdmin({ tourLeader, admin }: TourLeaderDetailAdminProps) {
+export default function TourLeaderDetailAdmin({ tourLeader }: TourLeaderDetailAdminProps) {
   const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
   const [editMode, setEditMode] = useState<'form' | 'json'>('form');
   const [isSaving, setIsSaving] = useState(false);
   const [jsonError, setJsonError] = useState<string>('');
   const [showPreview, setShowPreview] = useState(false);
-  const [previewData, setPreviewData] = useState<any>(null);
+  const [previewData, setPreviewData] = useState<TourLeader | null>(null);
   
   // Form data state
   const [formData, setFormData] = useState({
@@ -173,7 +178,7 @@ export default function TourLeaderDetailAdmin({ tourLeader, admin }: TourLeaderD
   };
   
   // Validate JSON
-  const validateJson = (jsonString: string): { valid: boolean; data?: any; error?: string } => {
+  const validateJson = (jsonString: string): { valid: boolean; data?: TourLeader; error?: string } => {
     try {
       const data = JSON.parse(jsonString);
       
@@ -261,7 +266,7 @@ export default function TourLeaderDetailAdmin({ tourLeader, admin }: TourLeaderD
       }
       
       return { valid: true, data };
-    } catch (e) {
+    } catch {
       return { valid: false, error: 'Invalid JSON format' };
     }
   };
@@ -311,6 +316,7 @@ export default function TourLeaderDetailAdmin({ tourLeader, admin }: TourLeaderD
     setFormData({
       name: tourLeader.name,
       image: tourLeader.image,
+      coverImage: tourLeader.coverImage || '',
       location: tourLeader.location,
       specialty: tourLeader.specialty,
       description: tourLeader.description,
@@ -335,7 +341,7 @@ export default function TourLeaderDetailAdmin({ tourLeader, admin }: TourLeaderD
     setJsonError('');
   };
   
-  const handleInputChange = (field: string, value: any) => {
+  const handleInputChange = (field: string, value: string | number | boolean | string[] | Record<string, unknown>) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
   
@@ -473,7 +479,7 @@ export default function TourLeaderDetailAdmin({ tourLeader, admin }: TourLeaderD
                   onClick={() => {
                     const validation = validateJson(jsonData);
                     if (validation.valid) {
-                      setPreviewData(validation.data);
+                      setPreviewData(validation.data ?? null);
                       setShowPreview(true);
                       setJsonError('');
                     } else {
@@ -643,14 +649,13 @@ export default function TourLeaderDetailAdmin({ tourLeader, admin }: TourLeaderD
                           <h4 className="text-sm font-medium text-gray-700 mb-3">Card View</h4>
                           <div className="bg-gray-50 p-4 rounded-lg">
                             <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-                              <div className="relative">
-                                <img 
+                              <div className="relative h-48">
+                                <Image 
                                   src={previewData.image} 
                                   alt={previewData.name} 
-                                  className="w-full h-48 object-cover"
-                                  onError={(e) => {
-                                    e.currentTarget.src = `https://via.placeholder.com/400x200/4B5563/FFFFFF?text=Invalid+Image`;
-                                  }}
+                                  fill
+                                  className="object-cover"
+                                  unoptimized
                                 />
                               </div>
                               <div className="p-4">
@@ -725,10 +730,10 @@ export default function TourLeaderDetailAdmin({ tourLeader, admin }: TourLeaderD
                                 <div>
                                   <h5 className="text-xs font-semibold text-gray-600 uppercase mb-1">Certifications</h5>
                                   <ul className="space-y-1">
-                                    {previewData.certifications.map((cert: string, index: number) => (
+                                    {previewData.certifications.map((cert, index) => (
                                       <li key={index} className="flex items-start text-sm text-gray-700">
                                         <CheckIcon className="w-4 h-4 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                                        {cert}
+                                        {typeof cert === 'string' ? cert : cert.title}
                                       </li>
                                     ))}
                                   </ul>
@@ -771,16 +776,12 @@ export default function TourLeaderDetailAdmin({ tourLeader, admin }: TourLeaderD
               <div className="relative h-32">
                 {tourLeader.coverImage ? (
                   <>
-                    <img
+                    <Image
                       src={tourLeader.coverImage}
                       alt={`${tourLeader.name} cover`}
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        // Hide image and show gradient on error
-                        e.currentTarget.style.display = 'none';
-                        const gradient = e.currentTarget.nextElementSibling as HTMLElement;
-                        if (gradient) gradient.style.display = 'block';
-                      }}
+                      fill
+                      className="object-cover"
+                      unoptimized
                     />
                     <div 
                       className="absolute inset-0 bg-gradient-to-r from-blue-100 via-purple-50 to-pink-100"
@@ -804,24 +805,26 @@ export default function TourLeaderDetailAdmin({ tourLeader, admin }: TourLeaderD
                     <div className="w-24 h-24 bg-white rounded-full p-1 shadow-lg">
                       {isEditing && editMode === 'form' ? (
                         <div className="relative">
-                          <img
-                            src={formData.image}
-                            alt={formData.name}
-                            className="w-full h-full object-cover rounded-full"
-                            onError={(e) => {
-                              e.currentTarget.src = `https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop`;
-                            }}
-                          />
+                          <div className="relative w-full h-full">
+                            <Image
+                              src={formData.image}
+                              alt={formData.name}
+                              fill
+                              className="object-cover rounded-full"
+                              unoptimized
+                            />
+                          </div>
                         </div>
                       ) : (
-                        <img
-                          src={tourLeader.image}
-                          alt={tourLeader.name}
-                          className="w-full h-full object-cover rounded-full"
-                          onError={(e) => {
-                            e.currentTarget.src = `https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop`;
-                          }}
-                        />
+                        <div className="relative w-full h-full">
+                          <Image
+                            src={tourLeader.image}
+                            alt={tourLeader.name}
+                            fill
+                            className="object-cover rounded-full"
+                            unoptimized
+                          />
+                        </div>
                       )}
                     </div>
                   </div>
@@ -1063,7 +1066,7 @@ export default function TourLeaderDetailAdmin({ tourLeader, admin }: TourLeaderD
                   Tours Offered ({tourLeader.tours.length})
                 </h3>
                 <div className="space-y-4">
-                  {tourLeader.tours.slice(0, 3).map((tour: any, index: number) => (
+                  {tourLeader.tours?.slice(0, 3).map((tour, index: number) => (
                     <div key={index} className="border-l-4 border-blue-500 pl-4">
                       <h4 className="font-medium text-gray-900">{tour.title}</h4>
                       <p className="text-sm text-gray-600 mt-1">{tour.duration} • {tour.price}</p>
@@ -1159,13 +1162,12 @@ export default function TourLeaderDetailAdmin({ tourLeader, admin }: TourLeaderD
                   {tourLeader.travelStories.slice(0, 3).map((story, index) => (
                     <div key={story.id || index} className="border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow">
                       <div className="relative h-48">
-                        <img
+                        <Image
                           src={story.image}
                           alt={story.title}
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            e.currentTarget.src = `https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800&h=400&fit=crop`;
-                          }}
+                          fill
+                          className="object-cover"
+                          unoptimized
                         />
                         {story.location && (
                           <div className="absolute bottom-2 left-2 bg-black bg-opacity-60 text-white px-2 py-1 rounded text-xs flex items-center">
@@ -1203,10 +1205,10 @@ export default function TourLeaderDetailAdmin({ tourLeader, admin }: TourLeaderD
                   Recent Reviews
                 </h3>
                 <div className="space-y-4">
-                  {tourLeader.reviews.slice(0, 3).map((review: any, index: number) => (
+                  {tourLeader.reviews?.slice(0, 3).map((review, index: number) => (
                     <div key={index} className="border-b border-gray-200 last:border-0 pb-4 last:pb-0">
                       <div className="flex items-center justify-between mb-2">
-                        <span className="font-medium text-gray-900">{review.author}</span>
+                        <span className="font-medium text-gray-900">{review.author || 'Anonymous'}</span>
                         <div className="flex items-center">
                           {[...Array(5)].map((_, i) => (
                             <StarIcon
@@ -1221,7 +1223,7 @@ export default function TourLeaderDetailAdmin({ tourLeader, admin }: TourLeaderD
                         </div>
                       </div>
                       <p className="text-sm text-gray-600">{review.comment}</p>
-                      <p className="text-xs text-gray-500 mt-2">{review.date}</p>
+                      {review.date && <p className="text-xs text-gray-500 mt-2">{review.date}</p>}
                     </div>
                   ))}
                 </div>

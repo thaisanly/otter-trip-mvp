@@ -7,18 +7,21 @@ WORKDIR /app
 # Install libc6-compat for better Alpine compatibility
 RUN apk add --no-cache libc6-compat
 
-# Copy package files
-COPY package*.json ./
-COPY yarn.lock* ./
+# Copy package files explicitly
+COPY package.json ./
+COPY package-lock.json ./
 
-# Install dependencies
-RUN npm ci --only=production && npm cache clean --force
+# Install ALL dependencies (including dev) for build stage
+RUN npm ci && npm cache clean --force
 
 # Copy source code
 COPY . .
 
 # Generate Prisma client
 RUN npx prisma generate
+
+# Disable Next.js telemetry during build
+ENV NEXT_TELEMETRY_DISABLED=1
 
 # Build the Next.js application
 RUN npm run build
@@ -41,12 +44,35 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
+# Copy package files for production dependencies
+COPY --from=builder --chown=nextjs:nodejs /app/package.json ./package.json
+COPY --from=builder --chown=nextjs:nodejs /app/package-lock.json ./package-lock.json
+
+# Copy Prisma schema, migrations, and seed file
+COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
+
+# Copy src directory for seed dependencies (mock data and utils)
+COPY --from=builder --chown=nextjs:nodejs /app/src ./src
+
+# Copy tsconfig.json for TypeScript compilation
+COPY --from=builder --chown=nextjs:nodejs /app/tsconfig.json ./tsconfig.json
+
+# Install ALL dependencies (including dev) for seeding capabilities
+# Then remove unnecessary packages after generating Prisma client
+RUN npm ci && \
+    npx prisma generate && \
+    npm cache clean --force && \
+    chown -R nextjs:nodejs /app
+
 # Copy necessary files from builder
-COPY --from=builder /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+
+# Copy telemetry configuration cache to persist the disabled setting
+COPY --from=builder --chown=nextjs:nodejs /app/cache ./cache
 
 # Set the correct permission for prerender cache
-RUN mkdir .next
-RUN chown nextjs:nodejs .next
+RUN mkdir -p .next
+RUN chown -R nextjs:nodejs .next
 
 # Automatically leverage output traces to reduce image size
 # https://nextjs.org/docs/advanced-features/output-file-tracing

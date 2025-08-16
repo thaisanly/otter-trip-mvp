@@ -11,6 +11,7 @@ README.md
 .env.test.local
 .env.production.local
 .next
+.next-dry-run
 out
 dist
 build

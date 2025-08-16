@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import {
   ArrowLeftIcon,
   EditIcon,
@@ -10,10 +11,8 @@ import {
   TrashIcon,
   MapPinIcon,
   StarIcon,
-  ClockIcon,
   DollarSignIcon,
   GlobeIcon,
-  AwardIcon,
   BriefcaseIcon,
   CalendarIcon,
   UserIcon,
@@ -21,17 +20,16 @@ import {
   CodeIcon,
   FileTextIcon,
   EyeIcon,
-  CheckIcon,
   PlusIcon,
   MinusIcon,
   SearchIcon,
   ImageIcon,
-  InstagramIcon,
-  FacebookIcon,
-  TwitterIcon,
-  LinkedinIcon,
-  YoutubeIcon,
   ExternalLinkIcon,
+  Instagram as InstagramIcon,
+  Facebook as FacebookIcon,
+  Twitter as TwitterIcon,
+  Linkedin as LinkedinIcon,
+  Youtube as YoutubeIcon,
 } from 'lucide-react';
 
 interface Video {
@@ -55,7 +53,7 @@ interface Expert {
   languages: string[];
   expertise: string[];
   certifications?: string[];
-  availability?: any;
+  availability?: Record<string, { available: boolean; start: string; end: string }>;
   bio?: string;
   experience?: string;
   featuredTours?: string[];
@@ -87,7 +85,6 @@ interface Tour {
 
 interface ExpertDetailAdminProps {
   expert: Expert;
-  admin: any;
 }
 
 const defaultAvailability = {
@@ -100,17 +97,17 @@ const defaultAvailability = {
   sunday: { available: false, start: '09:00', end: '17:00' },
 };
 
-export default function ExpertDetailAdmin({ expert, admin }: ExpertDetailAdminProps) {
+export default function ExpertDetailAdmin({ expert }: ExpertDetailAdminProps) {
   const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
   const [editMode, setEditMode] = useState<'form' | 'json'>('form');
   const [isSaving, setIsSaving] = useState(false);
   const [jsonError, setJsonError] = useState<string>('');
   const [showPreview, setShowPreview] = useState(false);
-  const [previewData, setPreviewData] = useState<any>(null);
+  const [previewData, setPreviewData] = useState<Expert | null>(null);
   const [jsonData, setJsonData] = useState<string>('');
   const [availableTours, setAvailableTours] = useState<Tour[]>([]);
-  const [featuredToursDetails, setFeaturedToursDetails] = useState<Tour[]>([]);
+  const [featuredToursDetails] = useState<Tour[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [isLoadingTours, setIsLoadingTours] = useState(false);
   const [showTourSelector, setShowTourSelector] = useState(false);
@@ -140,16 +137,7 @@ export default function ExpertDetailAdmin({ expert, admin }: ExpertDetailAdminPr
     latestVideos: expert.latestVideos || [],
   });
   
-  // Load available tours on component mount
-  useEffect(() => {
-    loadAvailableTours();
-    loadFeaturedToursDetails();
-  }, []);
 
-  // Load featured tours details when featured tours list changes
-  useEffect(() => {
-    loadFeaturedToursDetails();
-  }, [formData.featuredTours]);
 
   const loadAvailableTours = async (search?: string) => {
     setIsLoadingTours(true);
@@ -172,22 +160,6 @@ export default function ExpertDetailAdmin({ expert, admin }: ExpertDetailAdminPr
     }
   };
 
-  const loadFeaturedToursDetails = async () => {
-    if (formData.featuredTours.length === 0) {
-      setFeaturedToursDetails([]);
-      return;
-    }
-
-    try {
-      const response = await fetch(`/api/admin/experts/${expert.id}/featured-tours`);
-      if (response.ok) {
-        const data = await response.json();
-        setFeaturedToursDetails(data.featuredTours || []);
-      }
-    } catch (error) {
-      console.error('Error loading featured tours details:', error);
-    }
-  };
 
   const handleAddFeaturedTour = (tour: Tour) => {
     if (!formData.featuredTours.includes(tour.id)) {
@@ -209,7 +181,7 @@ export default function ExpertDetailAdmin({ expert, admin }: ExpertDetailAdminPr
   // Convert form data to JSON format
   const formDataToJson = () => {
     const socialMediaData = Object.entries(formData.socialMedia)
-      .filter(([_, value]) => value?.trim())
+      .filter(([, value]) => value?.trim())
       .reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {});
     
     return {
@@ -239,9 +211,9 @@ export default function ExpertDetailAdmin({ expert, admin }: ExpertDetailAdminPr
   };
   
   // Validate JSON
-  const validateJson = (jsonString: string): { valid: boolean; data?: any; error?: string } => {
+  const validateJson = (jsonString: string): { valid: boolean; data?: Expert; error?: string } => {
     try {
-      const data = JSON.parse(jsonString);
+      const data = JSON.parse(jsonString) as Expert;
       
       // Validate required fields
       if (!data.name || typeof data.name !== 'string') {
@@ -279,7 +251,7 @@ export default function ExpertDetailAdmin({ expert, admin }: ExpertDetailAdminPr
       }
       
       return { valid: true, data };
-    } catch (e) {
+    } catch {
       return { valid: false, error: 'Invalid JSON format' };
     }
   };
@@ -382,7 +354,7 @@ export default function ExpertDetailAdmin({ expert, admin }: ExpertDetailAdminPr
     setJsonError('');
   };
 
-  const handleInputChange = (field: string, value: any) => {
+  const handleInputChange = (field: string, value: string | number | string[] | Video[]) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
@@ -440,7 +412,7 @@ export default function ExpertDetailAdmin({ expert, admin }: ExpertDetailAdminPr
     }));
   };
 
-  const handleAvailabilityChange = (day: string, field: string, value: any) => {
+  const handleAvailabilityChange = (day: string, field: string, value: string | boolean) => {
     setFormData(prev => ({
       ...prev,
       availability: {
@@ -582,7 +554,7 @@ export default function ExpertDetailAdmin({ expert, admin }: ExpertDetailAdminPr
                   type="button"
                   onClick={() => {
                     const validation = validateJson(jsonData);
-                    if (validation.valid) {
+                    if (validation.valid && validation.data) {
                       setPreviewData(validation.data);
                       setShowPreview(true);
                       setJsonError('');
@@ -711,14 +683,13 @@ export default function ExpertDetailAdmin({ expert, admin }: ExpertDetailAdminPr
                           <h4 className="text-sm font-medium text-gray-700 mb-3">Expert Card View</h4>
                           <div className="bg-gray-50 p-4 rounded-lg">
                             <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-                              <div className="relative">
-                                <img 
-                                  src={previewData.image} 
+                              <div className="relative h-48">
+                                <Image 
+                                  src={previewData.image || `https://via.placeholder.com/400x200/4B5563/FFFFFF?text=Invalid+Image`} 
                                   alt={previewData.name} 
-                                  className="w-full h-48 object-cover"
-                                  onError={(e) => {
-                                    e.currentTarget.src = `https://via.placeholder.com/400x200/4B5563/FFFFFF?text=Invalid+Image`;
-                                  }}
+                                  fill
+                                  className="object-cover"
+                                  unoptimized
                                 />
                               </div>
                               <div className="p-4">
@@ -773,7 +744,7 @@ export default function ExpertDetailAdmin({ expert, admin }: ExpertDetailAdminPr
                                 <div>
                                   <h5 className="text-xs font-semibold text-gray-600 uppercase mb-1">Availability</h5>
                                   <div className="grid grid-cols-2 gap-2 text-xs">
-                                    {Object.entries(previewData.availability).slice(0, 5).map(([day, times]: [string, any]) => (
+                                    {Object.entries(previewData.availability).slice(0, 5).map(([day, times]) => (
                                       <div key={day} className="flex justify-between">
                                         <span className="capitalize">{day}:</span>
                                         <span className="text-gray-600">
@@ -832,14 +803,15 @@ export default function ExpertDetailAdmin({ expert, admin }: ExpertDetailAdminPr
                     />
                     <div className="relative">
                       {formData.banner ? (
-                        <img
-                          src={formData.banner}
-                          alt="Cover"
-                          className="w-full h-32 object-cover rounded"
-                          onError={(e) => {
-                            e.currentTarget.src = `https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=300&fit=crop`;
-                          }}
-                        />
+                        <div className="relative h-32 w-full">
+                          <Image
+                            src={formData.banner}
+                            alt="Cover"
+                            fill
+                            className="object-cover rounded"
+                            unoptimized
+                          />
+                        </div>
                       ) : (
                         <div className="w-full h-32 bg-gray-100 rounded flex items-center justify-center">
                           <div className="text-center text-gray-500">
@@ -850,28 +822,30 @@ export default function ExpertDetailAdmin({ expert, admin }: ExpertDetailAdminPr
                       )}
                       {/* Profile Image Overlay in Edit Mode */}
                       <div className="absolute bottom-4 left-6 z-0">
-                        <img
-                          src={formData.image}
-                          alt={formData.name}
-                          className="w-32 h-32 rounded-full border-4 border-white shadow-lg object-cover bg-white"
-                          onError={(e) => {
-                            e.currentTarget.src = `https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop`;
-                          }}
-                        />
+                        <div className="relative w-32 h-32">
+                          <Image
+                            src={formData.image || `https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop`}
+                            alt={formData.name}
+                            fill
+                            className="rounded-full border-4 border-white shadow-lg object-cover bg-white"
+                            sizes="128px"
+                          />
+                        </div>
                       </div>
                     </div>
                   </div>
                 ) : (
                   <div className="relative">
                     {expert.banner ? (
-                      <img
-                        src={expert.banner}
-                        alt="Cover"
-                        className="w-full h-48 object-cover"
-                        onError={(e) => {
-                          e.currentTarget.src = `https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=300&fit=crop`;
-                        }}
-                      />
+                      <div className="relative h-48 w-full">
+                        <Image
+                          src={expert.banner}
+                          alt="Cover"
+                          fill
+                          className="object-cover"
+                          unoptimized
+                        />
+                      </div>
                     ) : (
                       <div className="w-full h-48 bg-gray-100 flex items-center justify-center">
                         <div className="text-center text-gray-500">
@@ -882,14 +856,15 @@ export default function ExpertDetailAdmin({ expert, admin }: ExpertDetailAdminPr
                     )}
                     {/* Profile Image Overlay */}
                     <div className="absolute bottom-4 left-6 z-0">
-                      <img
-                        src={expert.image}
-                        alt={expert.name}
-                        className="w-32 h-32 rounded-full border-4 border-white shadow-lg object-cover bg-white"
-                        onError={(e) => {
-                          e.currentTarget.src = `https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop`;
-                        }}
-                      />
+                      <div className="relative w-32 h-32">
+                        <Image
+                          src={expert.image || `https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop`}
+                          alt={expert.name}
+                          fill
+                          className="rounded-full border-4 border-white shadow-lg object-cover bg-white"
+                          sizes="128px"
+                        />
+                      </div>
                     </div>
                   </div>
                 )}
@@ -1152,7 +1127,7 @@ export default function ExpertDetailAdmin({ expert, admin }: ExpertDetailAdminPr
                 </div>
               ) : (
                 <div>
-                  {expert.socialMedia && Object.entries(expert.socialMedia).filter(([_, url]) => url).length > 0 ? (
+                  {expert.socialMedia && Object.entries(expert.socialMedia).filter(([, url]) => url).length > 0 ? (
                     <div className="flex flex-wrap gap-3">
                       {expert.socialMedia.instagram && (
                         <a
@@ -1252,7 +1227,7 @@ export default function ExpertDetailAdmin({ expert, admin }: ExpertDetailAdminPr
                     <div className="text-center py-8 text-gray-500">
                       <YoutubeIcon className="w-12 h-12 mx-auto mb-3 text-gray-300" />
                       <p>No videos added yet.</p>
-                      <p className="text-sm">Click "Add Video" to start building your video collection.</p>
+                      <p className="text-sm">Click &quot;Add Video&quot; to start building your video collection.</p>
                     </div>
                   ) : (
                     <div className="space-y-6">
@@ -1357,14 +1332,15 @@ export default function ExpertDetailAdmin({ expert, admin }: ExpertDetailAdminPr
                               {video.thumbnail && (
                                 <div>
                                   <label className="block text-sm font-medium text-gray-700 mb-1">Preview</label>
-                                  <img
-                                    src={video.thumbnail}
-                                    alt={video.title || 'Video thumbnail'}
-                                    className="w-24 h-16 object-cover rounded border"
-                                    onError={(e) => {
-                                      e.currentTarget.src = `https://via.placeholder.com/120x90/CBD5E1/64748B?text=Video`;
-                                    }}
-                                  />
+                                  <div className="relative w-24 h-16">
+                                    <Image
+                                      src={video.thumbnail || `https://via.placeholder.com/120x90/CBD5E1/64748B?text=Video`}
+                                      alt={video.title || 'Video thumbnail'}
+                                      fill
+                                      className="object-cover rounded border"
+                                      unoptimized
+                                    />
+                                  </div>
                                 </div>
                               )}
                             </div>
@@ -1378,16 +1354,15 @@ export default function ExpertDetailAdmin({ expert, admin }: ExpertDetailAdminPr
                 <div>
                   {expert.latestVideos && expert.latestVideos.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {expert.latestVideos.map((video, index) => (
+                      {expert.latestVideos.map((video) => (
                         <div key={video.id} className="border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow">
                           <div className="aspect-video relative">
-                            <img
-                              src={video.thumbnail}
+                            <Image
+                              src={video.thumbnail || `https://via.placeholder.com/300x169/CBD5E1/64748B?text=Video`}
                               alt={video.title}
-                              className="w-full h-full object-cover"
-                              onError={(e) => {
-                                e.currentTarget.src = `https://via.placeholder.com/300x169/CBD5E1/64748B?text=Video`;
-                              }}
+                              fill
+                              className="object-cover"
+                              unoptimized
                             />
                             <div className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-20 transition-all duration-200 flex items-center justify-center">
                               <YoutubeIcon className="w-8 h-8 text-white opacity-0 hover:opacity-100 transition-opacity duration-200" />
@@ -1442,14 +1417,15 @@ export default function ExpertDetailAdmin({ expert, admin }: ExpertDetailAdminPr
                   {featuredToursDetails.map((tour) => (
                     <div key={tour.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                       <div className="flex items-center space-x-3">
-                        <img
-                          src={tour.heroImage}
-                          alt={tour.title}
-                          className="w-12 h-12 object-cover rounded"
-                          onError={(e) => {
-                            e.currentTarget.src = `https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=200&h=200&fit=crop`;
-                          }}
-                        />
+                        <div className="relative w-12 h-12">
+                          <Image
+                            src={tour.heroImage || `https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=200&h=200&fit=crop`}
+                            alt={tour.title}
+                            fill
+                            className="object-cover rounded"
+                            unoptimized
+                          />
+                        </div>
                         <div>
                           <h4 className="font-medium text-gray-900">{tour.title}</h4>
                           <p className="text-sm text-gray-500">{tour.location} • {tour.duration} • {tour.price}</p>
@@ -1527,14 +1503,15 @@ export default function ExpertDetailAdmin({ expert, admin }: ExpertDetailAdminPr
                                   onClick={() => handleAddFeaturedTour(tour)}
                                 >
                                   <div className="flex items-center space-x-3">
-                                    <img
-                                      src={tour.heroImage}
-                                      alt={tour.title}
-                                      className="w-12 h-12 object-cover rounded"
-                                      onError={(e) => {
-                                        e.currentTarget.src = `https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=200&h=200&fit=crop`;
-                                      }}
-                                    />
+                                    <div className="relative w-12 h-12">
+                                      <Image
+                                        src={tour.heroImage || `https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=200&h=200&fit=crop`}
+                                        alt={tour.title}
+                                        fill
+                                        className="object-cover rounded"
+                                        unoptimized
+                                      />
+                                    </div>
                                     <div>
                                       <h4 className="font-medium text-gray-900">{tour.title}</h4>
                                       <p className="text-sm text-gray-500">{tour.location} • {tour.duration} • {tour.price}</p>
@@ -1644,7 +1621,7 @@ export default function ExpertDetailAdmin({ expert, admin }: ExpertDetailAdminPr
                   Availability Schedule
                 </h3>
                 <div className="space-y-3">
-                  {Object.entries(expert.availability).map(([day, times]: [string, any]) => (
+                  {Object.entries(expert.availability).map(([day, times]) => (
                     <div key={day} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                       <div className="flex items-center">
                         <div className={`w-3 h-3 rounded-full mr-3 ${

@@ -105,12 +105,7 @@ export default function AdminSidebar({ admin }: AdminSidebarProps) {
     },
   ];
 
-  const filteredMenuItems = menuItems.filter(item => {
-    if (item.requireSuperAdmin && admin.role !== 'super_admin') {
-      return false;
-    }
-    return true;
-  });
+  const filteredMenuItems = menuItems;
 
   const isActiveRoute = (href: string) => {
     // Check if current path starts with the menu href (handles detail pages)
@@ -199,12 +194,12 @@ export default function AdminSidebar({ admin }: AdminSidebarProps) {
               {filteredMenuItems.map((item) => {
                 const Icon = item.icon;
                 const isActive = isActiveRoute(item.href);
-                const isDisabled = item.disabled;
+                const isDisabled = false;
 
                 return (
                   <li key={item.title}>
                     <button
-                      onClick={() => !isDisabled && router.push(item.href)}
+                      onClick={() => router.push(item.href)}
                       disabled={isDisabled}
                       className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg transition-colors ${
                         isActive

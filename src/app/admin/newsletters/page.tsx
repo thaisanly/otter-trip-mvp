@@ -158,7 +158,7 @@ export default function AdminNewslettersPage() {
                 <select
                   value={statusFilter}
                   onChange={(e) => {
-                    setStatusFilter(e.target.value as any);
+                    setStatusFilter(e.target.value as 'all' | 'confirmed' | 'pending');
                     setPagination(prev => ({ ...prev, page: 1 }));
                   }}
                   className="pl-10 pr-8 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none bg-white"

@@ -1,22 +1,17 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import {
   PlusIcon,
   TrashIcon,
   PowerIcon,
-  ClockIcon,
   UsersIcon,
-  CalendarIcon,
   KeyIcon,
   CheckCircleIcon,
   XCircleIcon,
   AlertCircleIcon,
   RefreshCwIcon,
-  EditIcon,
   FileDownIcon,
-  CopyIcon,
   PackageIcon,
   SearchIcon,
   SettingsIcon,
@@ -55,8 +50,7 @@ interface ConsultationCodesAdminProps {
   };
 }
 
-const ConsultationCodesAdmin: React.FC<ConsultationCodesAdminProps> = ({ admin }) => {
-  const router = useRouter();
+const ConsultationCodesAdmin: React.FC<ConsultationCodesAdminProps> = () => {
   const [codes, setCodes] = useState<ConsultationCode[]>([]);
   const [stats, setStats] = useState<CodeStats | null>(null);
   const [loading, setLoading] = useState(true);
@@ -278,7 +272,6 @@ const ConsultationCodesAdmin: React.FC<ConsultationCodesAdminProps> = ({ admin }
     });
     
     // Add footer
-    const finalY = (doc as any).lastAutoTable.finalY || 50;
     doc.setFontSize(10);
     doc.text(`Page 1 of 1`, pageWidth / 2, doc.internal.pageSize.height - 10, { align: 'center' });
     
@@ -306,7 +299,7 @@ const ConsultationCodesAdmin: React.FC<ConsultationCodesAdminProps> = ({ admin }
     if (selectedCodes.length === 0) return;
     
     try {
-      const updates: any = {};
+      const updates: Record<string, unknown> = {};
       
       if (bulkAction.type === 'status') {
         updates.status = bulkAction.status;
@@ -386,10 +379,9 @@ const ConsultationCodesAdmin: React.FC<ConsultationCodesAdminProps> = ({ admin }
     });
     
     // Add footer note
-    const finalY = (doc as any).lastAutoTable.finalY || 50;
     doc.setFontSize(10);
     doc.setTextColor(100);
-    doc.text('Keep these codes secure. Share only with authorized users.', 14, finalY + 10);
+    doc.text('Keep these codes secure. Share only with authorized users.', 14, 60);
     
     // Save the PDF
     doc.save(`new-consultation-codes-${new Date().toISOString().split('T')[0]}.pdf`);

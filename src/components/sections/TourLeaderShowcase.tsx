@@ -1,15 +1,18 @@
 'use client'
 
 import React from 'react';
+import Image from 'next/image';
 const TourLeaderShowcase = () => {
   return (
     <div className="relative bg-blue-900 text-white">
       {/* Background Image with Overlay */}
       <div className="absolute inset-0 z-0">
-        <img
+        <Image
           src="https://images.unsplash.com/photo-1506197603052-3cc9c3a201bd?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80"
           alt="Travel adventure"
           className="w-full h-full object-cover"
+          fill
+          sizes="100vw"
         />
         <div className="absolute inset-0 bg-blue-900/50"></div>
       </div>

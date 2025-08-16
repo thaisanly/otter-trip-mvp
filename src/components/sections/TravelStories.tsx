@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 import { HeartIcon, MessageCircleIcon, ShareIcon } from 'lucide-react';
 import InterestTag from '../ui/InterestTag';
 type TravelStory = {
@@ -42,7 +43,7 @@ const TravelStories = ({ stories }: TravelStoriesProps) => {
         {stories.map((story) => (
           <div key={story.id} className="border border-gray-200 rounded-xl overflow-hidden">
             <div className="aspect-[16/9] relative">
-              <img src={story.image} alt={story.title} className="w-full h-full object-cover" />
+              <Image src={story.image} alt={story.title} className="w-full h-full object-cover" width={800} height={450} />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent"></div>
               <div className="absolute bottom-0 left-0 p-6 text-white">
                 <h3 className="text-xl md:text-2xl font-bold mb-2">{story.title}</h3>

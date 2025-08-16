@@ -54,11 +54,11 @@ export default function BookingAnalyticsPage() {
         
         // Calculate analytics
         const totalBookings = bookings.length;
-        const totalRevenue = bookings.reduce((sum: number, booking: any) => sum + booking.totalPrice, 0);
+        const totalRevenue = bookings.reduce((sum: number, booking: { totalPrice: number }) => sum + booking.totalPrice, 0);
         const averageBookingValue = totalBookings > 0 ? totalRevenue / totalBookings : 0;
         
         // Status breakdown
-        const statusBreakdown = bookings.reduce((acc: any, booking: any) => {
+        const statusBreakdown = bookings.reduce((acc: Record<string, number>, booking: { status: string }) => {
           acc[booking.status] = (acc[booking.status] || 0) + 1;
           return acc;
         }, {});
@@ -70,7 +70,7 @@ export default function BookingAnalyticsPage() {
           const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
           const monthName = date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
           
-          const monthBookings = bookings.filter((booking: any) => {
+          const monthBookings = bookings.filter((booking: { createdAt: string }) => {
             const bookingDate = new Date(booking.createdAt);
             return bookingDate.getMonth() === date.getMonth() && 
                    bookingDate.getFullYear() === date.getFullYear();
@@ -79,7 +79,7 @@ export default function BookingAnalyticsPage() {
           monthlyTrends.push({
             month: monthName,
             bookings: monthBookings.length,
-            revenue: monthBookings.reduce((sum: number, booking: any) => sum + booking.totalPrice, 0)
+            revenue: monthBookings.reduce((sum: number, booking: { totalPrice: number }) => sum + booking.totalPrice, 0)
           });
         }
 

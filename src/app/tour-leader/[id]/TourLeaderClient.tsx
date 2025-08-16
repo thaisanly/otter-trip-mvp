@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
@@ -12,20 +12,83 @@ import {
   ShareIcon,
   CheckIcon,
   UsersIcon,
-  StarIcon,
   ClockIcon,
   FlagIcon,
   UserIcon,
   CompassIcon,
   BookOpenIcon,
 } from 'lucide-react';
+import Image from 'next/image';
 import Rating from '@/components/ui/Rating';
 import PersonalityMatch from '@/components/sections/PersonalityMatch';
 import GuideCertifications from '@/components/sections/GuideCertifications';
 import InterestTag from '@/components/ui/InterestTag';
 
 interface TourLeaderProps {
-  tourLeader: any;
+  tourLeader: {
+    id: string;
+    name: string;
+    image: string;
+    coverImage: string;
+    location: string;
+    tagline?: string;
+    rating: number;
+    reviewCount: number;
+    about?: string;
+    description?: string;
+    experience?: string;
+    yearsExperience?: number;
+    tripsCompleted?: number;
+    responseTime?: string;
+    travelPhilosophy?: string;
+    travelStories?: Array<{
+      id: string;
+      title: string;
+      location: string;
+      image?: string;
+      images?: string[];
+      description?: string;
+      content?: string;
+      date?: string;
+      likes?: number;
+      traits?: string[];
+    }>;
+    countrySpecializations?: Array<{
+      name?: string;
+      country?: string;
+      icon?: string;
+      level?: string;
+      expertise?: string;
+      yearCount?: number;
+      years?: number;
+      regions?: string[];
+    }>;
+    tours?: Array<{
+      id: string;
+      title: string;
+      image: string;
+      duration: string;
+      rating: number;
+      groupSize: string;
+      description: string;
+      includes?: string[];
+      price: number | string;
+      dates?: Array<{
+        id: string;
+        date: string;
+        spotsLeft: number;
+      }>;
+    }>;
+    personality?: string[];
+    certifications?: Array<{
+      name: string;
+      icon?: string;
+      issuer?: string;
+      date?: string;
+    }>;
+    specialties?: string[];
+    languages?: string[];
+  };
 }
 
 const TourLeaderClient = ({ tourLeader }: TourLeaderProps) => {
@@ -36,7 +99,14 @@ const TourLeaderClient = ({ tourLeader }: TourLeaderProps) => {
   const countrySpecializations = tourLeader.countrySpecializations || [];
   const tours = tourLeader.tours || [];
   const personality = tourLeader.personality || [];
-  const certifications = tourLeader.certifications || [];
+  const certifications = (tourLeader.certifications || []).map((cert: Record<string, string | boolean | number>, index: number) => ({
+    id: String(cert.id || `cert-${index}`),
+    name: String(cert.name || ''),
+    issuer: String(cert.issuer || ''),
+    year: String(cert.year || cert.date || new Date().getFullYear()),
+    icon: String(cert.icon || 'check') as 'award' | 'shield' | 'check',
+    verified: Boolean(cert.verified !== undefined ? cert.verified : true)
+  }));
   const specialties = tourLeader.specialties || [];
   const languages = tourLeader.languages || [];
 
@@ -80,10 +150,13 @@ const TourLeaderClient = ({ tourLeader }: TourLeaderProps) => {
     <div className="bg-gray-50 min-h-screen">
       {/* Cover Image */}
       <div className="relative h-[300px] md:h-[400px]">
-        <img
+        <Image
           src={tourLeader.coverImage}
           alt={`${tourLeader.name}'s tours in ${tourLeader.location}`}
           className="w-full h-full object-cover"
+          width={1200}
+          height={400}
+          priority
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent"></div>
       </div>
@@ -94,10 +167,12 @@ const TourLeaderClient = ({ tourLeader }: TourLeaderProps) => {
             <div className="md:w-1/4 mb-4 md:mb-0">
               <div className="flex items-start">
                 <div className="w-20 h-20 md:w-24 md:h-24 rounded-full border-4 border-white overflow-hidden shadow-md mr-4 md:mr-0 md:mb-4">
-                  <img
+                  <Image
                     src={tourLeader.image}
                     alt={tourLeader.name}
-                    className="w-full h-full object-cover"
+                    className="w-20 h-20 md:w-24 md:h-24 object-cover"
+                    width={96}
+                    height={96}
                   />
                 </div>
                 <div className="md:hidden">
@@ -121,7 +196,6 @@ const TourLeaderClient = ({ tourLeader }: TourLeaderProps) => {
                 <div className="flex items-center mb-4">
                   <Rating
                     value={tourLeader.rating}
-                    reviewCount={tourLeader.reviewCount}
                     size="sm"
                   />
                 </div>
@@ -282,7 +356,7 @@ const TourLeaderClient = ({ tourLeader }: TourLeaderProps) => {
                         </h3>
                       </div>
                       <div className="space-y-4">
-                        {countrySpecializations.map((spec: any, index: number) => (
+                        {countrySpecializations.map((spec, index: number) => (
                           <div key={index} className="flex items-start p-3 bg-gray-50 rounded-lg">
                             <div className="text-2xl mr-3">{spec.icon || '🌍'}</div>
                             <div className="flex-1">
@@ -342,16 +416,18 @@ const TourLeaderClient = ({ tourLeader }: TourLeaderProps) => {
                 </div>
               ) : expandedStory === null ? (
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                  {travelStories.map((story: any) => (
+                  {travelStories.map((story) => (
                     <div
                       key={story.id}
                       className="aspect-square relative cursor-pointer overflow-hidden rounded-md"
                       onClick={() => toggleStoryExpansion(story.id)}
                     >
-                      <img
-                        src={story.images && story.images.length > 0 ? story.images[0] : story.image}
+                      <Image
+                        src={story.images && story.images.length > 0 ? story.images[0] : story.image || ''}
                         alt={story.title}
                         className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                        width={300}
+                        height={300}
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-3">
                         <h3 className="text-white font-medium text-sm">{story.title}</h3>
@@ -384,43 +460,47 @@ const TourLeaderClient = ({ tourLeader }: TourLeaderProps) => {
                       </svg>
                     </button>
                     <div className="aspect-[16/9] relative">
-                      <img
+                      <Image
                         src={(() => {
-                          const story = travelStories.find((s: any) => s.id === expandedStory);
-                          return story?.images && story.images.length > 0 ? story.images[0] : story?.image;
+                          const story = travelStories.find((s) => s.id === expandedStory);
+                          return story?.images && story.images.length > 0 ? story.images[0] : story?.image || '';
                         })()}
-                        alt={travelStories.find((s: any) => s.id === expandedStory)?.title}
+                        alt={travelStories.find((s) => s.id === expandedStory)?.title || ''}
                         className="w-full h-full object-cover"
+                        width={800}
+                        height={450}
                       />
                     </div>
                   </div>
                   <div className="p-4">
                     <div className="flex items-center mb-4">
-                      <img
+                      <Image
                         src={tourLeader.image}
                         alt={tourLeader.name}
                         className="w-10 h-10 rounded-full mr-3 object-cover"
+                        width={40}
+                        height={40}
                       />
                       <div>
                         <h3 className="font-medium text-gray-900">{tourLeader.name}</h3>
                         <p className="text-gray-600 text-xs">
-                          {travelStories.find((s: any) => s.id === expandedStory)?.location} •{' '}
-                          {travelStories.find((s: any) => s.id === expandedStory)?.date}
+                          {travelStories.find((s) => s.id === expandedStory)?.location} •{' '}
+                          {travelStories.find((s) => s.id === expandedStory)?.date}
                         </p>
                       </div>
                     </div>
                     <h2 className="text-xl font-bold mb-2">
-                      {travelStories.find((s: any) => s.id === expandedStory)?.title}
+                      {travelStories.find((s) => s.id === expandedStory)?.title}
                     </h2>
                     <p className="text-gray-700 mb-4">
-                      {travelStories.find((s: any) => s.id === expandedStory)?.description ||
-                        travelStories.find((s: any) => s.id === expandedStory)?.content}
+                      {travelStories.find((s) => s.id === expandedStory)?.description ||
+                        travelStories.find((s) => s.id === expandedStory)?.content}
                     </p>
-                    {travelStories.find((s: any) => s.id === expandedStory)?.traits && (
+                    {travelStories.find((s) => s.id === expandedStory)?.traits && (
                       <div className="flex flex-wrap gap-2 mb-4">
                         {travelStories
-                          .find((s: any) => s.id === expandedStory)
-                          ?.traits.map((trait: string, index: number) => (
+                          .find((s) => s.id === expandedStory)
+                          ?.traits?.map((trait: string, index: number) => (
                             <InterestTag
                               key={`${expandedStory}-trait-${index}`}
                               label={trait}
@@ -443,9 +523,9 @@ const TourLeaderClient = ({ tourLeader }: TourLeaderProps) => {
                           />
                           <span>
                             {likedStories[expandedStory]
-                              ? (travelStories.find((s: any) => s.id === expandedStory)
+                              ? (travelStories.find((s) => s.id === expandedStory)
                                   ?.likes || 0) + 1
-                              : travelStories.find((s: any) => s.id === expandedStory)?.likes || 'Like'}
+                              : travelStories.find((s) => s.id === expandedStory)?.likes || 'Like'}
                           </span>
                         </button>
                         <button className="flex items-center text-gray-500 hover:text-blue-500">
@@ -474,17 +554,19 @@ const TourLeaderClient = ({ tourLeader }: TourLeaderProps) => {
                 ) : (
                   <>
                     <h2 className="text-xl font-bold text-gray-900 mb-2">Curated Experiences</h2>
-                    {tours.map((tour: any) => (
+                    {tours.map((tour) => (
                       <div
                         key={tour.id}
                         className="flex flex-col md:flex-row border border-gray-200 rounded-xl overflow-hidden hover:shadow-md transition-shadow cursor-pointer group"
                         onClick={() => router.push(`/tour/${tour.id}`)}
                       >
                         <div className="md:w-1/3 h-48 md:h-auto relative">
-                          <img
+                          <Image
                             src={tour.image}
                             alt={tour.title}
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            width={400}
+                            height={300}
                           />
                           <div className="absolute top-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
                             {tour.duration}
@@ -546,12 +628,12 @@ const TourLeaderClient = ({ tourLeader }: TourLeaderProps) => {
                       </div>
                     ))}
                     {/* Upcoming Tours */}
-                    {tours.some((tour: any) => tour.dates && tour.dates.length > 0) && (
+                    {tours.some((tour) => tour.dates && tour.dates.length > 0) && (
                       <>
                         <h2 className="text-xl font-bold text-gray-900 mt-8 mb-4">Upcoming Tours</h2>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          {tours.flatMap((tour: any) =>
-                            (tour.dates || []).map((date: any) => (
+                          {tours.flatMap((tour) =>
+                            (tour.dates || []).map((date) => (
                               <div
                                 key={`${tour.id}-${date.id}`}
                                 className="border border-gray-200 rounded-lg p-4 flex items-center"

@@ -29,7 +29,7 @@ async function getEmailProvider() {
 }
 
 // Email templates
-const getAdminEmailHtml = (data: any) => `
+const getAdminEmailHtml = (data: { expertName: string; userName: string; userEmail: string; phone?: string; preferredDate?: string; tripDuration?: string; message?: string }) => `
   <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
     <div style="background-color: #1e40af; color: white; padding: 20px; border-radius: 8px 8px 0 0;">
       <h1 style="margin: 0; font-size: 24px;">Expert: ${data.expertName}</h1>
@@ -62,7 +62,7 @@ const getAdminEmailHtml = (data: any) => `
   </div>
 `;
 
-async function sendWithResend(data: any, resend: any, adminEmail: string) {
+async function sendWithResend(data: { expertName: string; userName: string; userEmail: string; phone?: string; preferredDate?: string; tripDuration?: string; message?: string }, resend: { emails: { send: (params: { from: string; to: string; replyTo: string; subject: string; html: string }) => Promise<{ error?: { message: string }; data?: unknown }> } }, adminEmail: string) {
   if (!resend) {
     throw new Error('Resend is not configured');
   }
@@ -83,7 +83,7 @@ async function sendWithResend(data: any, resend: any, adminEmail: string) {
   return adminResult.data;
 }
 
-async function sendWithSMTP(data: any, smtpTransporter: any, adminEmail: string) {
+async function sendWithSMTP(data: { expertName: string; userName: string; userEmail: string; phone?: string; preferredDate?: string; tripDuration?: string; message?: string }, smtpTransporter: { sendMail: (params: { from: string; to: string; replyTo: string; subject: string; html: string }) => Promise<unknown> }, adminEmail: string) {
   if (!smtpTransporter) {
     throw new Error('SMTP is not configured');
   }
@@ -127,7 +127,7 @@ export async function POST(request: NextRequest) {
     const { emailProvider, adminEmail, resend, smtpTransporter } = await getEmailProvider();
 
     // Save inquiry to database
-    const inquiry = await prisma.inquiry.create({
+    await prisma.inquiry.create({
       data: {
         name: userName,
         email: userEmail,
@@ -142,9 +142,9 @@ export async function POST(request: NextRequest) {
 
     // Send email based on provider
     let result;
-    if (emailProvider === 'resend') {
-      result = await sendWithResend(body, resend, adminEmail);
-    } else if (emailProvider === 'smtp') {
+    if (emailProvider === 'resend' && resend) {
+      result = await sendWithResend(body, resend as { emails: { send: (params: { from: string; to: string; replyTo: string; subject: string; html: string }) => Promise<{ error?: { message: string }; data?: unknown }> } }, adminEmail);
+    } else if (emailProvider === 'smtp' && smtpTransporter) {
       result = await sendWithSMTP(body, smtpTransporter, adminEmail);
     } else {
       throw new Error(`Unknown email provider: ${emailProvider}`);

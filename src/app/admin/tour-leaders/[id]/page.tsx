@@ -20,5 +20,47 @@ export default async function TourLeaderDetailPage({ params }: { params: Promise
     redirect('/admin/tour-leaders');
   }
 
-  return <TourLeaderDetailAdmin tourLeader={tourLeader} admin={admin} />;
+  // Transform Prisma TourLeader to component TourLeader interface
+  const tourLeaderData = {
+    id: tourLeader.id,
+    name: tourLeader.name,
+    image: tourLeader.image,
+    coverImage: tourLeader.coverImage ?? undefined,
+    location: tourLeader.location,
+    rating: tourLeader.rating,
+    reviewCount: tourLeader.reviewCount,
+    specialty: tourLeader.specialty,
+    tourCompleteCount: tourLeader.tourCompleteCount ?? undefined,
+    averageResponseTime: tourLeader.averageResponseTime ?? undefined,
+    description: tourLeader.description,
+    price: tourLeader.price,
+    isSuperhost: tourLeader.isSuperhost,
+    languages: tourLeader.languages as string[],
+    experience: tourLeader.experience ?? undefined,
+    certifications: tourLeader.certifications as Array<{
+      id?: string;
+      title: string;
+      description: string;
+      isVerified: boolean;
+      icon?: string;
+    }> ?? undefined,
+    bio: tourLeader.bio ?? undefined,
+    expertise: tourLeader.expertise as string[] ?? undefined,
+    tours: undefined,
+    reviews: tourLeader.reviews as Array<{
+      id: string;
+      rating: number;
+      comment: string;
+    }> ?? undefined,
+    availability: tourLeader.availability as Record<string, {
+      available: boolean;
+      start: string;
+      end: string;
+    }> ?? undefined,
+    videoUrl: undefined,
+    createdAt: tourLeader.createdAt.toISOString(),
+    updatedAt: tourLeader.updatedAt.toISOString()
+  };
+
+  return <TourLeaderDetailAdmin tourLeader={tourLeaderData} />;
 }

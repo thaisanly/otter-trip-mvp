@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react';
-import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import {
   MapPinIcon,
@@ -39,15 +39,9 @@ const TourExpertCard: React.FC<TourExpertProps> = ({
   countryCode,
   verified,
   rating,
-  reviews,
   experience,
   languages,
   specialties,
-  followers,
-  isLive = false,
-  isTopCreator = false,
-  isRisingStar = false,
-  videos,
   liveStreams,
   tours,
 }) => {
@@ -100,7 +94,7 @@ const TourExpertCard: React.FC<TourExpertProps> = ({
         {/* Profile image with verification */}
         <div className="relative mb-4 cursor-pointer" onClick={handleViewProfileClick}>
           <div className="w-28 h-28 rounded-full overflow-hidden border-4 border-gray-50 shadow-sm hover:border-blue-100 transition-colors">
-            <img src={image} alt={name} className="w-full h-full object-cover" />
+            <Image src={image} alt={name} width={112} height={112} className="w-28 h-28 object-cover" />
           </div>
           {verified && (
             <div className="absolute bottom-1 right-1 bg-blue-500 text-white p-1 rounded-full">

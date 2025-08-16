@@ -9,5 +9,5 @@ export default async function CreateTourPage() {
     redirect('/admin');
   }
 
-  return <TourForm admin={admin} mode="create" />;
+  return <TourForm mode="create" />;
 }

@@ -1,9 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { Download, FileText, Calendar, Filter } from 'lucide-react';
+import { Download, FileText, Calendar } from 'lucide-react';
 import BookingLayout from '@/components/admin/booking/BookingLayout';
-import { BookingStatus } from '@/types';
 
 export default function ExportPage() {
   const [exportFormat, setExportFormat] = useState('csv');

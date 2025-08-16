@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 import crypto from 'crypto';
 import nodemailer from 'nodemailer';
+import { env } from '@/lib/env';
 
 const prisma = new PrismaClient();
 
@@ -43,7 +44,7 @@ export async function POST(request: NextRequest) {
       
       // If not confirmed, resend confirmation email
       const confirmationToken = existingSubscriber.confirmationToken;
-      const confirmationUrl = `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:5173'}/newsletter/confirm/${confirmationToken}`;
+      const confirmationUrl = `${env.APP_BASE_URL}/newsletter/confirm/${confirmationToken}`;
       
       // Send confirmation email
       await transporter.sendMail({
@@ -81,7 +82,7 @@ export async function POST(request: NextRequest) {
     });
 
     // Generate confirmation URL
-    const confirmationUrl = `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:5173'}/newsletter/confirm/${confirmationToken}`;
+    const confirmationUrl = `${env.APP_BASE_URL}/newsletter/confirm/${confirmationToken}`;
     
     // Send confirmation email
     await transporter.sendMail({

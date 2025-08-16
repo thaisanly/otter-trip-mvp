@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
 // Public endpoint to get categories
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const categories = await prisma.tourCategory.findMany({
       where: {

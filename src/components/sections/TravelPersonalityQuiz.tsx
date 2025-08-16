@@ -1,14 +1,12 @@
 'use client'
 
-import React, { useEffect, useState, useRef, memo } from 'react';
+import React, { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import {
   quizQuestions,
   personalityTypes,
-  type QuizQuestion,
-  type QuizOption,
   type PersonalityType,
-  type ExpertMatch,
 } from '@/mock/travelPersonalityQuiz';
 import {
   ChevronRightIcon,
@@ -16,18 +14,11 @@ import {
   ArrowLeftIcon,
   ArrowRightIcon,
   RefreshCwIcon,
-  ShareIcon,
-  MessageCircleIcon,
   StarIcon,
   ClockIcon,
   MapPinIcon,
   GlobeIcon,
-  UserIcon,
-  UsersIcon,
   ShoppingBagIcon,
-  CameraIcon,
-  UtensilsIcon,
-  HeartIcon,
 } from 'lucide-react';
 
 const TravelPersonalityQuiz = () => {
@@ -265,10 +256,12 @@ const TravelPersonalityQuiz = () => {
                   </button>
                 </div>
                 <div className="hidden md:block relative">
-                  <img
+                  <Image
                     src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
                     alt="Travel personalities"
                     className="w-full h-full object-cover"
+                    fill
+                    sizes="(max-width: 768px) 0vw, 50vw"
                   />
                   <div className="absolute inset-0 bg-gradient-to-r from-white/50 to-transparent"></div>
                 </div>
@@ -429,7 +422,7 @@ const TravelPersonalityQuiz = () => {
                   {personalityResult.icon}
                 </div>
                 <h2 className="text-3xl md:text-4xl font-bold mb-2">
-                  You're a {personalityResult.type}!
+                  You&apos;re a {personalityResult.type}!
                 </h2>
                 <p className="text-blue-100 max-w-2xl mx-auto">
                   Based on your responses to our travel personality quiz
@@ -469,10 +462,13 @@ const TravelPersonalityQuiz = () => {
                         className="border border-gray-200 rounded-xl overflow-hidden hover:shadow-md transition-all"
                       >
                         <div className="relative">
-                          <img
+                          <Image
                             src={expert.image}
                             alt={expert.name}
                             className="w-full h-48 object-cover"
+                            width={300}
+                            height={192}
+                            sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                           />
                           <div className="absolute top-2 right-2 bg-blue-600 text-white text-xs font-bold px-2 py-1 rounded-full">
                             {expert.matchPercentage}% Match

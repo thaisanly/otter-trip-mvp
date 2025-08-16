@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { StarIcon } from 'lucide-react';
 interface TourCardProps {
@@ -16,7 +17,7 @@ interface TourCardProps {
     reviews: number;
     talents?: number;
     hasAvailableDates: boolean;
-    dates?: any[]; // Array of available dates
+    dates?: { id: string; date: string; spotsLeft: number; price: string }[]; // Array of available dates
     guide?: {
       name: string;
       image: string;
@@ -51,7 +52,7 @@ const TourCard: React.FC<TourCardProps> = ({ tour }) => {
     <Link href={`/tour/${tour.id}`} className="block">
       <div className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow">
         <div className="relative">
-          <img src={tour.image} alt={tour.title} className="w-full h-48 object-cover" />
+          <Image src={tour.image} alt={tour.title} width={400} height={192} className="w-full h-48 object-cover" />
           <div className="absolute bottom-3 left-3 bg-white/80 backdrop-blur-sm text-gray-800 text-xs px-2 py-1 rounded-full">
             {tour.duration}
           </div>
@@ -72,9 +73,11 @@ const TourCard: React.FC<TourCardProps> = ({ tour }) => {
             </div>
             {displayGuide && (
               <div className="flex items-center">
-                <img
+                <Image
                   src={displayGuide.image}
                   alt={displayGuide.name}
+                  width={24}
+                  height={24}
                   className="w-6 h-6 rounded-full mr-2 object-cover"
                 />
                 <span className="text-xs text-gray-600">{displayGuide.name}</span>

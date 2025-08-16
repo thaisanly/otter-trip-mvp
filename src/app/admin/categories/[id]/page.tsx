@@ -19,5 +19,11 @@ export default async function CategoryDetailPage({ params }: { params: Promise<{
     redirect('/admin/categories');
   }
 
-  return <CategoryDetailAdmin category={category} admin={admin} />;
+  return <CategoryDetailAdmin category={{
+    ...category,
+    icon: category.icon ?? undefined,
+    interests: category.interests as string[],
+    createdAt: category.createdAt.toISOString(),
+    updatedAt: category.updatedAt.toISOString()
+  }} />;
 }

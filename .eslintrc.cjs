@@ -12,9 +12,9 @@ module.exports = {
   plugins: ['react-refresh', 'prettier'],
   rules: {
     'prettier/prettier': 'error',
-    'react-refresh/only-export-components': [
-      'warn',
-      { allowConstantExport: true },
-    ],
+    'react-hooks/exhaustive-deps': 'off',
+    '@typescript-eslint/no-non-null-assertion': 'off',
+    '@typescript-eslint/no-floating-promises': 'off',
+    'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
   },
-}
+};

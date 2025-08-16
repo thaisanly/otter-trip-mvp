@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { SearchIcon } from 'lucide-react';
 import TourCard from '@/components/ui/TourCard';
 import InterestTag from '@/components/ui/InterestTag';
@@ -18,7 +18,7 @@ interface Tour {
   description: string;
   totalJoined: number;
   categories: string[];
-  dates: any[];
+  dates: Array<{ id: string; date: string; spotsLeft: number; price: string }>;
   hasAvailableDates: boolean;
   tourLeader?: {
     id: string;
@@ -40,13 +40,12 @@ interface ExploreClientProps {
   tours: Tour[];
 }
 
-const ExploreClient = ({ category, categoryData, tours }: ExploreClientProps) => {
-  const router = useRouter();
+const ExploreClient = ({ categoryData, tours }: ExploreClientProps) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
 
   // Filter tours based on search and interests
-  const filteredTours = tours.filter((tour: any) => {
+  const filteredTours = tours.filter((tour: Tour) => {
     const matchesSearch =
       searchQuery === '' ||
       tour.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -78,10 +77,11 @@ const ExploreClient = ({ category, categoryData, tours }: ExploreClientProps) =>
     <div className="bg-gray-50 min-h-screen pb-12">
       {/* Hero Section */}
       <div className="relative h-[400px]">
-        <img
+        <Image
           src={categoryData.image}
           alt={categoryData.title}
-          className="w-full h-full object-cover"
+          fill
+          className="object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent"></div>
         <div className="absolute inset-0 flex items-center justify-center text-center">
@@ -118,7 +118,7 @@ const ExploreClient = ({ category, categoryData, tours }: ExploreClientProps) =>
               <InterestTag
                 key={interest}
                 label={interest}
-                isSelected={selectedInterests.includes(interest)}
+                selected={selectedInterests.includes(interest)}
                 onClick={() => handleInterestToggle(interest)}
               />
             ))}
@@ -134,7 +134,7 @@ const ExploreClient = ({ category, categoryData, tours }: ExploreClientProps) =>
 
         {/* Tours Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredTours.map((tour: any) => (
+          {filteredTours.map((tour: Tour) => (
             <TourCard 
               key={tour.id} 
               tour={{

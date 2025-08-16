@@ -7,7 +7,6 @@ import {
   SaveIcon,
   LoaderIcon,
   MapPinIcon,
-  DollarSignIcon,
   ImageIcon,
   FileTextIcon,
   StarIcon,
@@ -15,11 +14,7 @@ import {
   GlobeIcon,
   BriefcaseIcon,
   AwardIcon,
-  ShieldCheckIcon,
   UserIcon,
-  MapIcon,
-  PlusIcon,
-  MinusIcon,
   CodeIcon,
 } from 'lucide-react';
 
@@ -47,9 +42,9 @@ interface TourLeader {
   certifications?: Certification[];
   bio?: string;
   expertise?: string[];
-  tours?: any[];
-  reviews?: any[];
-  availability?: any;
+  tours?: Array<{ id: string; title: string; }>;
+  reviews?: Array<{ id: string; rating: number; comment: string; }>;
+  availability?: Record<string, { available: boolean; start: string; end: string }>;
   createdAt: string;
   updatedAt: string;
 }
@@ -70,12 +65,11 @@ interface TourLeaderFormData {
 }
 
 interface TourLeaderFormProps {
-  admin: any;
   mode: 'create' | 'edit';
   tourLeader?: TourLeader;
 }
 
-export default function TourLeaderForm({ admin, mode, tourLeader }: TourLeaderFormProps) {
+export default function TourLeaderForm({ mode, tourLeader }: TourLeaderFormProps) {
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -162,7 +156,7 @@ export default function TourLeaderForm({ admin, mode, tourLeader }: TourLeaderFo
     try {
       new URL(string);
       return true;
-    } catch (_) {
+    } catch {
       return false;
     }
   };
@@ -240,7 +234,7 @@ export default function TourLeaderForm({ admin, mode, tourLeader }: TourLeaderFo
   };
 
   // Validate JSON structure
-  const validateJson = (jsonString: string): { valid: boolean; data?: any; error?: string } => {
+  const validateJson = (jsonString: string): { valid: boolean; data?: TourLeader; error?: string } => {
     try {
       const data = JSON.parse(jsonString);
       
@@ -315,7 +309,7 @@ export default function TourLeaderForm({ admin, mode, tourLeader }: TourLeaderFo
       }
       
       return { valid: true, data };
-    } catch (e) {
+    } catch {
       return { valid: false, error: 'Invalid JSON format' };
     }
   };
@@ -334,7 +328,7 @@ export default function TourLeaderForm({ admin, mode, tourLeader }: TourLeaderFo
       }
       tourLeaderData = {
         ...validation.data,
-        reviewCount: mode === 'edit' ? tourLeader?.reviewCount || 0 : validation.data.reviewCount || 0,
+        reviewCount: mode === 'edit' ? tourLeader?.reviewCount || 0 : validation.data?.reviewCount || 0,
       };
     } else {
       if (!validateForm()) {
@@ -724,7 +718,7 @@ export default function TourLeaderForm({ admin, mode, tourLeader }: TourLeaderFo
                     <p className="mt-1 text-sm text-red-600">{errors.image}</p>
                   )}
                   <p className="mt-1 text-xs text-gray-500">
-                    Provide an absolute URL to the tour leader's profile image
+                    Provide an absolute URL to the tour leader&apos;s profile image
                   </p>
                 </div>
               </div>

@@ -23,7 +23,26 @@ export default async function ExplorePage({
   }
 
   // Fetch tours from database based on category with tour leader information
-  let tours = [];
+  let tours: Array<{
+    id: string;
+    title: string;
+    image: string;
+    location: string;
+    rating: number;
+    reviewCount: number;
+    price: string;
+    duration: string;
+    description: string;
+    totalJoined: number;
+    categories: string[];
+    dates: Array<{ id: string; date: string; spotsLeft: number; price: string }>;
+    hasAvailableDates: boolean;
+    tourLeader?: {
+      id: string;
+      name: string;
+      image: string;
+    };
+  }> = [];
   try {
     const dbTours = await prisma.$queryRaw`
       SELECT t.*, tl.id as leader_id, tl.name as leader_name, tl.image as leader_image
@@ -31,7 +50,24 @@ export default async function ExplorePage({
       LEFT JOIN tour_leaders tl ON t."tourLeaderId" = tl.id
       WHERE t.categories::jsonb @> ${JSON.stringify([category])}::jsonb
       ORDER BY t.rating DESC
-    ` as any[];
+    ` as Array<{
+      id: string;
+      title: string;
+      heroImage: string;
+      location: string;
+      rating: number;
+      reviewCount: number;
+      price: string;
+      duration: string;
+      description?: string;
+      overview?: string[];
+      totalJoined: number;
+      categories: string[];
+      dates?: Array<{ id: string; date: string; spotsLeft: number; price: string }>;
+      leader_id?: string;
+      leader_name?: string;
+      leader_image?: string;
+    }>;
 
     // Transform tours to match the expected format
     tours = dbTours.map(tour => ({
@@ -47,11 +83,11 @@ export default async function ExplorePage({
       totalJoined: tour.totalJoined,
       categories: tour.categories as string[],
       dates: tour.dates || [],
-      hasAvailableDates: tour.dates && Array.isArray(tour.dates) && tour.dates.length > 0,
+      hasAvailableDates: Boolean(tour.dates && Array.isArray(tour.dates) && tour.dates.length > 0),
       tourLeader: tour.leader_id ? {
         id: tour.leader_id,
-        name: tour.leader_name,
-        image: tour.leader_image
+        name: tour.leader_name || 'Unknown Guide',
+        image: tour.leader_image || '/placeholder-avatar.jpg'
       } : undefined
     }));
   } catch (error) {

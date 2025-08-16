@@ -1,7 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, useCallback } from 'react';
 import { 
   ArrowLeft, 
   Calendar, 
@@ -21,7 +20,6 @@ import Link from 'next/link';
 import { Booking, BookingStatus } from '@/types';
 
 interface BookingDetailViewProps {
-  admin: any;
   bookingReference: string;
 }
 
@@ -92,19 +90,13 @@ function TravelerCard({ traveler, isLead }: {
   );
 }
 
-export default function BookingDetailView({ admin, bookingReference }: BookingDetailViewProps) {
-  const router = useRouter();
+export default function BookingDetailView({ bookingReference }: BookingDetailViewProps) {
+  // const router = useRouter();
   const [booking, setBooking] = useState<Booking | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (bookingReference) {
-      fetchBooking();
-    }
-  }, [bookingReference]);
-
-  const fetchBooking = async () => {
+  const fetchBooking = useCallback(async () => {
     try {
       setLoading(true);
       const response = await fetch(`/api/bookings?reference=${bookingReference}`);
@@ -122,7 +114,14 @@ export default function BookingDetailView({ admin, bookingReference }: BookingDe
     } finally {
       setLoading(false);
     }
-  };
+  }, [bookingReference]);
+
+  useEffect(() => {
+    if (bookingReference) {
+      fetchBooking();
+    }
+  }, [bookingReference, fetchBooking]);
+
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {

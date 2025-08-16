@@ -43,7 +43,14 @@ interface Tour {
   galleryImages?: string[];
   inclusions?: string[];
   exclusions?: string[];
-  itinerary?: any[];
+  itinerary?: Array<{
+    day?: number | string;
+    title?: string;
+    description?: string;
+    activities?: string;
+    meals?: string[];
+    accommodation?: string;
+  }>;
   description?: string;
   groupSize?: number;
   spotsLeft?: number;
@@ -83,20 +90,17 @@ interface TourLeader {
 }
 
 interface TourFormProps {
-  admin: any;
   mode: 'create' | 'edit';
   tour?: Tour;
 }
 
-export default function TourForm({ admin, mode, tour }: TourFormProps) {
+export default function TourForm({ mode, tour }: TourFormProps) {
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [createMode, setCreateMode] = useState<'form' | 'json'>('form');
   const [jsonData, setJsonData] = useState<string>('');
   const [jsonError, setJsonError] = useState<string>('');
-  const [showPreview, setShowPreview] = useState(false);
-  const [previewData, setPreviewData] = useState<any>(null);
   const [tourLeaders, setTourLeaders] = useState<TourLeader[]>([]);
   const [loadingTourLeaders, setLoadingTourLeaders] = useState(false);
   
@@ -149,7 +153,7 @@ export default function TourForm({ admin, mode, tour }: TourFormProps) {
         description: tour.description || '',
         rating: tour.rating,
         itinerary: Array.isArray(tour.itinerary) ? 
-          tour.itinerary.map((item: any) => `${item.day || item.title || 'Day'}: ${item.description || item.activities || ''}`).join('\n') : 
+          tour.itinerary.map((item) => `${item.day || item.title || 'Day'}: ${item.description || item.activities || ''}`).join('\n') : 
           (tour.itinerary ? String(tour.itinerary) : ''),
         tourLeaderId: tour.tourLeaderId || '',
       });
@@ -254,7 +258,7 @@ export default function TourForm({ admin, mode, tour }: TourFormProps) {
   };
 
   // Validate JSON structure
-  const validateJson = (jsonString: string): { valid: boolean; data?: any; error?: string } => {
+  const validateJson = (jsonString: string): { valid: boolean; data?: Tour; error?: string } => {
     try {
       const data = JSON.parse(jsonString);
       
@@ -315,7 +319,7 @@ export default function TourForm({ admin, mode, tour }: TourFormProps) {
       }
       
       return { valid: true, data };
-    } catch (e) {
+    } catch {
       return { valid: false, error: 'Invalid JSON format' };
     }
   };
@@ -381,7 +385,7 @@ export default function TourForm({ admin, mode, tour }: TourFormProps) {
     try {
       new URL(string);
       return true;
-    } catch (_) {
+    } catch {
       return false;
     }
   };
@@ -402,7 +406,7 @@ export default function TourForm({ admin, mode, tour }: TourFormProps) {
         ...validation.data,
         totalJoined: mode === 'edit' ? tour?.totalJoined || 0 : 0,
         reviewCount: mode === 'edit' ? tour?.reviewCount || 0 : 0,
-        tourLeaderId: validation.data.tourLeaderId || null,
+        tourLeaderId: validation.data?.tourLeaderId || null,
       };
     } else {
       if (!validateForm()) {
@@ -1137,7 +1141,7 @@ Day 2: Museum visits and local cuisine
 Day 3: Adventure activities and nature"
                   />
                   <p className="mt-1 text-xs text-gray-500">
-                    Format: "Day X: Description" - one day per line
+                    Format: &quot;Day X: Description&quot; - one day per line
                   </p>
                 </div>
               </div>

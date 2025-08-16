@@ -9,5 +9,5 @@ export default async function ExpertsPage() {
     redirect('/admin');
   }
 
-  return <ExpertsManagement admin={admin} />;
+  return <ExpertsManagement />;
 }

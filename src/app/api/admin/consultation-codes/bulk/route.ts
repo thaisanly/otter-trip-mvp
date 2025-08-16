@@ -17,7 +17,6 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const {
       quantity = 10,
-      prefix = 'OT',
       description,
       maxUses,
       expiresAt,
@@ -33,7 +32,7 @@ export async function POST(request: NextRequest) {
     
     // Generate unique codes
     while (generatedCodes.size < codeQuantity) {
-      const code = generateConsultationCode(prefix);
+      const code = generateConsultationCode();
       if (!generatedCodes.has(code)) {
         generatedCodes.add(code);
       }

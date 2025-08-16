@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import {
   ArrowLeftIcon,
@@ -16,8 +17,6 @@ import {
   CalendarIcon,
   CheckIcon,
   ImageIcon,
-  PlayCircleIcon,
-  TagIcon,
   PlusIcon,
   MinusIcon,
   LoaderIcon,
@@ -26,20 +25,56 @@ import {
   EyeIcon,
 } from 'lucide-react';
 
-interface TourDetailAdminProps {
-  tour: any;
-  admin: any;
+interface Tour {
+  id: string;
+  code: string;
+  title: string;
+  heroImage: string;
+  location: string;
+  duration: string;
+  price: string;
+  totalJoined: number;
+  rating: number;
+  reviewCount: number;
+  groupSize?: number;
+  spotsLeft?: number;
+  categories?: string[];
+  overview?: string[];
+  highlights?: string[];
+  galleryImages?: string[];
+  videoUrl?: string;
+  inclusions?: string[];
+  exclusions?: string[];
+  description?: string;
+  itinerary?: Array<{
+    day?: number | string;
+    title?: string;
+    description?: string;
+    meals?: string[];
+    accommodation?: string;
+  }>;
+  dates?: Array<{
+    id?: string;
+    date?: string;
+    price?: number;
+    spotsLeft?: number;
+  }>;
+  createdAt: string;
+  updatedAt: string;
 }
 
-export default function TourDetailAdmin({ tour, admin }: TourDetailAdminProps) {
+interface TourDetailAdminProps {
+  tour: Tour;
+}
+
+export default function TourDetailAdmin({ tour }: TourDetailAdminProps) {
   const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
   const [editMode, setEditMode] = useState<'form' | 'json'>('form');
   const [isSaving, setIsSaving] = useState(false);
-  const [errors, setErrors] = useState<Record<string, string>>({});
   const [jsonError, setJsonError] = useState<string>('');
   const [showPreview, setShowPreview] = useState(false);
-  const [previewData, setPreviewData] = useState<any>(null);
+  const [previewData, setPreviewData] = useState<Tour | null>(null);
   
   // Initialize form data with tour data
   const [formData, setFormData] = useState({
@@ -60,14 +95,14 @@ export default function TourDetailAdmin({ tour, admin }: TourDetailAdminProps) {
     exclusions: Array.isArray(tour.exclusions) ? tour.exclusions.join(', ') : '',
     description: tour.description || '',
     rating: tour.rating || 5.0,
-    itinerary: Array.isArray(tour.itinerary) ? tour.itinerary.map((item: any, index: number) => ({
+    itinerary: Array.isArray(tour.itinerary) ? tour.itinerary.map((item, index: number) => ({
       day: typeof item.day === 'string' ? index + 1 : item.day || index + 1,
       title: item.title || '',
       description: item.description || '',
       meals: Array.isArray(item.meals) ? item.meals : [],
       accommodation: item.accommodation || ''
     })) : [],
-    dates: Array.isArray(tour.dates) ? tour.dates.map((date: any, index: number) => ({
+    dates: Array.isArray(tour.dates) ? tour.dates.map((date, index: number) => ({
       id: date.id || `date-${index + 1}`,
       date: date.date || '',
       price: date.price || 0,
@@ -130,7 +165,7 @@ export default function TourDetailAdmin({ tour, admin }: TourDetailAdminProps) {
     }
   };
 
-  const validateJson = (jsonString: string): { valid: boolean; data?: any; error?: string } => {
+  const validateJson = (jsonString: string): { valid: boolean; data?: Tour; error?: string } => {
     try {
       const data = JSON.parse(jsonString);
       
@@ -233,14 +268,13 @@ export default function TourDetailAdmin({ tour, admin }: TourDetailAdminProps) {
       }
       
       return { valid: true, data };
-    } catch (e) {
+    } catch {
       return { valid: false, error: 'Invalid JSON format' };
     }
   };
 
   const handleSave = async () => {
     setIsSaving(true);
-    setErrors({});
     setJsonError('');
 
     try {
@@ -305,21 +339,26 @@ export default function TourDetailAdmin({ tour, admin }: TourDetailAdminProps) {
       exclusions: Array.isArray(tour.exclusions) ? tour.exclusions.join(', ') : '',
       description: tour.description || '',
       rating: tour.rating || 5.0,
-      itinerary: Array.isArray(tour.itinerary) ? tour.itinerary.map((item: any, index: number) => ({
+      itinerary: Array.isArray(tour.itinerary) ? tour.itinerary.map((item, index: number) => ({
         day: typeof item.day === 'string' ? index + 1 : item.day || index + 1,
         title: item.title || '',
         description: item.description || '',
         meals: Array.isArray(item.meals) ? item.meals : [],
         accommodation: item.accommodation || ''
       })) : [],
+      dates: Array.isArray(tour.dates) ? tour.dates.map((date, index: number) => ({
+        id: date.id || `date-${index + 1}`,
+        date: date.date || '',
+        price: date.price || 0,
+        spotsLeft: date.spotsLeft || 0
+      })) : []
     });
     setIsEditing(false);
     setEditMode('form');
-    setErrors({});
     setJsonError('');
   };
 
-  const handleInputChange = (field: string, value: any) => {
+  const handleInputChange = (field: string, value: unknown) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
@@ -359,12 +398,12 @@ export default function TourDetailAdmin({ tour, admin }: TourDetailAdminProps) {
     }));
   };
 
-  const updateItineraryDay = (index: number, field: string, value: any) => {
+  const updateItineraryDay = (index: number, field: string, value: unknown) => {
     const updatedItinerary = [...formData.itinerary];
     if (field === 'meals') {
       updatedItinerary[index] = {
         ...updatedItinerary[index],
-        [field]: typeof value === 'string' ? value.split(',').map(meal => meal.trim()).filter(meal => meal) : value
+        [field]: typeof value === 'string' ? value.split(',').map(meal => meal.trim()).filter(meal => meal) : value as string[]
       };
     } else {
       updatedItinerary[index] = {
@@ -476,7 +515,7 @@ export default function TourDetailAdmin({ tour, admin }: TourDetailAdminProps) {
     }));
   };
 
-  const updateDate = (index: number, field: string, value: any) => {
+  const updateDate = (index: number, field: string, value: unknown) => {
     setFormData(prev => ({
       ...prev,
       dates: prev.dates.map((date, i) => 
@@ -505,14 +544,14 @@ export default function TourDetailAdmin({ tour, admin }: TourDetailAdminProps) {
   const inclusions = Array.isArray(tour.inclusions) ? tour.inclusions : [];
   const exclusions = Array.isArray(tour.exclusions) ? tour.exclusions : [];
   const galleryImages = Array.isArray(tour.galleryImages) ? tour.galleryImages : [];
-  const itinerary = Array.isArray(tour.itinerary) ? tour.itinerary.map((item: any, index: number) => ({
+  const itinerary = Array.isArray(tour.itinerary) ? tour.itinerary.map((item, index: number) => ({
     day: typeof item.day === 'string' ? index + 1 : item.day || index + 1,
     title: item.title || '',
     description: item.description || '',
     meals: Array.isArray(item.meals) ? item.meals : [],
     accommodation: item.accommodation || ''
   })) : [];
-  const dates = Array.isArray(tour.dates) ? tour.dates.map((date: any, index: number) => ({
+  const dates = Array.isArray(tour.dates) ? tour.dates.map((date, index: number) => ({
     id: date.id || `date-${index + 1}`,
     date: date.date || '',
     price: date.price || 0,
@@ -623,7 +662,7 @@ export default function TourDetailAdmin({ tour, admin }: TourDetailAdminProps) {
                 onClick={() => {
                   const validation = validateJson(jsonData);
                   if (validation.valid) {
-                    setPreviewData(validation.data);
+                    setPreviewData(validation.data ?? null);
                     setShowPreview(true);
                     setJsonError('');
                   } else {
@@ -773,14 +812,15 @@ export default function TourDetailAdmin({ tour, admin }: TourDetailAdminProps) {
                       <div className="bg-gray-50 p-4 rounded-lg">
                         <div className="bg-white rounded-xl shadow-sm overflow-hidden">
                           <div className="relative">
-                            <img 
-                              src={previewData.heroImage} 
-                              alt={previewData.title} 
-                              className="w-full h-48 object-cover"
-                              onError={(e) => {
-                                e.currentTarget.src = `https://via.placeholder.com/400x200/4B5563/FFFFFF?text=Invalid+Image`;
-                              }}
-                            />
+                            <div className="relative h-48">
+                              <Image 
+                                src={previewData.heroImage} 
+                                alt={previewData.title} 
+                                fill
+                                className="object-cover"
+                                unoptimized
+                              />
+                            </div>
                             <div className="absolute bottom-3 left-3 bg-white/80 backdrop-blur-sm text-gray-800 text-xs px-2 py-1 rounded-full">
                               {previewData.duration}
                             </div>
@@ -859,15 +899,15 @@ export default function TourDetailAdmin({ tour, admin }: TourDetailAdminProps) {
                               <h5 className="text-xs font-semibold text-gray-600 uppercase mb-1">Gallery Preview</h5>
                               <div className="grid grid-cols-3 gap-2">
                                 {previewData.galleryImages.slice(0, 3).map((img: string, index: number) => (
-                                  <img 
-                                    key={index}
-                                    src={img} 
-                                    alt={`Gallery ${index + 1}`}
-                                    className="w-full h-20 object-cover rounded"
-                                    onError={(e) => {
-                                      e.currentTarget.src = `https://via.placeholder.com/100x80/CBD5E1/64748B?text=Image`;
-                                    }}
-                                  />
+                                  <div key={index} className="relative h-20">
+                                    <Image 
+                                      src={img} 
+                                      alt={`Gallery ${index + 1}`}
+                                      fill
+                                      className="object-cover rounded"
+                                      unoptimized
+                                    />
+                                  </div>
                                 ))}
                               </div>
                             </div>
@@ -907,23 +947,23 @@ export default function TourDetailAdmin({ tour, admin }: TourDetailAdminProps) {
                     className="w-full px-3 py-2 border border-gray-300 rounded-md mb-4"
                     placeholder="https://example.com/image.jpg"
                   />
-                  <img
-                    src={formData.heroImage}
-                    alt={formData.title}
-                    className="flex-1 w-full object-cover rounded-md"
-                    onError={(e) => {
-                      e.currentTarget.src = `https://via.placeholder.com/1200x600/4B5563/FFFFFF?text=Invalid+Image`;
-                    }}
-                  />
+                  <div className="relative flex-1 w-full aspect-video">
+                    <Image
+                      src={formData.heroImage}
+                      alt={formData.title}
+                      fill
+                      className="object-cover rounded-md"
+                      unoptimized
+                    />
+                  </div>
                 </div>
               ) : (
-                <img
+                <Image
                   src={tour.heroImage}
                   alt={tour.title}
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    e.currentTarget.src = `https://via.placeholder.com/1200x600/4B5563/FFFFFF?text=${encodeURIComponent(tour.title)}`;
-                  }}
+                  fill
+                  className="object-cover"
+                  unoptimized
                 />
               )}
               {!isEditing && (
@@ -1058,7 +1098,7 @@ export default function TourDetailAdmin({ tour, admin }: TourDetailAdminProps) {
                       <div className="text-center py-8 text-gray-500">
                         <ImageIcon className="w-12 h-12 mx-auto mb-3 text-gray-300" />
                         <p>No gallery images added yet.</p>
-                        <p className="text-sm">Click "Add Image" to start building your gallery.</p>
+                        <p className="text-sm">Click &quot;Add Image&quot; to start building your gallery.</p>
                       </div>
                     ) : (
                       <div className="space-y-4">
@@ -1122,13 +1162,12 @@ export default function TourDetailAdmin({ tour, admin }: TourDetailAdminProps) {
                                 <label className="block text-sm font-medium text-gray-700 mb-1">Preview</label>
                                 <div className="aspect-video w-full">
                                   {image.trim() ? (
-                                    <img
+                                    <Image
                                       src={image.trim()}
                                       alt={`Gallery ${index + 1}`}
-                                      className="w-full h-full object-cover rounded-md border border-gray-200"
-                                      onError={(e) => {
-                                        e.currentTarget.src = `https://via.placeholder.com/300x200/CBD5E1/64748B?text=Invalid+Image`;
-                                      }}
+                                      fill
+                                      className="object-cover rounded-md border border-gray-200"
+                                      unoptimized
                                     />
                                   ) : (
                                     <div className="w-full h-full bg-gray-100 rounded-md border border-gray-200 flex items-center justify-center">
@@ -1154,14 +1193,15 @@ export default function TourDetailAdmin({ tour, admin }: TourDetailAdminProps) {
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {galleryImages.map((image: string, index: number) => (
                           <div key={index} className="group relative">
-                            <img
-                              src={image}
-                              alt={`Gallery ${index + 1}`}
-                              className="w-full aspect-video object-cover rounded-lg border border-gray-200"
-                              onError={(e) => {
-                                e.currentTarget.src = `https://via.placeholder.com/400x300/CBD5E1/64748B?text=Image+${index + 1}`;
-                              }}
-                            />
+                            <div className="relative w-full aspect-video">
+                              <Image
+                                src={image}
+                                alt={`Gallery ${index + 1}`}
+                                fill
+                                className="object-cover rounded-lg border border-gray-200"
+                                unoptimized
+                              />
+                            </div>
                             <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200 rounded-lg flex items-center justify-center">
                               <span className="text-white font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                                 Image {index + 1}
@@ -1196,10 +1236,10 @@ export default function TourDetailAdmin({ tour, admin }: TourDetailAdminProps) {
                       <div className="text-center py-8 text-gray-500">
                         <CalendarIcon className="w-12 h-12 mx-auto mb-3 text-gray-300" />
                         <p>No itinerary days added yet.</p>
-                        <p className="text-sm">Click "Add Day" to start building your itinerary.</p>
+                        <p className="text-sm">Click &quot;Add Day&quot; to start building your itinerary.</p>
                       </div>
                     ) : (
-                      formData.itinerary.map((day: any, index: number) => (
+                      formData.itinerary.map((day, index: number) => (
                         <div key={index} className="border border-gray-200 rounded-lg p-4">
                           <div className="flex items-center justify-between mb-4">
                             <h3 className="text-lg font-medium text-gray-900">{day.day}</h3>
@@ -1289,7 +1329,7 @@ export default function TourDetailAdmin({ tour, admin }: TourDetailAdminProps) {
                         <p>No itinerary available.</p>
                       </div>
                     ) : (
-                      itinerary.map((day: any, index: number) => (
+                      itinerary.map((day, index: number) => (
                         <div
                           key={index}
                           className={`border-l-4 ${index === 0 ? 'border-blue-600' : 'border-gray-200'} pl-4`}
@@ -1340,10 +1380,10 @@ export default function TourDetailAdmin({ tour, admin }: TourDetailAdminProps) {
                       <div className="text-center py-8 text-gray-500">
                         <CalendarIcon className="w-12 h-12 mx-auto mb-3 text-gray-300" />
                         <p>No dates added yet.</p>
-                        <p className="text-sm">Click "Add Date" to start adding available tour dates.</p>
+                        <p className="text-sm">Click &quot;Add Date&quot; to start adding available tour dates.</p>
                       </div>
                     ) : (
-                      formData.dates.map((date: any, index: number) => (
+                      formData.dates.map((date, index: number) => (
                         <div key={index} className="border border-gray-200 rounded-lg p-4">
                           <div className="flex items-center justify-between mb-4">
                             <h3 className="text-lg font-medium text-gray-900">Date {index + 1}</h3>
@@ -1430,7 +1470,7 @@ export default function TourDetailAdmin({ tour, admin }: TourDetailAdminProps) {
                       </div>
                     ) : (
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {dates.map((date: any, index: number) => (
+                        {dates.map((date, index: number) => (
                           <div key={index} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
                             <div className="text-center">
                               <div className="text-lg font-semibold text-gray-900 mb-2">
@@ -1460,7 +1500,7 @@ export default function TourDetailAdmin({ tour, admin }: TourDetailAdminProps) {
 
               {/* Inclusions & Exclusions */}
               <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                <h2 className="text-xl font-semibold mb-4">What's Included & Excluded</h2>
+                <h2 className="text-xl font-semibold mb-4">What&apos;s Included & Excluded</h2>
                 {isEditing && editMode === 'form' ? (
                   <div className="space-y-4">
                     <div>

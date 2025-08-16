@@ -23,7 +23,6 @@ CREATE TABLE "public"."tour_leaders" (
     "countrySpecializations" JSONB,
     "tourCompleteCount" INTEGER,
     "averageResponseTime" TEXT,
-    "rate" TEXT,
     "reviews" JSONB,
     "availability" JSONB,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,

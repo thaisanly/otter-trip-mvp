@@ -1,6 +1,7 @@
 'use client'
 
-import { Link } from 'next/link';
+import Link from 'next/link';
+import Image from 'next/image';
 import InterestTag from '../ui/InterestTag';
 const personalityTraits = [
   {
@@ -82,7 +83,7 @@ const VibeMatchingSection = () => {
                   <div>
                     <h4 className="font-medium text-gray-900 mb-2">How Our Matching Works</h4>
                     <p className="text-gray-600">
-                      We analyze both travelers' and guides' preferences, communication styles, and
+                      We analyze both travelers&apos; and guides&apos; preferences, communication styles, and
                       activity interests to suggest compatible matches. This leads to more authentic
                       connections and personalized experiences.
                     </p>
@@ -110,10 +111,12 @@ const VibeMatchingSection = () => {
                     </div>
                     <div className="flex items-center mb-6">
                       <div className="relative mr-4">
-                        <img
+                        <Image
                           src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.0.3&auto=format&fit=crop&w=128&q=80"
                           alt="Tour guide"
                           className="w-16 h-16 rounded-full object-cover"
+                          width={64}
+                          height={64}
                         />
                         <div className="absolute -bottom-1 -right-1 bg-green-500 w-5 h-5 rounded-full border-2 border-white"></div>
                       </div>
@@ -139,8 +142,8 @@ const VibeMatchingSection = () => {
                       </div>
                     </div>
                     <p className="text-gray-600 text-sm">
-                      "Based on your preferences, Sarah's travel style and personality would be a
-                      great match for your adventure in Bali!"
+                      &ldquo;Based on your preferences, Sarah&apos;s travel style and personality would be a
+                      great match for your adventure in Bali!&rdquo;
                     </p>
                   </div>
                   <div className="p-6 bg-gray-50">

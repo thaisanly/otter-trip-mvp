@@ -10,12 +10,9 @@ import {
   GlobeIcon,
   ChevronDownIcon,
   CheckIcon,
-  XIcon,
   PlusIcon,
   MinusIcon,
   ClockIcon,
-  LanguagesIcon,
-  FlagIcon,
   LoaderIcon,
 } from 'lucide-react';
 // Mock data for dropdowns

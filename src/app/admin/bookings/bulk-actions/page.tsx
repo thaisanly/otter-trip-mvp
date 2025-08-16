@@ -1,11 +1,9 @@
 'use client';
 
-import { useState } from 'react';
 import { Users, CheckSquare, Mail, Download } from 'lucide-react';
 import BookingLayout from '@/components/admin/booking/BookingLayout';
 
 export default function BulkActionsPage() {
-  const [selectedAction, setSelectedAction] = useState('');
 
   return (
     <BookingLayout>

@@ -17,7 +17,7 @@ export async function verifyPassword(password: string, hashedPassword: string): 
   return bcrypt.compare(password, hashedPassword);
 }
 
-interface TokenPayload extends Record<string, any> {
+interface TokenPayload extends Record<string, unknown> {
   adminId: string;
   email: string;
   role: string;

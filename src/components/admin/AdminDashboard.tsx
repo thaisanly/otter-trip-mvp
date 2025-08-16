@@ -152,7 +152,7 @@ export default function AdminDashboard({ admin }: AdminDashboardProps) {
           Welcome back, {admin.name}!
         </h1>
         <p className="text-gray-600 mt-2">
-          Here's an overview of your platform's key metrics and activities.
+          Here&apos;s an overview of your platform&apos;s key metrics and activities.
         </p>
       </div>
 

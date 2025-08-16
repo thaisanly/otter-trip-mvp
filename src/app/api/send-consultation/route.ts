@@ -23,8 +23,8 @@ interface ConsultationEmailData {
 interface EmailProvider {
   emailProvider: string;
   adminEmail: string;
-  resend: any;
-  smtpTransporter: any;
+  resend: { emails: { send: (params: { from: string; to: string; replyTo: string; subject: string; html: string }) => Promise<{ error?: { message: string }; data?: unknown }> } } | null;
+  smtpTransporter: { sendMail: (params: { from: string; to: string; replyTo: string; subject: string; html: string }) => Promise<unknown> } | null;
 }
 
 // Input validation schema
@@ -66,13 +66,13 @@ async function getEmailProvider(): Promise<EmailProvider> {
     });
   }
   
-  return { emailProvider, adminEmail, resend, smtpTransporter };
+  return { emailProvider, adminEmail, resend: resend as { emails: { send: (params: { from: string; to: string; replyTo: string; subject: string; html: string }) => Promise<{ error?: { message: string }; data?: unknown }> } } | null, smtpTransporter };
 }
 
 // No longer generating invitation codes - using user's provided code from real-world events
 
 // Email template for admin
-const getAdminEmailHtml = (data: ConsultationEmailData, adminEmail: string): string => `
+const getAdminEmailHtml = (data: ConsultationEmailData): string => `
   <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
     <div style="background-color: #1e40af; color: white; padding: 20px; border-radius: 8px 8px 0 0;">
       <h1 style="margin: 0; font-size: 24px;">Consultation Booking</h1>
@@ -123,7 +123,8 @@ const getAdminEmailHtml = (data: ConsultationEmailData, adminEmail: string): str
   </div>
 `;
 
-// Email template for client
+// Email template for client (currently unused but available for future use)
+/*
 const getClientEmailHtml = (data: ConsultationEmailData, adminEmail: string): string => `
   <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
     <div style="background-color: #1e40af; color: white; padding: 20px; border-radius: 8px 8px 0 0;">
@@ -181,8 +182,9 @@ const getClientEmailHtml = (data: ConsultationEmailData, adminEmail: string): st
     </div>
   </div>
 `;
+*/
 
-async function sendWithResend(data: ConsultationEmailData, resend: any, adminEmail: string) {
+async function sendWithResend(data: ConsultationEmailData, resend: { emails: { send: (params: { from: string; to: string; replyTo: string; subject: string; html: string }) => Promise<{ error?: { message: string }; data?: unknown }> } }, adminEmail: string) {
   if (!resend) {
     throw new Error('Resend is not configured');
   }
@@ -193,7 +195,7 @@ async function sendWithResend(data: ConsultationEmailData, resend: any, adminEma
     to: adminEmail,
     replyTo: data.userEmail,
     subject: `[${data.expertName}] New Consultation Booking - ${data.bookingReference}`,
-    html: getAdminEmailHtml(data, adminEmail),
+    html: getAdminEmailHtml(data),
   });
 
   if (adminResult.error) {
@@ -203,7 +205,7 @@ async function sendWithResend(data: ConsultationEmailData, resend: any, adminEma
   return adminResult.data;
 }
 
-async function sendWithSMTP(data: ConsultationEmailData, smtpTransporter: any, adminEmail: string) {
+async function sendWithSMTP(data: ConsultationEmailData, smtpTransporter: { sendMail: (params: { from: string; to: string; replyTo: string; subject: string; html: string }) => Promise<unknown> }, adminEmail: string) {
   if (!smtpTransporter) {
     throw new Error('SMTP is not configured');
   }
@@ -216,7 +218,7 @@ async function sendWithSMTP(data: ConsultationEmailData, smtpTransporter: any, a
     to: adminEmail,
     replyTo: data.userEmail,
     subject: `[${data.expertName}] New Consultation Booking - ${data.bookingReference}`,
-    html: getAdminEmailHtml(data, adminEmail),
+    html: getAdminEmailHtml(data),
   });
 
   return { id: 'smtp-sent', success: true };
@@ -343,9 +345,9 @@ export async function POST(request: NextRequest) {
 
     // Send email based on provider
     let result;
-    if (emailProvider === 'resend') {
+    if (emailProvider === 'resend' && resend) {
       result = await sendWithResend(emailData, resend, adminEmail);
-    } else if (emailProvider === 'smtp') {
+    } else if (emailProvider === 'smtp' && smtpTransporter) {
       result = await sendWithSMTP(emailData, smtpTransporter, adminEmail);
     } else {
       throw new Error(`Unknown email provider: ${emailProvider}`);
@@ -356,7 +358,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ 
       success: true, 
       data: {
-        ...result,
+        result,
         bookingReference
       },
       provider: emailProvider 

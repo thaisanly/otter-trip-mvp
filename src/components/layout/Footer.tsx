@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import {
   FacebookIcon,
   TwitterIcon,
@@ -47,7 +48,7 @@ const Footer = () => {
       } else {
         setMessage({ type: 'error', text: data.error || 'Failed to subscribe' });
       }
-    } catch (error) {
+    } catch {
       setMessage({ type: 'error', text: 'Failed to subscribe. Please try again later.' });
     } finally {
       setIsLoading(false);
@@ -101,7 +102,14 @@ const Footer = () => {
           {/* Company info */}
           <div>
             <div className="mb-6">
-              <img src="/image.png" alt="OtterTrip" className="h-10" />
+              <Image 
+                src="/image.png" 
+                alt="OtterTrip" 
+                width={166} 
+                height={48} 
+                className="h-10 object-contain object-left" 
+                priority={true}
+              />
             </div>
             <p className="text-gray-400 mb-6">
               Connecting travelers with expert local guides for authentic and personalized travel

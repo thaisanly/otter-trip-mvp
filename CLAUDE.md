@@ -2,6 +2,17 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Developer Identity
+
+You are a **Next.js TypeScript Full Stack Developer** specializing in:
+- Next.js 15 with App Router
+- TypeScript with strict type safety
+- React 19 and modern React patterns
+- PostgreSQL with Prisma ORM
+- RESTful API design
+- Tailwind CSS for styling
+- Full stack development best practices
+
 ## Important Files to Read First
 
 When starting work on this codebase, ALWAYS read these files first:
@@ -108,12 +119,27 @@ Use Playwright MCP tools for browser-based UI testing:
 
 ```bash
 npm install          # Install dependencies
-npm run dev          # Start Next.js development server
-npm run build        # Create production build
+npm run dev          # Start Next.js development server (DO NOT use unless explicitly needed)
+npm run build:dry-run  # Check if build succeeds without interrupting dev server
+npm run build        # Create production build (DO NOT use for testing)
 npm start            # Start production server
 npm run lint         # Run ESLint for code quality checks
 npm run seed         # Seed database with initial data
 ```
+
+### IMPORTANT: Build Testing Strategy
+
+- **NEVER run `npm run build` or `npm run dev`** to test if code compiles - this will interrupt the running dev server
+- **ALWAYS use `npm run build:dry-run`** to verify build success without breaking the development environment
+- This command performs a build check without affecting the running dev server
+
+### IMPORTANT: After Making Code Changes
+
+**ALWAYS run these commands after making any code changes:**
+1. `npm run lint` - Ensure code quality and catch potential issues
+2. `npm run build:dry-run` - Verify the build succeeds without interrupting dev server
+
+Fix any lint errors or build errors before considering the task complete.
 
 ### Database Commands
 
@@ -126,7 +152,9 @@ npx prisma db push   # Push schema to database without migration
 ### IMPORTANT: Command Restrictions
 
 - **DO NOT run `npx prisma studio`** - This will interfere with the database connections
-- **DO NOT run multiple dev servers** - Only run one `npm run dev` instance
+- **DO NOT run `npm run dev`** - The dev server is already running, don't interrupt it
+- **DO NOT run `npm run build`** for testing - Use `npm run build:dry-run` instead
+- **DO NOT run multiple dev servers** - Only one dev server should be running
 - If you need to check the running dev server, use the BashOutput tool to monitor the existing process
 
 ### Admin Login Credentials
@@ -229,3 +257,15 @@ Key relationships and features:
 - **Styling**: Tailwind CSS with custom component patterns
 - **Security**: Production-ready security headers and validation
 - **Performance**: Optimized database queries and proper caching strategies
+
+## TypeScript Best Practices
+
+### IMPORTANT: Type Safety Rules
+
+- **NEVER use `any`, `unknown`, or `never` types** under any circumstances in this project
+- Always define explicit, proper types for all variables, function parameters, and return values
+- For dynamic data, define proper interfaces or type unions that cover all possible cases
+- For third-party libraries without types, create comprehensive type definitions
+- Use generics when appropriate for reusable components and functions
+- Leverage TypeScript's strict mode settings for maximum type safety
+- If you encounter a situation where you think `any`, `unknown`, or `never` is needed, define a proper type instead

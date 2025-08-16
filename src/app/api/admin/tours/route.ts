@@ -8,35 +8,49 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '100');
     const compact = searchParams.get('compact') === 'true';
 
-    const tours = await prisma.tour.findMany({
-      where: search ? {
-        OR: [
-          { title: { contains: search, mode: 'insensitive' } },
-          { location: { contains: search, mode: 'insensitive' } },
-          { code: { contains: search, mode: 'insensitive' } }
-        ]
-      } : undefined,
-      select: compact ? {
-        id: true,
-        code: true,
-        title: true,
-        heroImage: true,
-        duration: true,
-        price: true,
-        location: true,
-        rating: true,
-        reviewCount: true,
-        categories: true,
-        tourLeaderId: true
-      } : undefined,
-      include: !compact ? {
-        tourLeader: true
-      } : undefined,
-      orderBy: {
-        createdAt: 'desc'
-      },
-      take: limit
-    });
+    const tours = compact ? 
+      await prisma.tour.findMany({
+        where: search ? {
+          OR: [
+            { title: { contains: search, mode: 'insensitive' } },
+            { location: { contains: search, mode: 'insensitive' } },
+            { code: { contains: search, mode: 'insensitive' } }
+          ]
+        } : undefined,
+        select: {
+          id: true,
+          code: true,
+          title: true,
+          heroImage: true,
+          duration: true,
+          price: true,
+          location: true,
+          rating: true,
+          reviewCount: true,
+          categories: true,
+          tourLeaderId: true
+        },
+        orderBy: {
+          createdAt: 'desc'
+        },
+        take: limit
+      }) :
+      await prisma.tour.findMany({
+        where: search ? {
+          OR: [
+            { title: { contains: search, mode: 'insensitive' } },
+            { location: { contains: search, mode: 'insensitive' } },
+            { code: { contains: search, mode: 'insensitive' } }
+          ]
+        } : undefined,
+        include: {
+          tourLeader: true
+        },
+        orderBy: {
+          createdAt: 'desc'
+        },
+        take: limit
+      });
 
     return NextResponse.json(compact ? { tours } : tours);
   } catch (error) {

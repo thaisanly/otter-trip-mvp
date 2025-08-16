@@ -24,13 +24,13 @@ interface Tour {
   galleryImages: string[];
   inclusions: string[];
   exclusions: string[];
-  itinerary: any[];
+  itinerary: { day: number; title: string; description: string; activities: string[] }[];
   additionalInfo: string[];
   dates: string[];
-  reviews: any[];
+  reviews: { id: string; rating: number; comment: string; author: string; date: string }[];
   categories: string[];
   tourLeaderId?: string;
-  tourLeader?: any;
+  tourLeader?: { id: string; name: string; image: string; rating: number };
 }
 
 export async function GET(request: NextRequest) {
@@ -78,6 +78,9 @@ export async function GET(request: NextRequest) {
             array_contains: [category]
           }
         },
+        include: {
+          tourLeader: true // Include tour leader information
+        },
         orderBy: [
           { rating: 'desc' },
           { totalJoined: 'desc' }
@@ -86,6 +89,9 @@ export async function GET(request: NextRequest) {
       });
     } else {
       tours = await prisma.tour.findMany({
+        include: {
+          tourLeader: true // Include tour leader information
+        },
         orderBy: [
           { rating: 'desc' },
           { totalJoined: 'desc' }
@@ -98,25 +104,41 @@ export async function GET(request: NextRequest) {
     const transformedTours = tours.map((tour): Tour => ({
       id: tour.id,
       title: tour.title,
-      description: tour.description,
+      description: tour.description || '',
       location: tour.location,
       duration: tour.duration,
-      price: tour.price,
+      price: parseFloat(tour.price.replace(/[^0-9.]/g, '')) || 0,
       rating: tour.rating,
       totalJoined: tour.totalJoined,
-      imageUrl: tour.imageUrl,
-      overview: Array.isArray(tour.overview) ? tour.overview : [],
-      highlights: Array.isArray(tour.highlights) ? tour.highlights : [],
-      galleryImages: Array.isArray(tour.galleryImages) ? tour.galleryImages : [],
-      inclusions: Array.isArray(tour.inclusions) ? tour.inclusions : [],
-      exclusions: Array.isArray(tour.exclusions) ? tour.exclusions : [],
-      itinerary: Array.isArray(tour.itinerary) ? tour.itinerary : [],
-      additionalInfo: Array.isArray(tour.additionalInfo) ? tour.additionalInfo : [],
-      dates: Array.isArray(tour.dates) ? tour.dates : [],
-      reviews: Array.isArray(tour.reviews) ? tour.reviews : [],
-      categories: Array.isArray(tour.categories) ? tour.categories : [],
-      tourLeaderId: tour.tourLeaderId,
-      tourLeader: tour.tourLeader
+      imageUrl: tour.heroImage,
+      overview: Array.isArray(tour.overview) ? tour.overview as string[] : [],
+      highlights: Array.isArray(tour.highlights) ? tour.highlights as string[] : [],
+      galleryImages: Array.isArray(tour.galleryImages) ? tour.galleryImages as string[] : [],
+      inclusions: Array.isArray(tour.inclusions) ? tour.inclusions as string[] : [],
+      exclusions: Array.isArray(tour.exclusions) ? tour.exclusions as string[] : [],
+      itinerary: Array.isArray(tour.itinerary) ? tour.itinerary as Array<{
+        day: number;
+        title: string;
+        description: string;
+        activities: string[];
+      }> : [],
+      additionalInfo: Array.isArray(tour.additionalInfo) ? tour.additionalInfo as string[] : [],
+      dates: Array.isArray(tour.dates) ? tour.dates as string[] : [],
+      reviews: Array.isArray(tour.reviews) ? tour.reviews as Array<{
+        id: string;
+        rating: number;
+        comment: string;
+        author: string;
+        date: string;
+      }> : [],
+      categories: Array.isArray(tour.categories) ? tour.categories as string[] : [],
+      tourLeaderId: tour.tourLeaderId ?? undefined,
+      tourLeader: tour.tourLeader ? {
+        id: tour.tourLeader.id,
+        name: tour.tourLeader.name,
+        image: tour.tourLeader.image,
+        rating: tour.tourLeader.rating
+      } : undefined
     }));
 
     return NextResponse.json(transformedTours);

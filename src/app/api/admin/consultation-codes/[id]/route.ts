@@ -19,13 +19,6 @@ export async function GET(
 
     const code = await prisma.consultationCode.findUnique({
       where: { id },
-      include: {
-        consultationBookings: {
-          orderBy: {
-            createdAt: 'desc',
-          },
-        },
-      },
     });
 
     if (!code) {

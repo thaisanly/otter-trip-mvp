@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   SearchIcon,
@@ -19,9 +19,6 @@ import {
 } from 'lucide-react';
 import { Booking, BookingStatus } from '@/types';
 
-interface BookingManagementProps {
-  admin: any;
-}
 
 const statusConfig = {
   pending: {
@@ -51,7 +48,7 @@ const statusConfig = {
   },
 };
 
-export default function BookingManagement({ admin }: BookingManagementProps) {
+export default function BookingManagement(): React.ReactElement {
   const router = useRouter();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [filteredBookings, setFilteredBookings] = useState<Booking[]>([]);
@@ -71,28 +68,7 @@ export default function BookingManagement({ admin }: BookingManagementProps) {
     }
   }, []);
 
-  useEffect(() => {
-    filterBookings();
-  }, [searchQuery, statusFilter, bookings]);
-
-  const fetchBookings = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch('/api/bookings?limit=1000');
-      if (!response.ok) throw new Error('Failed to fetch bookings');
-      const data = await response.json();
-      setBookings(data.bookings || []);
-      setFilteredBookings(data.bookings || []);
-    } catch (error) {
-      console.error('Error fetching bookings:', error);
-      setBookings([]);
-      setFilteredBookings([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const filterBookings = () => {
+  const filterBookings = useCallback(() => {
     let filtered = [...bookings];
 
     // Apply search filter
@@ -116,7 +92,29 @@ export default function BookingManagement({ admin }: BookingManagementProps) {
     }
 
     setFilteredBookings(filtered);
+  }, [searchQuery, statusFilter, bookings]);
+
+  useEffect(() => {
+    filterBookings();
+  }, [filterBookings]);
+
+  const fetchBookings = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('/api/bookings?limit=1000');
+      if (!response.ok) throw new Error('Failed to fetch bookings');
+      const data = await response.json();
+      setBookings(data.bookings || []);
+      setFilteredBookings(data.bookings || []);
+    } catch (error) {
+      console.error('Error fetching bookings:', error);
+      setBookings([]);
+      setFilteredBookings([]);
+    } finally {
+      setLoading(false);
+    }
   };
+
 
   const formatDate = (dateString: string) => {
     if (!dateString) return 'Not set';

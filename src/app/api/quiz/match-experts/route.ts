@@ -93,7 +93,7 @@ function calculatePersonalityType(answers: QuizAnswers): PersonalityType {
 }
 
 // Function to match experts based on personality type and preferences
-async function matchExperts(personalityType: PersonalityType, answers: QuizAnswers): Promise<ExpertMatch[]> {
+async function matchExperts(personalityType: PersonalityType): Promise<ExpertMatch[]> {
   try {
     // Get all active experts from database
     const experts = await prisma.expert.findMany({
@@ -173,6 +173,7 @@ async function matchExperts(personalityType: PersonalityType, answers: QuizAnswe
     const sortedMatches = expertMatches.sort((a, b) => b.score - a.score);
     
     // Return matches without the score property
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     return sortedMatches.map(({ score, ...match }) => match);
   } catch (error) {
     console.error('Error matching experts:', error);
@@ -239,7 +240,7 @@ export async function POST(request: NextRequest) {
     const personalityType = calculatePersonalityType(answers);
 
     // Match experts based on personality type and preferences
-    let expertMatches = await matchExperts(personalityType, answers);
+    let expertMatches = await matchExperts(personalityType);
 
     // Ensure we always return exactly 3 results
     expertMatches = await ensureThreeResults(expertMatches);

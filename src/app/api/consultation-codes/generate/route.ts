@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { generateConsultationCode, validateConsultationCodeFormat } from '@/utils/codeGenerator';
+import { generateConsultationCode } from '@/utils/codeGenerator';
 
 export async function POST(request: NextRequest) {
   try {
@@ -78,7 +78,7 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get('status');
     const includeExpired = searchParams.get('includeExpired') === 'true';
 
-    const where: any = {};
+    const where: Record<string, unknown> = {};
     
     if (status) {
       where.status = status;

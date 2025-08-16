@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import {
   ArrowLeftIcon,
@@ -50,18 +51,131 @@ const getRandomDefaultCover = (expertId: string) => {
   return defaultCoverImages[index];
 };
 
+const getNextAvailableDate = (dates?: Array<{ date: string; spotsLeft?: number }> | string[]): { date: string; spotsLeft: number } | null => {
+  if (!dates) return null;
+  
+  // Handle both array of strings and array of objects
+  let dateArray: Array<{ date: string; spotsLeft?: number }> = [];
+  
+  if (Array.isArray(dates)) {
+    if (dates.length === 0) return null;
+    
+    // Check if it's an array of objects or strings
+    if (typeof dates[0] === 'string') {
+      dateArray = (dates as string[]).map(d => ({ date: d }));
+    } else if (typeof dates[0] === 'object' && 'date' in dates[0]) {
+      dateArray = dates as Array<{ date: string; spotsLeft?: number }>;
+    } else {
+      return null;
+    }
+  } else {
+    return null;
+  }
+  
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  
+  // Find the first date that is today or in the future
+  for (const dateObj of dateArray) {
+    const tourDate = new Date(dateObj.date);
+    tourDate.setHours(0, 0, 0, 0);
+    
+    if (tourDate >= today) {
+      // Use provided spots or generate random
+      const spotsLeft = dateObj.spotsLeft !== undefined ? dateObj.spotsLeft : Math.floor(Math.random() * 6) + 3;
+      
+      // Format the date
+      const options: Intl.DateTimeFormatOptions = { 
+        month: 'short', 
+        day: 'numeric', 
+        year: 'numeric' 
+      };
+      const formattedDate = tourDate.toLocaleDateString('en-US', options);
+      
+      return { date: formattedDate, spotsLeft };
+    }
+  }
+  
+  // If no future dates, return the last date as "Next available"
+  if (dateArray.length > 0) {
+    const lastDateObj = dateArray[dateArray.length - 1];
+    const lastDate = new Date(lastDateObj.date);
+    const options: Intl.DateTimeFormatOptions = { 
+      month: 'short', 
+      day: 'numeric', 
+      year: 'numeric' 
+    };
+    const formattedDate = lastDate.toLocaleDateString('en-US', options);
+    return { date: formattedDate, spotsLeft: 0 };
+  }
+  
+  return null;
+};
+
 const ExpertDetail = () => {
   const params = useParams(); const expertId = params.id;
   const router = useRouter();
   const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState('about');
   const [isLoading, setIsLoading] = useState(true);
-  const [expertData, setExpertData] = useState<any>(null);
-  const [relatedExperts, setRelatedExperts] = useState<any[]>([]);
+  const [expertData, setExpertData] = useState<{
+    id: string;
+    name: string;
+    image: string;
+    banner?: string;
+    location: string;
+    countryCode?: string;
+    rating: number;
+    reviews: number;
+    specialties: string[];
+    experience: string;
+    languages: string[];
+    hourlyRate?: string;
+    consultationPrice: string;
+    verified: boolean;
+    tours?: number;
+    bio?: string;
+    socialLinks?: {
+      instagram?: string;
+      youtube?: string;
+      twitter?: string;
+      facebook?: string;
+      linkedin?: string;
+    };
+    latestVideos?: Array<{
+      id: string;
+      title: string;
+      thumbnail: string;
+      url: string;
+      views: number;
+      duration: string;
+    }>;
+    featuredTours?: Array<{
+      id: string;
+      title: string;
+      description: string;
+      image: string;
+      duration: string;
+      price: string;
+      rating: number;
+      dates?: Array<{ date: string; spotsLeft?: number }> | string[];
+      spotsLeft?: number;
+    }>;
+    isLive: boolean;
+    audioTrack?: string;
+  } | null>(null);
+  const [relatedExperts, setRelatedExperts] = useState<Array<{
+    id: string;
+    name: string;
+    image: string;
+    location: string;
+    rating: number;
+    specialties: string[];
+    verified?: boolean;
+  }>>([]);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
   const [volume, setVolume] = useState(50);
-  const [isFollowing, setIsFollowing] = useState(false);
   const [isNavSticky, setIsNavSticky] = useState(false);
   const [tourFilter, setTourFilter] = useState('upcoming');
   // New states for booking flow
@@ -71,12 +185,12 @@ const ExpertDetail = () => {
   const [currentVideoUrl, setCurrentVideoUrl] = useState('');
   const [currentVideoTitle, setCurrentVideoTitle] = useState('');
   // Refs for scrolling to sections
-  const aboutRef = useRef(null);
-  const toursRef = useRef(null);
-  const socialRef = useRef(null);
-  const reviewsRef = useRef(null);
-  const contactRef = useRef(null);
-  const navRef = useRef(null);
+  const aboutRef = useRef<HTMLDivElement>(null);
+  const toursRef = useRef<HTMLDivElement>(null);
+  const socialRef = useRef<HTMLDivElement>(null);
+  const reviewsRef = useRef<HTMLDivElement>(null);
+  const contactRef = useRef<HTMLDivElement>(null);
+  const navRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const fetchExpertData = async () => {
       setIsLoading(true);
@@ -120,18 +234,30 @@ const ExpertDetail = () => {
             const toursResponse = await fetch(`/api/admin/experts/${expertId}/featured-tours`);
             if (toursResponse.ok) {
               const toursData = await toursResponse.json();
-              setExpertData((prev: any) => ({
+              setExpertData((prev) => prev ? {
                 ...prev,
-                featuredTours: toursData.featuredTours.map((tour: any) => ({
+                featuredTours: toursData.featuredTours.map((tour: {
+                  id: string;
+                  title: string;
+                  overview?: string | string[];
+                  heroImage: string;
+                  duration: string;
+                  price: string;
+                  rating?: number;
+                  dates?: Array<{ date: string; spotsLeft?: number }> | string[];
+                  spotsLeft?: number;
+                }) => ({
                   id: tour.id,
                   title: tour.title,
                   description: tour.overview ? (Array.isArray(tour.overview) ? tour.overview[0] : tour.overview) : 'Experience an amazing tour',
                   image: tour.heroImage,
                   duration: tour.duration,
                   price: tour.price,
-                  rating: tour.rating || 4.5
+                  rating: tour.rating || 4.5,
+                  dates: tour.dates || [],
+                  spotsLeft: tour.spotsLeft
                 }))
-              }));
+              } : null);
             }
           } catch (error) {
             console.error('Error fetching featured tours:', error);
@@ -143,7 +269,7 @@ const ExpertDetail = () => {
         if (relatedResponse.ok) {
           const allExperts = await relatedResponse.json();
           // Get 3 random experts excluding current one
-          const filtered = allExperts.filter((e: any) => e.id !== expertId);
+          const filtered = allExperts.filter((e: { id: string }) => e.id !== expertId);
           const shuffled = filtered.sort(() => 0.5 - Math.random());
           setRelatedExperts(shuffled.slice(0, 3));
         }
@@ -201,7 +327,7 @@ const ExpertDetail = () => {
       document.documentElement.style.scrollBehavior = 'auto';
     };
   }, [expertId, router, searchParams]);
-  const scrollToSection = (sectionId) => {
+  const scrollToSection = (sectionId: string) => {
     setActiveTab(sectionId);
     let ref = null;
     switch (sectionId) {
@@ -232,18 +358,16 @@ const ExpertDetail = () => {
   const handleBackClick = () => {
     router.push('/meet-experts');
   };
-  const handleFollowClick = () => {
-    setIsFollowing(!isFollowing);
-  };
   const togglePlay = () => {
     setIsPlaying(!isPlaying);
   };
   const toggleMute = () => {
     setIsMuted(!isMuted);
   };
-  const handleVolumeChange = (e) => {
-    setVolume(e.target.value);
-    if (parseInt(e.target.value) === 0) {
+  const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newVolume = parseInt(e.target.value);
+    setVolume(newVolume);
+    if (newVolume === 0) {
       setIsMuted(true);
     } else if (isMuted) {
       setIsMuted(false);
@@ -261,7 +385,11 @@ const ExpertDetail = () => {
   };
 
   // Function to handle video clicks
-  const handleVideoClick = (video: any) => {
+  const handleVideoClick = (video: {
+    id: string;
+    title?: string;
+    url: string;
+  }) => {
     if (!video.url) return;
     
     // Check if it's YouTube or Vimeo for modal playback
@@ -292,7 +420,7 @@ const ExpertDetail = () => {
           <div className="text-red-500 text-5xl mb-4">404</div>
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Expert Not Found</h1>
           <p className="text-gray-600 mb-6">
-            We couldn't find the expert you're looking for. They may have moved or the link might be
+            We couldn&apos;t find the expert you&apos;re looking for. They may have moved or the link might be
             incorrect.
           </p>
           <button
@@ -309,14 +437,11 @@ const ExpertDetail = () => {
     <div className="bg-gray-50 min-h-screen pb-12">
       {/* Hero Section with Cover Photo - Enhanced Profile Header */}
       <div className="relative h-[450px] md:h-[500px]">
-        <img
-          src={expertData.banner || getRandomDefaultCover(expertId as string)}
-          alt={`${expertData.name}'s banner`}
-          className="w-full h-full object-cover"
-          onError={(e) => {
-            // Fallback to a different image if the default fails
-            e.currentTarget.src = 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80';
-          }}
+        <Image
+          src={expertData?.banner || getRandomDefaultCover(expertId as string)}
+          alt={`${expertData?.name || 'Expert'}&apos;s banner`}
+          fill
+          className="object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent"></div>
         {/* Breadcrumb */}
@@ -338,12 +463,12 @@ const ExpertDetail = () => {
                 Meet Experts
               </Link>
               <span className="mx-2">&gt;</span>
-              <span>{expertData.name}</span>
+              <span>{expertData?.name || 'Expert'}</span>
             </div>
           </div>
         </div>
         {/* Audio controls */}
-        {expertData.audioTrack && (
+        {expertData?.audioTrack && (
           <div className="absolute bottom-4 right-4 flex items-center bg-black/40 backdrop-blur-sm rounded-full px-3 py-1.5 text-white">
             <button
               onClick={togglePlay}
@@ -371,17 +496,18 @@ const ExpertDetail = () => {
           <div className="container mx-auto px-4">
             <div className="flex flex-col md:flex-row items-center md:items-end">
               <div className="w-32 h-32 md:w-36 md:h-36 rounded-full border-4 border-white overflow-hidden mb-4 md:mb-0 md:mr-6 relative z-10 bg-white shadow-lg group cursor-pointer">
-                <img
-                  src={expertData.image}
-                  alt={expertData.name}
-                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                <Image
+                  src={expertData?.image || '/placeholder.jpg'}
+                  alt={expertData?.name || 'Expert'}
+                  fill
+                  className="object-cover transition-transform duration-300 group-hover:scale-105"
                 />
-                {expertData.verified && (
+                {expertData?.verified && (
                   <div className="absolute bottom-1 right-1 bg-blue-500 text-white p-1 rounded-full">
                     <CheckCircleIcon size={16} />
                   </div>
                 )}
-                {expertData.isLive && (
+                {expertData?.isLive && (
                   <div className="absolute top-2 right-2 w-4 h-4 bg-red-600 rounded-full border-2 border-white animate-pulse"></div>
                 )}
                 <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
@@ -392,15 +518,15 @@ const ExpertDetail = () => {
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between">
                   <div>
                     <h1 className="text-3xl md:text-4xl font-bold mb-1 flex items-center justify-center md:justify-start">
-                      {expertData.name}
-                      {expertData.verified && (
+                      {expertData?.name || 'Expert'}
+                      {expertData?.verified && (
                         <CheckCircleIcon size={20} className="ml-2 text-blue-400" />
                       )}
                     </h1>
                     <div className="flex items-center justify-center md:justify-start mb-3">
                       <MapPinIcon size={16} className="mr-1" />
-                      <span>{expertData.location}</span>
-                      <span className="ml-1">{expertData.countryCode}</span>
+                      <span>{expertData?.location || ''}</span>
+                      <span className="ml-1">{expertData?.countryCode || ''}</span>
                     </div>
                   </div>
                   <div className="flex mt-4 md:mt-0 space-x-3 justify-center md:justify-start">
@@ -416,12 +542,12 @@ const ExpertDetail = () => {
                 <div className="flex flex-wrap justify-center md:justify-start gap-6 mt-3 md:mt-4">
                   <div className="flex items-center">
                     <StarIcon size={16} className="text-yellow-400 fill-current mr-1.5" />
-                    <span className="font-medium">{expertData.rating}</span>
+                    <span className="font-medium">{expertData?.rating || 0}</span>
                     <span className="text-white/80 ml-1"></span>
                   </div>
                   <div className="flex items-center">
                     <ShoppingBagIcon size={16} className="mr-1.5" />
-                    <span>{expertData.tours} tours</span>
+                    <span>{expertData?.tours || 0} tours</span>
                   </div>
                 </div>
               </div>
@@ -443,7 +569,7 @@ const ExpertDetail = () => {
               <UserIcon size={16} className="inline mr-1.5" />
               About Me
             </button>
-            {expertData.featuredTours && expertData.featuredTours.length > 0 && (
+            {expertData?.featuredTours && expertData.featuredTours.length > 0 && (
             <button
               className={`px-6 py-4 font-medium text-sm whitespace-nowrap transition-colors ${activeTab === 'tours' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-600 hover:text-gray-900'}`}
               onClick={() => scrollToSection('tours')}
@@ -452,8 +578,8 @@ const ExpertDetail = () => {
               Tours
             </button>
             )}
-            {((expertData.socialLinks && Object.keys(expertData.socialLinks).filter(key => expertData.socialLinks[key]).length > 0) || 
-              (expertData.latestVideos && expertData.latestVideos.length > 0)) && (
+            {((expertData?.socialLinks && Object.keys(expertData.socialLinks).filter(key => expertData.socialLinks?.[key as keyof typeof expertData.socialLinks]).length > 0) || 
+              (expertData?.latestVideos && expertData.latestVideos.length > 0)) && (
             <button
               className={`px-6 py-4 font-medium text-sm whitespace-nowrap transition-colors ${activeTab === 'social' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-600 hover:text-gray-900'}`}
               onClick={() => scrollToSection('social')}
@@ -479,15 +605,15 @@ const ExpertDetail = () => {
           <div className="lg:col-span-2">
             {/* About Section */}
             <section id="about" ref={aboutRef} className="mb-12">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">About {expertData.name}</h2>
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">About {expertData?.name || 'Expert'}</h2>
               <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
                 <div className="prose max-w-none text-gray-700">
-                  <p className="mb-4">{expertData.bio}</p>
+                  <p className="mb-4">{expertData?.bio || ''}</p>
                 </div>
                 <div className="mt-6 pt-6 border-t border-gray-100">
                   <h3 className="font-medium text-gray-900 mb-3">Expertise & Specialties</h3>
                   <div className="flex flex-wrap gap-2 mb-6">
-                    {expertData.specialties.map((specialty, index) => (
+                    {expertData?.specialties?.map((specialty, index) => (
                       <span
                         key={index}
                         className="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-sm"
@@ -498,7 +624,7 @@ const ExpertDetail = () => {
                   </div>
                   <h3 className="font-medium text-gray-900 mb-3">Languages</h3>
                   <div className="flex flex-wrap gap-2">
-                    {expertData.languages.map((language, index) => (
+                    {expertData?.languages?.map((language, index) => (
                       <div
                         key={index}
                         className="flex items-center bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm"
@@ -512,7 +638,7 @@ const ExpertDetail = () => {
               </div>
             </section>
             {/* Tours Section - Updated with Upcoming/Past Categories - Only show if there are featured tours */}
-            {expertData.featuredTours && expertData.featuredTours.length > 0 && (
+            {expertData?.featuredTours && expertData.featuredTours.length > 0 && (
             <section id="tours" ref={toursRef} className="mb-12">
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-2xl font-bold text-gray-900">Featured Tours</h2>
@@ -533,7 +659,9 @@ const ExpertDetail = () => {
               </div>
               {tourFilter === 'upcoming' ? (
                 <div className="space-y-6">
-                  {expertData.featuredTours && expertData.featuredTours.length > 0 ? expertData.featuredTours.map((tour) => (
+                  {expertData?.featuredTours && expertData.featuredTours.length > 0 ? expertData.featuredTours.map((tour) => {
+                    const nextAvailable = getNextAvailableDate(tour.dates);
+                    return (
                     <div
                       key={tour.id}
                       className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow cursor-pointer"
@@ -541,10 +669,11 @@ const ExpertDetail = () => {
                     >
                       <div className="flex flex-col md:flex-row">
                         <div className="md:w-1/3 h-48 md:h-auto relative">
-                          <img
+                          <Image
                             src={tour.image}
                             alt={tour.title}
-                            className="w-full h-full object-cover"
+                            fill
+                            className="object-cover"
                           />
                           <div className="absolute top-2 right-2 bg-blue-600 text-white text-xs px-2 py-1 rounded-full">
                             {tour.duration}
@@ -567,22 +696,35 @@ const ExpertDetail = () => {
                             </div>
                             <div className="flex items-center text-gray-700">
                               <MapPinIcon size={16} className="mr-1.5" />
-                              {expertData.location}
+                              {expertData?.location || ''}
                             </div>
                           </div>
+                          {nextAvailable ? (
                           <div className="bg-blue-50 rounded-lg p-3 mb-4">
                             <div className="flex justify-between items-center">
                               <div className="flex items-center">
                                 <CalendarIcon size={16} className="text-blue-600 mr-1.5" />
                                 <span className="text-sm font-medium text-gray-900">
-                                  Next available: May 15, 2023
+                                  Next available: {nextAvailable.date}
                                 </span>
                               </div>
+                              {nextAvailable.spotsLeft > 0 && (
                               <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full font-medium">
-                                5 spots left
+                                {tour.spotsLeft || nextAvailable.spotsLeft} spots left
+                              </span>
+                              )}
+                            </div>
+                          </div>
+                          ) : (
+                          <div className="bg-gray-50 rounded-lg p-3 mb-4">
+                            <div className="flex items-center">
+                              <CalendarIcon size={16} className="text-gray-500 mr-1.5" />
+                              <span className="text-sm text-gray-600">
+                                No upcoming dates scheduled
                               </span>
                             </div>
                           </div>
+                          )}
                           <div className="flex justify-between items-center">
                             <div>
                               <div className="text-gray-900 font-bold">{tour.price}</div>
@@ -593,7 +735,7 @@ const ExpertDetail = () => {
                                 e.stopPropagation();
                                 const params = new URLSearchParams({
                                   title: tour.title,
-                                  expert: expertData.name,
+                                  expert: expertData?.name || 'Expert',
                                   price: tour.price
                                 });
                                 router.push(`/booking/${tour.id}?${params.toString()}`);
@@ -605,7 +747,7 @@ const ExpertDetail = () => {
                         </div>
                       </div>
                     </div>
-                  )) : (
+                  )}) : (
                     <div className="text-center py-12">
                       <p className="text-gray-500">No upcoming tours available at this moment.</p>
                     </div>
@@ -618,10 +760,11 @@ const ExpertDetail = () => {
                     onClick={() => router.push('/tour/singapore-night-safari')}>
                     <div className="flex flex-col md:flex-row">
                       <div className="md:w-1/3 h-48 md:h-auto relative">
-                        <img
+                        <Image
                           src="https://images.unsplash.com/photo-1545569341-9eb8b30979d9?ixlib=rb-4.0.3&auto=format&fit=crop&w=1024&q=80"
                           alt="Singapore Night Safari"
-                          className="w-full h-full object-cover"
+                          fill
+                          className="object-cover"
                         />
                         <div className="absolute top-2 right-2 bg-gray-800 text-white text-xs px-2 py-1 rounded-full">
                           Past Tour
@@ -639,7 +782,7 @@ const ExpertDetail = () => {
                           </div>
                         </div>
                         <p className="text-gray-600 text-sm mb-3">
-                          Experience Singapore's famous Night Safari with a guided tour through the
+                          Experience Singapore&apos;s famous Night Safari with a guided tour through the
                           nocturnal animal habitats.
                         </p>
                         <div className="flex flex-wrap gap-4 mb-4 text-sm">
@@ -680,10 +823,11 @@ const ExpertDetail = () => {
                     onClick={() => router.push('/tour/historical-singapore-tour')}>
                     <div className="flex flex-col md:flex-row">
                       <div className="md:w-1/3 h-48 md:h-auto relative">
-                        <img
+                        <Image
                           src="https://images.unsplash.com/photo-1565967511849-76a60a516170?ixlib=rb-4.0.3&auto=format&fit=crop&w=1024&q=80"
                           alt="Historical Singapore Tour"
-                          className="w-full h-full object-cover"
+                          fill
+                          className="object-cover"
                         />
                         <div className="absolute top-2 right-2 bg-gray-800 text-white text-xs px-2 py-1 rounded-full">
                           Past Tour
@@ -701,7 +845,7 @@ const ExpertDetail = () => {
                           </div>
                         </div>
                         <p className="text-gray-600 text-sm mb-3">
-                          Discover Singapore's rich colonial history and the stories behind its
+                          Discover Singapore&apos;s rich colonial history and the stories behind its
                           iconic landmarks and monuments.
                         </p>
                         <div className="flex flex-wrap gap-4 mb-4 text-sm">
@@ -743,17 +887,17 @@ const ExpertDetail = () => {
             </section>
             )}
             {/* Social Section - Only show if there are social links or videos */}
-            {((expertData.socialLinks && Object.keys(expertData.socialLinks).filter(key => expertData.socialLinks[key]).length > 0) || 
-              (expertData.latestVideos && expertData.latestVideos.length > 0)) && (
+            {((expertData?.socialLinks && Object.keys(expertData.socialLinks).filter(key => expertData.socialLinks?.[key as keyof typeof expertData.socialLinks]).length > 0) || 
+              (expertData?.latestVideos && expertData.latestVideos.length > 0)) && (
             <section id="social" ref={socialRef} className="mb-12">
               <h2 className="text-2xl font-bold text-gray-900 mb-6">Social & Media</h2>
               {/* Social Links */}
               <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
-                <h3 className="font-medium text-gray-900 mb-4">Connect with {expertData.name}</h3>
+                <h3 className="font-medium text-gray-900 mb-4">Connect with {expertData?.name || 'Expert'}</h3>
                 <div className="flex flex-wrap gap-3">
-                  {expertData.socialLinks?.instagram && (
+                  {expertData?.socialLinks?.instagram && (
                     <a
-                      href={expertData.socialLinks.instagram}
+                      href={expertData?.socialLinks?.instagram || '#'}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg"
@@ -762,9 +906,9 @@ const ExpertDetail = () => {
                       Instagram
                     </a>
                   )}
-                  {expertData.socialLinks?.youtube && (
+                  {expertData?.socialLinks?.youtube && (
                     <a
-                      href={expertData.socialLinks.youtube}
+                      href={expertData?.socialLinks?.youtube || '#'}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center px-4 py-2 bg-red-600 text-white rounded-lg"
@@ -773,9 +917,9 @@ const ExpertDetail = () => {
                       YouTube
                     </a>
                   )}
-                  {expertData.socialLinks?.twitter && (
+                  {expertData?.socialLinks?.twitter && (
                     <a
-                      href={expertData.socialLinks.twitter}
+                      href={expertData?.socialLinks?.twitter || '#'}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center px-4 py-2 bg-blue-400 text-white rounded-lg"
@@ -784,9 +928,9 @@ const ExpertDetail = () => {
                       Twitter
                     </a>
                   )}
-                  {expertData.socialLinks?.facebook && (
+                  {expertData?.socialLinks?.facebook && (
                     <a
-                      href={expertData.socialLinks.facebook}
+                      href={expertData?.socialLinks?.facebook || '#'}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg"
@@ -795,9 +939,9 @@ const ExpertDetail = () => {
                       Facebook
                     </a>
                   )}
-                  {expertData.socialLinks?.linkedin && (
+                  {expertData?.socialLinks?.linkedin && (
                     <a
-                      href={expertData.socialLinks.linkedin}
+                      href={expertData?.socialLinks?.linkedin || '#'}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center px-4 py-2 bg-blue-700 text-white rounded-lg"
@@ -809,22 +953,24 @@ const ExpertDetail = () => {
                 </div>
               </div>
               {/* Latest Videos */}
-              {expertData.latestVideos && expertData.latestVideos.length > 0 && (
+              {expertData?.latestVideos && expertData.latestVideos.length > 0 && (
                 <div className="mb-8">
                   <div className="mb-4">
                     <h3 className="text-xl font-bold text-gray-900">Latest Videos</h3>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {expertData.latestVideos && expertData.latestVideos.length > 0 ? expertData.latestVideos.map((video) => (
+                    {expertData?.latestVideos && expertData.latestVideos.length > 0 ? expertData.latestVideos.map((video) => (
                       <div
                         key={video.id}
                         className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow cursor-pointer"
                         onClick={() => handleVideoClick(video)}
                       >
                         <div className="relative">
-                          <img
+                          <Image
                             src={video.thumbnail}
                             alt={video.title}
+                            width={300}
+                            height={168}
                             className="w-full aspect-video object-cover"
                           />
                           <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30 hover:bg-opacity-20 transition-opacity">
@@ -840,7 +986,7 @@ const ExpertDetail = () => {
                         </div>
                         <div className="p-3">
                           <h4 className="font-medium text-gray-900 line-clamp-1">{video.title}</h4>
-                          <div className="text-xs text-gray-500 mt-1">{formatViewCount(video.viewCount || video.views || 0)} views</div>
+                          <div className="text-xs text-gray-500 mt-1">{formatViewCount(video.views || 0)} views</div>
                         </div>
                       </div>
                     )) : (
@@ -859,14 +1005,14 @@ const ExpertDetail = () => {
                   <div className="flex flex-col md:flex-row items-center justify-between mb-8">
                     <div className="flex items-center mb-4 md:mb-0">
                       <div className="mr-4 text-center">
-                        <div className="text-5xl font-bold text-gray-900">{expertData.rating}</div>
+                        <div className="text-5xl font-bold text-gray-900">{expertData?.rating || 0}</div>
                         <div className="flex mt-1">
                           {[...Array(5)].map((_, i) => (
                             <StarIcon
                               key={i}
                               size={16}
                               className={
-                                i < Math.floor(expertData.rating)
+                                i < Math.floor(expertData?.rating || 0)
                                   ? 'text-yellow-400 fill-current'
                                   : 'text-gray-300'
                               }
@@ -874,7 +1020,7 @@ const ExpertDetail = () => {
                           ))}
                         </div>
                         <div className="text-sm text-gray-500 mt-1">
-                          {expertData.reviews} reviews
+                          {expertData?.reviews || 0} reviews
                         </div>
                       </div>
                       <div className="flex-1">
@@ -963,10 +1109,12 @@ const ExpertDetail = () => {
                       {/* Placeholder reviews - would come from API */}
                       <div className="border-b border-gray-100 pb-6">
                         <div className="flex items-start mb-3">
-                          <img
+                          <Image
                             src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=128&q=80"
                             alt="John D."
-                            className="w-10 h-10 rounded-full mr-3"
+                            width={40}
+                            height={40}
+                            className="rounded-full mr-3"
                           />
                           <div className="flex-1">
                             <div className="flex justify-between items-start">
@@ -992,7 +1140,7 @@ const ExpertDetail = () => {
                             </div>
                             <p className="text-gray-700 mt-2">
                               Sarah was an amazing guide! She took us to places we would never have
-                              found on our own and shared fascinating stories about Singapore's food
+                              found on our own and shared fascinating stories about Singapore&apos;s food
                               culture. The hawker center tour was the highlight of our trip!
                             </p>
                           </div>
@@ -1000,10 +1148,12 @@ const ExpertDetail = () => {
                       </div>
                       <div className="border-b border-gray-100 pb-6">
                         <div className="flex items-start mb-3">
-                          <img
+                          <Image
                             src="https://images.unsplash.com/photo-1489424731084-a5d8b219a5bb?ixlib=rb-4.0.3&auto=format&fit=crop&w=128&q=80"
                             alt="Maria L."
-                            className="w-10 h-10 rounded-full mr-3"
+                            width={40}
+                            height={40}
+                            className="rounded-full mr-3"
                           />
                           <div className="flex-1">
                             <div className="flex justify-between items-start">
@@ -1030,7 +1180,7 @@ const ExpertDetail = () => {
                               </div>
                             </div>
                             <p className="text-gray-700 mt-2">
-                              We had a wonderful time exploring Singapore's cultural neighborhoods
+                              We had a wonderful time exploring Singapore&apos;s cultural neighborhoods
                               with Sarah. Her knowledge of the history and traditions was
                               impressive, and she was so friendly and accommodating. Highly
                               recommend!
@@ -1040,10 +1190,12 @@ const ExpertDetail = () => {
                       </div>
                       <div>
                         <div className="flex items-start mb-3">
-                          <img
+                          <Image
                             src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&auto=format&fit=crop&w=128&q=80"
                             alt="Robert T."
-                            className="w-10 h-10 rounded-full mr-3"
+                            width={40}
+                            height={40}
+                            className="rounded-full mr-3"
                           />
                           <div className="flex-1">
                             <div className="flex justify-between items-start">
@@ -1069,7 +1221,7 @@ const ExpertDetail = () => {
                             </div>
                             <p className="text-gray-700 mt-2">
                               Great tour with lots of delicious food! Sarah is knowledgeable and
-                              passionate about Singapore's cuisine. The only reason for 4 stars
+                              passionate about Singapore&apos;s cuisine. The only reason for 4 stars
                               instead of 5 is that the tour ran a bit longer than scheduled, but it
                               was because we were having such a good time!
                             </p>
@@ -1089,7 +1241,7 @@ const ExpertDetail = () => {
             {/* Contact Section */}
             <section id="contact" ref={contactRef} className="mb-12">
               <ExpertInquiryForm 
-                expertName={expertData.name}
+                expertName={expertData?.name || ''}
                 expertId={expertId as string}
               />
             </section>
@@ -1163,9 +1315,11 @@ const ExpertDetail = () => {
                   >
                     <div className="flex items-center">
                       <div className="relative mr-3">
-                        <img
+                        <Image
                           src={expert.image}
                           alt={expert.name}
+                          width={48}
+                          height={48}
                           className="w-12 h-12 rounded-full object-cover"
                         />
                         {expert.verified && (
@@ -1207,7 +1361,7 @@ const ExpertDetail = () => {
         onClose={() => setIsBookingModalOpen(false)}
         expertName={expertData?.name || ''}
         expertImage={expertData?.image || ''}
-        expertId={params.id}
+        expertId={params.id as string}
         price={expertData?.consultationPrice || '$250'}
       />
 

@@ -9,5 +9,5 @@ export default async function BookingsPage() {
     redirect('/admin');
   }
 
-  return <BookingManagement admin={admin} />;
+  return <BookingManagement />;
 }

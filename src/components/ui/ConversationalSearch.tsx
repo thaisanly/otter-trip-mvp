@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState, useRef, Component } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { SearchIcon, XIcon } from 'lucide-react';
 type Suggestion = {
@@ -169,7 +169,7 @@ const ConversationalSearch = () => {
               className="w-full text-center text-blue-600 font-medium text-sm hover:text-blue-800"
               onClick={() => handleSearch()}
             >
-              Search for "{query || 'travel experiences'}"
+              Search for &ldquo;{query || 'travel experiences'}&rdquo;
             </button>
           </div>
         </div>

@@ -5,7 +5,7 @@ type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 class Logger {
   private isDevelopment = env.NODE_ENV === 'development';
 
-  private formatMessage(level: LogLevel, module: string, message: string, data?: any): string {
+  private formatMessage(level: LogLevel, module: string, message: string, data?: unknown): string {
     const timestamp = new Date().toISOString();
     const prefix = `[${timestamp}][${level.toUpperCase()}][${module}]`;
     
@@ -16,21 +16,21 @@ class Logger {
     return `${prefix} ${message}`;
   }
 
-  debug(module: string, message: string, data?: any): void {
+  debug(module: string, message: string, data?: unknown): void {
     if (this.isDevelopment) {
       console.debug(this.formatMessage('debug', module, message, data));
     }
   }
 
-  info(module: string, message: string, data?: any): void {
+  info(module: string, message: string, data?: unknown): void {
     console.info(this.formatMessage('info', module, message, data));
   }
 
-  warn(module: string, message: string, data?: any): void {
+  warn(module: string, message: string, data?: unknown): void {
     console.warn(this.formatMessage('warn', module, message, data));
   }
 
-  error(module: string, message: string, error?: Error | any): void {
+  error(module: string, message: string, error?: Error | unknown): void {
     if (error instanceof Error) {
       console.error(this.formatMessage('error', module, message), {
         name: error.name,
@@ -49,8 +49,8 @@ export const logger = new Logger();
 
 // Convenience methods for different modules
 export const createLogger = (module: string) => ({
-  debug: (message: string, data?: any) => logger.debug(module, message, data),
-  info: (message: string, data?: any) => logger.info(module, message, data),
-  warn: (message: string, data?: any) => logger.warn(module, message, data),
-  error: (message: string, error?: Error | any) => logger.error(module, message, error),
+  debug: (message: string, data?: unknown) => logger.debug(module, message, data),
+  info: (message: string, data?: unknown) => logger.info(module, message, data),
+  warn: (message: string, data?: unknown) => logger.warn(module, message, data),
+  error: (message: string, error?: Error | unknown) => logger.error(module, message, error),
 });

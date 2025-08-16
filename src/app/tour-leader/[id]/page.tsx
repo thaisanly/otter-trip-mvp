@@ -1,9 +1,10 @@
 import { notFound } from 'next/navigation';
 import TourLeaderClient from './TourLeaderClient';
+import { env } from '@/lib/env';
 
 async function getTourLeader(id: string) {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001'}/api/tour-leaders/${id}`, {
+    const res = await fetch(`${env.APP_BASE_URL}/api/tour-leaders/${id}`, {
       cache: 'no-store',
     });
     

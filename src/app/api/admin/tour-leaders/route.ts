@@ -3,7 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { requireAuth } from '@/lib/auth';
 import { generateTourLeaderSlug } from '@/utils/slug';
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     await requireAuth();
 

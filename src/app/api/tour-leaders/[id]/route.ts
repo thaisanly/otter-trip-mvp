@@ -67,11 +67,11 @@ export async function GET(
       
       // Parse JSON fields if they exist
       personality: tourLeader.travelStyle || ['High-energy', 'Educational', 'Social', 'Photography', 'Nature-focused'],
-      travelStories: tourLeader.travelStories as any || [],
-      countrySpecializations: tourLeader.countrySpecializations as any || [],
+      travelStories: (tourLeader.travelStories as unknown[]) || [],
+      countrySpecializations: (tourLeader.countrySpecializations as string[]) || [],
       tours: formattedTours, // Use the formatted tours from the relation
-      reviews: tourLeader.reviews as any || [],
-      certifications: tourLeader.certifications as any || [],
+      reviews: (tourLeader.reviews as unknown[]) || [],
+      certifications: (tourLeader.certifications as unknown[]) || [],
       
       // Additional data
       curatedTours: tourLeader.curatedTours as string[] || [],

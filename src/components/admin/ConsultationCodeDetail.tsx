@@ -1,23 +1,17 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   ArrowLeftIcon,
   KeyIcon,
   CalendarIcon,
-  UserIcon,
-  ClockIcon,
   CheckCircleIcon,
   XCircleIcon,
   AlertCircleIcon,
   EditIcon,
   TrashIcon,
   PowerIcon,
-  MailIcon,
-  PhoneIcon,
-  DollarSignIcon,
-  RefreshCwIcon,
   FileDownIcon,
   UsersIcon,
 } from 'lucide-react';
@@ -70,11 +64,7 @@ const ConsultationCodeDetail: React.FC<ConsultationCodeDetailProps> = ({ codeId 
     status: 'active',
   });
 
-  useEffect(() => {
-    fetchCodeDetail();
-  }, [codeId]);
-
-  const fetchCodeDetail = async () => {
+  const fetchCodeDetail = useCallback(async () => {
     try {
       setLoading(true);
       const response = await fetch(`/api/admin/consultation-codes/${codeId}`);
@@ -98,7 +88,12 @@ const ConsultationCodeDetail: React.FC<ConsultationCodeDetailProps> = ({ codeId 
     } finally {
       setLoading(false);
     }
-  };
+  }, [codeId]);
+
+  useEffect(() => {
+    fetchCodeDetail();
+  }, [fetchCodeDetail]);
+
 
   const handleToggleStatus = async () => {
     if (!code) return;

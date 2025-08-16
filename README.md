@@ -144,8 +144,15 @@ docker-compose up --build
 ```
 
 ### Production
+
+Deploy the entire stack:
 ```bash
 docker-compose -f docker-compose.production.yml up --build
+```
+
+Deploy only the app (without database):
+```bash
+docker compose -f docker-compose.production.yml up app -d --build
 ```
 
 ## Project Structure

@@ -1,15 +1,13 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   PlusIcon,
   TrashIcon,
-  EditIcon,
   RefreshCwIcon,
   SearchIcon,
   TagIcon,
-  ImageIcon,
 } from 'lucide-react';
 import CategoryImage from './CategoryImage';
 
@@ -26,11 +24,8 @@ interface Category {
   updatedAt: string;
 }
 
-interface CategoriesManagementProps {
-  admin: any;
-}
 
-export default function CategoriesManagement({ admin }: CategoriesManagementProps) {
+export default function CategoriesManagement(): React.ReactElement {
   const router = useRouter();
   const [categories, setCategories] = useState<Category[]>([]);
   const [filteredCategories, setFilteredCategories] = useState<Category[]>([]);
@@ -48,9 +43,27 @@ export default function CategoriesManagement({ admin }: CategoriesManagementProp
     }
   }, []);
 
+  const filterCategories = useCallback(() => {
+    if (!searchQuery.trim()) {
+      setFilteredCategories(categories);
+      return;
+    }
+
+    const query = searchQuery.toLowerCase();
+    const filtered = categories.filter((category) => {
+      return (
+        category.name.toLowerCase().includes(query) ||
+        category.id.toLowerCase().includes(query) ||
+        category.description.toLowerCase().includes(query) ||
+        category.interests?.some((interest: string) => interest.toLowerCase().includes(query))
+      );
+    });
+    setFilteredCategories(filtered);
+  }, [searchQuery, categories]);
+
   useEffect(() => {
     filterCategories();
-  }, [searchQuery, categories]);
+  }, [filterCategories]);
 
   const fetchCategories = async () => {
     try {
@@ -67,23 +80,6 @@ export default function CategoriesManagement({ admin }: CategoriesManagementProp
     }
   };
 
-  const filterCategories = () => {
-    if (!searchQuery.trim()) {
-      setFilteredCategories(categories);
-      return;
-    }
-
-    const query = searchQuery.toLowerCase();
-    const filtered = categories.filter((category) => {
-      return (
-        category.name.toLowerCase().includes(query) ||
-        category.id.toLowerCase().includes(query) ||
-        category.description.toLowerCase().includes(query) ||
-        category.interests?.some((interest: string) => interest.toLowerCase().includes(query))
-      );
-    });
-    setFilteredCategories(filtered);
-  };
 
   const handleDelete = async (categoryId: string) => {
     if (!window.confirm('Are you sure you want to delete this category?')) {
@@ -229,14 +225,12 @@ export default function CategoriesManagement({ admin }: CategoriesManagementProp
                   >
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
-                        <div className="flex-shrink-0 w-12 h-12 mr-4">
-                          <div className="w-12 h-12 rounded-lg overflow-hidden">
-                            <CategoryImage
-                              src={category.coverImage || undefined}
-                              alt={category.name}
-                              fallbackText={category.name}
-                            />
-                          </div>
+                        <div className="flex-shrink-0 w-12 h-12 mr-4 relative rounded-lg overflow-hidden">
+                          <CategoryImage
+                            src={category.coverImage || undefined}
+                            alt={category.name}
+                            fallbackText={category.name}
+                          />
                         </div>
                         <div>
                           <div className="flex items-center">

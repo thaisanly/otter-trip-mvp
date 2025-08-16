@@ -87,7 +87,7 @@ export async function GET(request: Request) {
       const limit = parseInt(searchParams.get('limit') || '10');
       
       // Build where clause
-      const whereClause: any = {};
+      const whereClause: Record<string, unknown> = {};
       
       if (status) {
         whereClause.status = status;
@@ -108,7 +108,7 @@ export async function GET(request: Request) {
       }
       
       // Build order by clause
-      const orderBy: any = {};
+      const orderBy: Record<string, string> = {};
       orderBy[sortBy] = sortOrder;
       
       // Get total count for pagination

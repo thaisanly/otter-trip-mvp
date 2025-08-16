@@ -3,11 +3,9 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import {
-  SearchIcon,
   MapPinIcon,
   CalendarIcon,
   UsersIcon,
-  ChevronRightIcon,
   GlobeIcon,
   ArrowRightIcon,
 } from 'lucide-react';

@@ -1,13 +1,11 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import {
   UserPlusIcon,
   TrashIcon,
-  EditIcon,
-  CheckCircleIcon,
-  XCircleIcon,
   RefreshCwIcon,
   SearchIcon,
   StarIcon,
@@ -96,9 +94,28 @@ export default function TourLeadersManagement() {
     }
   }, []);
 
+  const filterTourLeaders = useCallback(() => {
+    if (!searchQuery.trim()) {
+      setFilteredTourLeaders(tourLeaders);
+      return;
+    }
+
+    const query = searchQuery.toLowerCase();
+    const filtered = tourLeaders.filter((tourLeader) => {
+      return (
+        tourLeader.name.toLowerCase().includes(query) ||
+        tourLeader.location.toLowerCase().includes(query) ||
+        tourLeader.specialty.toLowerCase().includes(query) ||
+        tourLeader.languages?.some(lang => lang.toLowerCase().includes(query)) ||
+        tourLeader.expertiseAreas?.some(area => area.toLowerCase().includes(query))
+      );
+    });
+    setFilteredTourLeaders(filtered);
+  }, [searchQuery, tourLeaders]);
+
   useEffect(() => {
     filterTourLeaders();
-  }, [tourLeaders, searchQuery]);
+  }, [filterTourLeaders]);
 
   const fetchTourLeaders = async () => {
     try {
@@ -116,22 +133,6 @@ export default function TourLeadersManagement() {
     }
   };
 
-  const filterTourLeaders = () => {
-    if (!searchQuery.trim()) {
-      setFilteredTourLeaders(tourLeaders);
-      return;
-    }
-
-    const query = searchQuery.toLowerCase();
-    const filtered = tourLeaders.filter(leader =>
-      leader.name.toLowerCase().includes(query) ||
-      leader.specialty.toLowerCase().includes(query) ||
-      leader.location.toLowerCase().includes(query) ||
-      leader.expertiseAreas.some(area => area.toLowerCase().includes(query)) ||
-      leader.languages.some(lang => lang.toLowerCase().includes(query))
-    );
-    setFilteredTourLeaders(filtered);
-  };
 
   const resetForm = () => {
     setFormData({
@@ -253,30 +254,6 @@ export default function TourLeadersManagement() {
     }
   };
 
-  const openEditModal = (tourLeader: TourLeader) => {
-    setEditingTourLeader(tourLeader);
-    setFormData({
-      name: tourLeader.name,
-      image: tourLeader.image,
-      location: tourLeader.location,
-      specialty: tourLeader.specialty,
-      description: tourLeader.description,
-      price: tourLeader.price,
-      isSuperhost: tourLeader.isSuperhost,
-      languages: tourLeader.languages.join(', '),
-      experience: tourLeader.experience,
-      certifications: tourLeader.certifications.join(', '),
-      bio: tourLeader.bio,
-      expertiseAreas: tourLeader.expertiseAreas.join(', '),
-      rating: tourLeader.rating,
-    });
-    setShowEditModal(true);
-  };
-
-  const openCreateModal = () => {
-    resetForm();
-    setShowCreateModal(true);
-  };
 
   const closeModals = () => {
     setShowCreateModal(false);
@@ -389,15 +366,13 @@ export default function TourLeadersManagement() {
                   >
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
-                        <div className="h-10 w-10 flex-shrink-0">
-                          <img
-                            className="h-10 w-10 rounded-full object-cover"
-                            src={leader.image}
+                        <div className="h-10 w-10 flex-shrink-0 relative">
+                          <Image
+                            className="rounded-full object-cover"
+                            src={leader.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(leader.name)}&background=3B82F6&color=ffffff`}
                             alt={leader.name}
-                            onError={(e) => {
-                              const target = e.target as HTMLImageElement;
-                              target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(leader.name)}&background=3B82F6&color=ffffff`;
-                            }}
+                            fill
+                            sizes="40px"
                           />
                         </div>
                         <div className="ml-4">
@@ -508,7 +483,7 @@ export default function TourLeadersManagement() {
                       required
                     />
                     <p className="mt-1 text-xs text-gray-500">
-                      Provide an absolute URL to the tour leader's profile image
+                      Provide an absolute URL to the tour leader&apos;s profile image
                     </p>
                   </div>
 

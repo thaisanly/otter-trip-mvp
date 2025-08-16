@@ -9,5 +9,5 @@ export default async function CategoriesPage() {
     redirect('/admin');
   }
 
-  return <CategoriesManagement admin={admin} />;
+  return <CategoriesManagement />;
 }

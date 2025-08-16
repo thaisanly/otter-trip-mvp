@@ -11,10 +11,8 @@ import {
   MailIcon,
   PhoneIcon,
   MessageCircleIcon,
-  LockIcon,
   AlertCircleIcon,
   CheckCircleIcon,
-  InfoIcon,
   XCircleIcon,
   LoaderIcon,
   HelpCircleIcon,
@@ -34,11 +32,15 @@ type TimeSlot = {
   time: string;
   available: boolean;
 };
+
+type AvailableDate = {
+  date: string;
+  timeSlots: TimeSlot[];
+};
 const ConsultationBookingModal: React.FC<ConsultationBookingModalProps> = ({
   isOpen,
   onClose,
   expertName,
-  expertImage,
   expertId,
   invitationCode,
   price,
@@ -47,9 +49,8 @@ const ConsultationBookingModal: React.FC<ConsultationBookingModalProps> = ({
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [isBookingComplete, setIsBookingComplete] = useState(false);
   const [bookingReference, setBookingReference] = useState('');
-  const [availabilityData, setAvailabilityData] = useState<any>(null);
+  const [availabilityData, setAvailabilityData] = useState<Record<string, { available: boolean; start: string; end: string }> | null>(null);
   const [isLoadingAvailability, setIsLoadingAvailability] = useState(false);
   // Form state
   const [name, setName] = useState('');
@@ -68,7 +69,6 @@ const ConsultationBookingModal: React.FC<ConsultationBookingModalProps> = ({
       setStep(1);
       setSelectedDate(null);
       setSelectedTimeSlot(null);
-      setIsBookingComplete(false);
       setAvailabilityData(null);
       // Clear form fields
       setName('');
@@ -106,11 +106,22 @@ const ConsultationBookingModal: React.FC<ConsultationBookingModalProps> = ({
   }, [step, expertId, availabilityData]);
 
   // Get available dates from API data
-  const availableDates = availabilityData?.availableDates || [];
+  const availableDates: AvailableDate[] = availabilityData 
+    ? Object.entries(availabilityData)
+        .filter(([, value]) => value.available)
+        .map(([date, value]) => ({
+          date,
+          timeSlots: [{
+            id: '1',
+            time: `${value.start} - ${value.end}`,
+            available: true
+          }]
+        }))
+    : [];
   
   // Get time slots for the selected date
   const timeSlots: TimeSlot[] = selectedDate 
-    ? (availableDates.find((d: any) => d.date === selectedDate)?.timeSlots || [])
+    ? (availableDates.find((d: AvailableDate) => d.date === selectedDate)?.timeSlots || [])
     : [];
   const handleDateSelect = (date: string) => {
     setSelectedDate(date);
@@ -196,7 +207,7 @@ const ConsultationBookingModal: React.FC<ConsultationBookingModalProps> = ({
         }
         
         setIsLoading(false);
-        setIsBookingComplete(true);
+        setStep(4);
         setBookingReference(result.data.bookingReference); // Use booking reference from API
         setStep(4);
         
@@ -219,8 +230,8 @@ const ConsultationBookingModal: React.FC<ConsultationBookingModalProps> = ({
           return;
         }
         // Still complete the booking even if email fails (for other errors)
-        setIsBookingComplete(true);
-        setBookingReference(result?.data?.bookingReference || 'OT-ERROR');
+        setStep(4);
+        setBookingReference('OT-ERROR');
         setStep(4);
         
         // Clear form data even on error (but keep date/time for confirmation display)
@@ -396,16 +407,16 @@ const ConsultationBookingModal: React.FC<ConsultationBookingModalProps> = ({
       <div>
         <h3 className="text-lg font-medium text-gray-900 mb-4">Select Date</h3>
         <div className="flex overflow-x-auto pb-2 mb-6 space-x-2">
-          {availableDates.map((date: any) => (
+          {availableDates.map((date: AvailableDate) => (
             <button
               key={date.date}
-              onClick={() => date.available && handleDateSelect(date.date)}
-              disabled={!date.available}
-              className={`flex flex-col items-center px-4 py-3 rounded-lg min-w-[80px] transition-colors ${selectedDate === date.date ? 'bg-blue-600 text-white' : date.available ? 'bg-white border border-gray-200 hover:border-blue-500 text-gray-800' : 'bg-gray-100 text-gray-400 cursor-not-allowed'}`}
+              onClick={() => handleDateSelect(date.date)}
+              disabled={false}
+              className={`flex flex-col items-center px-4 py-3 rounded-lg min-w-[80px] transition-colors ${selectedDate === date.date ? 'bg-blue-600 text-white' : 'bg-white border border-gray-200 hover:border-blue-500 text-gray-800'}`}
             >
-              <span className="text-xs">{date.dayName}</span>
-              <span className="text-lg font-bold">{date.day}</span>
-              <span className="text-xs">{date.month}</span>
+              <span className="text-xs">{new Date(date.date).toLocaleDateString('en-US', { weekday: 'short' })}</span>
+              <span className="text-lg font-bold">{new Date(date.date).getDate()}</span>
+              <span className="text-xs">{new Date(date.date).toLocaleDateString('en-US', { month: 'short' })}</span>
             </button>
           ))}
         </div>
@@ -433,14 +444,6 @@ const ConsultationBookingModal: React.FC<ConsultationBookingModalProps> = ({
         ) : (
           <div className="text-center py-8 text-gray-500">
             Please select a date to view available time slots
-          </div>
-        )}
-        
-        {availabilityData?.totalBookedSlots > 0 && (
-          <div className="mt-4 p-3 bg-blue-50 rounded-lg">
-            <p className="text-sm text-blue-800">
-              <strong>Note:</strong> {availabilityData.totalBookedSlots} time slots are already booked and unavailable for selection.
-            </p>
           </div>
         )}
       </div>

@@ -1,8 +1,15 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { MailIcon, LockIcon, Loader2Icon, AlertCircleIcon, EyeIcon, EyeOffIcon } from 'lucide-react';
+import {
+  MailIcon,
+  LockIcon,
+  Loader2Icon,
+  AlertCircleIcon,
+  EyeIcon,
+  EyeOffIcon,
+} from 'lucide-react';
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -13,15 +20,11 @@ export default function AdminLoginPage() {
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
 
-  useEffect(() => {
-    checkAuth();
-  }, []);
-
-  const checkAuth = async () => {
+  const checkAuth = useCallback(async () => {
     try {
       const response = await fetch('/api/admin/check-auth');
       const data = await response.json();
-      
+
       if (data.authenticated) {
         router.push('/admin/dashboard');
       }
@@ -30,7 +33,11 @@ export default function AdminLoginPage() {
     } finally {
       setIsCheckingAuth(false);
     }
-  };
+  }, [router]);
+
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -77,9 +84,7 @@ export default function AdminLoginPage() {
       <div className="max-w-md w-full space-y-8">
         <div className="bg-white rounded-xl shadow-2xl p-8">
           <div>
-            <h2 className="text-center text-3xl font-extrabold text-gray-900">
-              Admin Login
-            </h2>
+            <h2 className="text-center text-3xl font-extrabold text-gray-900">Admin Login</h2>
             <p className="mt-2 text-center text-sm text-gray-600">
               Sign in to access the admin panel
             </p>
@@ -128,7 +133,7 @@ export default function AdminLoginPage() {
                   <input
                     id="password"
                     name="password"
-                    type={showPassword ? "text" : "password"}
+                    type={showPassword ? 'text' : 'password'}
                     autoComplete="current-password"
                     required
                     value={password}

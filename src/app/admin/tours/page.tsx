@@ -9,5 +9,5 @@ export default async function ToursPage() {
     redirect('/admin');
   }
 
-  return <ToursManagement admin={admin} />;
+  return <ToursManagement />;
 }

@@ -9,5 +9,5 @@ export default async function CreateExpertPage() {
     redirect('/admin');
   }
 
-  return <ExpertForm admin={admin} mode="create" />;
+  return <ExpertForm mode="create" />;
 }

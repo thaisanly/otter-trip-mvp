@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useParams, useSearchParams, useRouter } from 'next/navigation';
 import {
   ArrowLeftIcon,
@@ -13,6 +14,39 @@ import {
 } from 'lucide-react';
 import { formatCurrency, parsePrice } from '@/utils/formatters';
 
+interface TourDate {
+  id: string;
+  date?: string;
+  start?: string;
+  end?: string;
+  spotsLeft: number;
+  price: string;
+  status?: string;
+}
+
+interface Tour {
+  id: string;
+  title: string;
+  location: string;
+  price: string;
+  duration: string;
+  heroImage: string;
+  guide: {
+    name: string;
+    image: string;
+  };
+  dates: TourDate[];
+}
+
+interface FormattedDate {
+  id: string;
+  start: string;
+  end: string;
+  spotsLeft: number;
+  status: string;
+  price?: number;
+}
+
 const BookingFlow = () => {
   const params = useParams();
   const searchParams = useSearchParams();
@@ -23,7 +57,7 @@ const BookingFlow = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [bookingComplete, setBookingComplete] = useState(false);
   const [bookingReference, setBookingReference] = useState('');
-  const [tour, setTour] = useState<any>(null);
+  const [tour, setTour] = useState<Tour | null>(null);
   const [loadingTour, setLoadingTour] = useState(true);
   
   // Fetch tour data from API
@@ -95,7 +129,7 @@ const BookingFlow = () => {
   // Transform dates to have proper structure
   const availableDates = useMemo(() => {
     if (tour?.dates) {
-      return tour.dates.map((date: any) => {
+      return tour.dates.map((date: TourDate): FormattedDate => {
         // Handle different date formats
         if (date.date) {
           // Format: { id: 'd1', date: 'Jun 15-17, 2023', spotsLeft: 3, price: '$8,000' }
@@ -106,11 +140,20 @@ const BookingFlow = () => {
             end: end || start,
             spotsLeft: date.spotsLeft,
             status: date.spotsLeft <= 2 ? 'limited' : 'available',
-            price: date.price
+            price: parseFloat(date.price.replace(/[^0-9.]/g, '')) || 0
           };
         } else if (date.start && date.end) {
           // Already in correct format
-          return date;
+          return {
+            id: date.id,
+            start: date.start,
+            end: date.end,
+            spotsLeft: date.spotsLeft,
+            status: date.status || (date.spotsLeft <= 2 ? 'limited' : 'available'),
+            price: typeof date.price === 'string' ? 
+              (parseFloat(date.price.replace(/[^0-9.]/g, '')) || 0) : 
+              date.price
+          };
         } else {
           // Fallback format
           return {
@@ -119,7 +162,9 @@ const BookingFlow = () => {
             end: 'Date TBD',
             spotsLeft: date.spotsLeft || 0,
             status: date.status || 'available',
-            price: date.price
+            price: typeof date.price === 'string' ? 
+              (parseFloat(date.price.replace(/[^0-9.]/g, '')) || 0) : 
+              date.price
           };
         }
       });
@@ -131,7 +176,7 @@ const BookingFlow = () => {
     ];
   }, [tour?.dates]);
 
-  const [selectedDate, setSelectedDate] = useState(null);
+  const [selectedDate, setSelectedDate] = useState<FormattedDate | null>(null);
   const [participants, setParticipants] = useState(2);
   
   // Form data state
@@ -163,11 +208,13 @@ const BookingFlow = () => {
 
   // Initialize additional travelers when participant count changes
   useEffect(() => {
-    const newTravelers = [];
-    for (let i = 0; i < participants - 1; i++) {
-      newTravelers.push(additionalTravelers[i] || { firstName: '', lastName: '' });
-    }
-    setAdditionalTravelers(newTravelers);
+    setAdditionalTravelers(prev => {
+      const newTravelers = [];
+      for (let i = 0; i < participants - 1; i++) {
+        newTravelers.push(prev[i] || { firstName: '', lastName: '' });
+      }
+      return newTravelers;
+    });
   }, [participants]);
   
   const handleContinue = async () => {
@@ -192,7 +239,7 @@ const BookingFlow = () => {
       await new Promise(resolve => setTimeout(resolve, 3000));
       
       const bookingRef = `BOOKING-${Date.now().toString(36).toUpperCase()}${Math.random().toString(36).substring(2, 5).toUpperCase()}`;
-      const priceNumber = parsePrice(tour.price || '245');
+      const priceNumber = parsePrice(tour?.price || '245');
       const totalAmount = priceNumber * participants + Math.round(priceNumber * participants * 0.1); // Including 10% service fee
       
       // Save booking to database
@@ -203,8 +250,8 @@ const BookingFlow = () => {
         },
         body: JSON.stringify({
           tourId: id,
-          tourTitle: tour.title,
-          location: tour.location,
+          tourTitle: tour?.title || 'Tour',
+          location: tour?.location || '',
           selectedDate: selectedDate ? `${selectedDate.start} - ${selectedDate.end}` : '',
           participants,
           pricePerPerson: priceNumber,
@@ -273,7 +320,7 @@ const BookingFlow = () => {
         <div className="container mx-auto px-4">
           <div className="text-center">
             <h2 className="text-2xl font-bold text-gray-900 mb-4">Tour not found</h2>
-            <p className="text-gray-600 mb-6">The tour you're looking for doesn't exist.</p>
+            <p className="text-gray-600 mb-6">The tour you&apos;re looking for doesn&apos;t exist.</p>
             <button
               onClick={() => router.push('/')}
               className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg"
@@ -422,7 +469,7 @@ const BookingFlow = () => {
                             </div>
                             <div className="text-sm text-gray-500 mt-1">
                               {date.spotsLeft} spots left
-                              {date.price && <span className="ml-2">• {date.price}</span>}
+                              {date.price && <span className="ml-2">• ${date.price}</span>}
                             </div>
                           </div>
                           {selectedDate?.id === date.id && (
@@ -612,11 +659,11 @@ const BookingFlow = () => {
                       <div className="space-y-2 text-sm">
                         <div className="flex justify-between">
                           <span className="text-gray-600">Tour:</span>
-                          <span className="font-medium">{tour.title}</span>
+                          <span className="font-medium">{tour?.title || 'Tour'}</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-gray-600">Location:</span>
-                          <span className="font-medium">{tour.location}</span>
+                          <span className="font-medium">{tour?.location || ''}</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-gray-600">Dates:</span>
@@ -624,7 +671,7 @@ const BookingFlow = () => {
                         </div>
                         <div className="flex justify-between">
                           <span className="text-gray-600">Duration:</span>
-                          <span className="font-medium">{tour.duration}</span>
+                          <span className="font-medium">{tour?.duration || ''}</span>
                         </div>
                       </div>
                     </div>
@@ -730,11 +777,11 @@ const BookingFlow = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <div className="text-sm text-gray-500">Tour Package</div>
-                      <div className="font-medium text-gray-900">{tour.title}</div>
+                      <div className="font-medium text-gray-900">{tour?.title || 'Tour'}</div>
                     </div>
                     <div>
                       <div className="text-sm text-gray-500">Location</div>
-                      <div className="font-medium text-gray-900">{tour.location}</div>
+                      <div className="font-medium text-gray-900">{tour?.location || ''}</div>
                     </div>
                     <div>
                       <div className="text-sm text-gray-500">Travel Dates</div>
@@ -742,7 +789,7 @@ const BookingFlow = () => {
                     </div>
                     <div>
                       <div className="text-sm text-gray-500">Duration</div>
-                      <div className="font-medium text-gray-900">{tour.duration}</div>
+                      <div className="font-medium text-gray-900">{tour?.duration || ''}</div>
                     </div>
                   </div>
                 </div>
@@ -839,21 +886,23 @@ const BookingFlow = () => {
           <div className="lg:col-span-1">
             <div className="bg-white rounded-xl shadow-md overflow-hidden sticky top-20">
               <div className="h-48 relative">
-                <img src={tour.heroImage} alt={tour.title} className="w-full h-full object-cover" />
+                <Image src={tour?.heroImage || '/placeholder.jpg'} alt={tour?.title || 'Tour'} fill className="object-cover" />
               </div>
               <div className="p-6">
-                <h3 className="font-bold text-xl text-gray-900 mb-2">{tour.title}</h3>
+                <h3 className="font-bold text-xl text-gray-900 mb-2">{tour?.title || 'Tour'}</h3>
                 <div className="flex items-center mb-4">
-                  {tour.guide && (
+                  {tour?.guide && (
                     <>
-                      <img
+                      <Image
                         src={typeof tour.guide === 'string' ? JSON.parse(tour.guide).image : tour.guide.image}
                         alt={typeof tour.guide === 'string' ? JSON.parse(tour.guide).name : tour.guide.name}
-                        className="w-8 h-8 rounded-full mr-2"
+                        width={32}
+                        height={32}
+                        className="w-8 h-8 rounded-full object-cover mr-2"
                       />
                       <div>
                         <div className="text-sm font-medium">with {typeof tour.guide === 'string' ? JSON.parse(tour.guide).name : tour.guide.name}</div>
-                        <div className="text-xs text-gray-500">{tour.location}</div>
+                        <div className="text-xs text-gray-500">{tour?.location || ''}</div>
                       </div>
                     </>
                   )}

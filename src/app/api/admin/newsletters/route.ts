@@ -45,7 +45,7 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get('status'); // 'confirmed', 'pending', or null for all
 
     // Build where clause
-    const where: any = {};
+    const where: Record<string, unknown> = {};
     
     if (search) {
       where.email = {

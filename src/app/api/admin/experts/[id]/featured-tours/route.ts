@@ -96,7 +96,10 @@ export async function GET(
         location: true,
         rating: true,
         reviewCount: true,
-        categories: true
+        categories: true,
+        dates: true,
+        spotsLeft: true,
+        overview: true
       }
     });
 

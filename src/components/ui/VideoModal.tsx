@@ -10,7 +10,7 @@ interface VideoModalProps {
   title: string;
 }
 
-export default function VideoModal({ isOpen, onClose, videoUrl, title }: VideoModalProps) {
+export default function VideoModal({ isOpen, onClose, videoUrl }: VideoModalProps) {
   // Close modal on escape key
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -115,7 +115,7 @@ export default function VideoModal({ isOpen, onClose, videoUrl, title }: VideoMo
               {/* Fallback message for when video is restricted */}
               <div className="absolute inset-0 bg-gray-900 text-white flex flex-col items-center justify-center opacity-0 hover:opacity-100 transition-opacity pointer-events-none">
                 <p className="text-sm text-center px-4">
-                  If video doesn't load, it may be restricted for embedding.
+                  If video doesn&apos;t load, it may be restricted for embedding.
                 </p>
                 <a
                   href={videoUrl.replace('/embed/', '/watch?v=').replace('player.vimeo.com/video/', 'vimeo.com/')}

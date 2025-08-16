@@ -12,7 +12,6 @@ import {
   CodeIcon,
   FileTextIcon,
   EyeIcon,
-  ImageIcon,
   TagIcon,
   HashIcon,
   ToggleLeftIcon,
@@ -20,12 +19,24 @@ import {
 } from 'lucide-react';
 import CategoryImage from './CategoryImage';
 
-interface CategoryDetailAdminProps {
-  category: any;
-  admin: any;
+interface Category {
+  id: string;
+  name: string;
+  description: string;
+  coverImage: string;
+  icon?: string;
+  interests: string[];
+  isActive: boolean;
+  displayOrder: number;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
-export default function CategoryDetailAdmin({ category, admin }: CategoryDetailAdminProps) {
+interface CategoryDetailAdminProps {
+  category: Category;
+}
+
+export default function CategoryDetailAdmin({ category }: CategoryDetailAdminProps) {
   const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
   const [editMode, setEditMode] = useState<'form' | 'json'>('form');
@@ -33,7 +44,7 @@ export default function CategoryDetailAdmin({ category, admin }: CategoryDetailA
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [jsonError, setJsonError] = useState<string>('');
   const [showPreview, setShowPreview] = useState(false);
-  const [previewData, setPreviewData] = useState<any>(null);
+  const [previewData, setPreviewData] = useState<Category | null>(null);
   
   // Initialize form data with category data
   const [formData, setFormData] = useState({
@@ -86,13 +97,13 @@ export default function CategoryDetailAdmin({ category, admin }: CategoryDetailA
         const error = await response.json();
         alert(error.message || 'Failed to delete category');
       }
-    } catch (error) {
-      console.error('Error deleting category:', error);
+    } catch {
+      console.error('Error deleting category');
       alert('Failed to delete category');
     }
   };
 
-  const validateJson = (jsonString: string): { valid: boolean; data?: any; error?: string } => {
+  const validateJson = (jsonString: string): { valid: boolean; data?: Category; error?: string } => {
     try {
       const data = JSON.parse(jsonString);
       
@@ -113,7 +124,7 @@ export default function CategoryDetailAdmin({ category, admin }: CategoryDetailA
       }
       
       return { valid: true, data };
-    } catch (error) {
+    } catch {
       return { valid: false, error: 'Invalid JSON format' };
     }
   };
@@ -159,7 +170,7 @@ export default function CategoryDetailAdmin({ category, admin }: CategoryDetailA
       });
 
       if (response.ok) {
-        const updatedCategory = await response.json();
+        await response.json();
         setIsEditing(false);
         window.location.reload(); // Refresh to show updated data
       } else {
@@ -170,8 +181,8 @@ export default function CategoryDetailAdmin({ category, admin }: CategoryDetailA
           alert(error.error || 'Failed to save category');
         }
       }
-    } catch (error) {
-      console.error('Error saving category:', error);
+    } catch {
+      console.error('Error saving category');
       if (editMode === 'json') {
         setJsonError('Failed to save category');
       } else {
@@ -209,7 +220,7 @@ export default function CategoryDetailAdmin({ category, admin }: CategoryDetailA
     setJsonError('');
   };
 
-  const handleInputChange = (field: string, value: any) => {
+  const handleInputChange = (field: string, value: string | number | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: '' }));
@@ -229,8 +240,10 @@ export default function CategoryDetailAdmin({ category, admin }: CategoryDetailA
       dataToPreview = formDataToJson();
     }
     
-    setPreviewData(dataToPreview);
-    setShowPreview(true);
+    if (dataToPreview) {
+      setPreviewData(dataToPreview);
+      setShowPreview(true);
+    }
   };
 
   // Parse interests and other arrays for display
@@ -344,7 +357,7 @@ export default function CategoryDetailAdmin({ category, admin }: CategoryDetailA
                     const formatted = JSON.stringify(JSON.parse(jsonData), null, 2);
                     setJsonData(formatted);
                     setJsonError('');
-                  } catch (error) {
+                  } catch {
                     setJsonError('Invalid JSON format');
                   }
                 }}
@@ -398,11 +411,13 @@ export default function CategoryDetailAdmin({ category, admin }: CategoryDetailA
                         placeholder="https://example.com/image.jpg"
                       />
                       {errors.coverImage && <p className="mb-2 text-sm text-red-600">{errors.coverImage}</p>}
-                      <CategoryImage
-                        src={formData.coverImage || undefined}
-                        alt={formData.name}
-                        fallbackText={formData.name}
-                      />
+                      <div className="relative flex-1 min-h-0">
+                        <CategoryImage
+                          src={formData.coverImage || undefined}
+                          alt={formData.name}
+                          fallbackText={formData.name}
+                        />
+                      </div>
                     </div>
                   ) : (
                     <>
@@ -610,21 +625,21 @@ export default function CategoryDetailAdmin({ category, admin }: CategoryDetailA
                   <div>
                     <dt className="text-sm text-gray-500">Created</dt>
                     <dd className="text-sm font-medium">
-                      {new Date(category.createdAt).toLocaleDateString('en-US', {
+                      {category.createdAt ? new Date(category.createdAt).toLocaleDateString('en-US', {
                         month: 'numeric',
                         day: 'numeric',
                         year: 'numeric'
-                      })}
+                      }) : 'Unknown'}
                     </dd>
                   </div>
                   <div>
                     <dt className="text-sm text-gray-500">Last Updated</dt>
                     <dd className="text-sm font-medium">
-                      {new Date(category.updatedAt).toLocaleDateString('en-US', {
+                      {category.updatedAt ? new Date(category.updatedAt).toLocaleDateString('en-US', {
                         month: 'numeric',
                         day: 'numeric',
                         year: 'numeric'
-                      })}
+                      }) : 'Unknown'}
                     </dd>
                   </div>
                   <div>

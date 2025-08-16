@@ -1,11 +1,11 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import {
   PlusIcon,
   TrashIcon,
-  EditIcon,
   RefreshCwIcon,
   SearchIcon,
   StarIcon,
@@ -13,7 +13,6 @@ import {
   ClockIcon,
   DollarSignIcon,
   UsersIcon,
-  EyeIcon,
   TagIcon,
 } from 'lucide-react';
 
@@ -41,9 +40,6 @@ interface Tour {
   updatedAt: string;
 }
 
-interface ToursManagementProps {
-  admin: any;
-}
 
 const categoryColors: Record<string, string> = {
   adventure: 'bg-orange-100 text-orange-800',
@@ -53,7 +49,7 @@ const categoryColors: Record<string, string> = {
   default: 'bg-gray-100 text-gray-800',
 };
 
-export default function ToursManagement({ admin }: ToursManagementProps) {
+export default function ToursManagement() {
   const router = useRouter();
   const [tours, setTours] = useState<Tour[]>([]);
   const [filteredTours, setFilteredTours] = useState<Tour[]>([]);
@@ -71,9 +67,28 @@ export default function ToursManagement({ admin }: ToursManagementProps) {
     }
   }, []);
 
+  const filterTours = useCallback(() => {
+    if (!searchQuery.trim()) {
+      setFilteredTours(tours);
+      return;
+    }
+
+    const query = searchQuery.toLowerCase();
+    const filtered = tours.filter((tour) => {
+      return (
+        tour.code.toLowerCase().includes(query) ||
+        tour.title.toLowerCase().includes(query) ||
+        tour.location.toLowerCase().includes(query) ||
+        tour.categories?.some(cat => cat.toLowerCase().includes(query)) ||
+        tour.tourLeader?.name.toLowerCase().includes(query)
+      );
+    });
+    setFilteredTours(filtered);
+  }, [searchQuery, tours]);
+
   useEffect(() => {
     filterTours();
-  }, [searchQuery, tours]);
+  }, [filterTours]);
 
   const fetchTours = async () => {
     try {
@@ -88,24 +103,6 @@ export default function ToursManagement({ admin }: ToursManagementProps) {
     } finally {
       setLoading(false);
     }
-  };
-
-  const filterTours = () => {
-    if (!searchQuery.trim()) {
-      setFilteredTours(tours);
-      return;
-    }
-
-    const query = searchQuery.toLowerCase();
-    const filtered = tours.filter((tour) => {
-      return (
-        tour.title.toLowerCase().includes(query) ||
-        tour.code.toLowerCase().includes(query) ||
-        tour.location.toLowerCase().includes(query) ||
-        tour.categories?.some((cat: string) => cat.toLowerCase().includes(query))
-      );
-    });
-    setFilteredTours(filtered);
   };
 
   const handleDelete = async (tourId: string) => {
@@ -240,14 +237,13 @@ export default function ToursManagement({ admin }: ToursManagementProps) {
                   >
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
-                        <div className="h-16 w-24 flex-shrink-0">
-                          <img
-                            className="h-16 w-24 rounded-lg object-cover"
-                            src={tour.heroImage}
+                        <div className="h-16 w-24 flex-shrink-0 relative">
+                          <Image
+                            className="rounded-lg object-cover"
+                            src={tour.heroImage || `https://via.placeholder.com/96x64/CBD5E1/64748B?text=Tour`}
                             alt={tour.title}
-                            onError={(e) => {
-                              e.currentTarget.src = `https://via.placeholder.com/96x64/CBD5E1/64748B?text=Tour`;
-                            }}
+                            fill
+                            sizes="96px"
                           />
                         </div>
                         <div className="ml-4">

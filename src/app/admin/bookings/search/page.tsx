@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Search, Calendar, MapPin, Users, DollarSign, Filter } from 'lucide-react';
+import { Search, Filter } from 'lucide-react';
 import BookingLayout from '@/components/admin/booking/BookingLayout';
 import { BookingSearchFilters, BookingStatus } from '@/types';
 

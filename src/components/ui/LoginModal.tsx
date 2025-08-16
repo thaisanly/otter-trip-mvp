@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useEffect, useState, useRef } from 'react';
+import Image from 'next/image';
 import {
   XIcon,
   EyeIcon,
@@ -121,7 +122,7 @@ const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
               <span
                 className={`font-medium ${userType === 'traveler' ? 'text-blue-600' : 'text-gray-700'}`}
               >
-                I'm a Traveler
+                I&apos;m a Traveler
               </span>
               <span className="text-xs text-gray-500 mt-1">Looking for experiences</span>
             </button>
@@ -140,7 +141,7 @@ const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
               <span
                 className={`font-medium ${userType === 'pro' ? 'text-green-600' : 'text-gray-700'}`}
               >
-                I'm a Travel Pro
+                I&apos;m a Travel Pro
               </span>
               <span className="text-xs text-gray-500 mt-1">Guide or expert</span>
             </button>
@@ -234,30 +235,36 @@ const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
                 type="button"
                 className="flex items-center justify-center py-2 px-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
               >
-                <img
+                <Image
                   src="https://cdn.cdnlogo.com/logos/g/35/google-icon.svg"
                   alt="Google"
                   className="w-5 h-5"
+                  width={20}
+                  height={20}
                 />
               </button>
               <button
                 type="button"
                 className="flex items-center justify-center py-2 px-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
               >
-                <img
+                <Image
                   src="https://cdn.cdnlogo.com/logos/f/91/facebook-icon.svg"
                   alt="Facebook"
                   className="w-5 h-5"
+                  width={20}
+                  height={20}
                 />
               </button>
               <button
                 type="button"
                 className="flex items-center justify-center py-2 px-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
               >
-                <img
+                <Image
                   src="https://cdn.cdnlogo.com/logos/a/10/apple.svg"
                   alt="Apple"
                   className="w-5 h-5"
+                  width={20}
+                  height={20}
                 />
               </button>
             </div>
@@ -265,7 +272,7 @@ const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
             <div className="text-center">
               {userType === 'traveler' ? (
                 <p className="text-gray-600 text-sm">
-                  Don't have an account?{' '}
+                  Don&apos;t have an account?{' '}
                   <button type="button" className="text-blue-600 hover:text-blue-800 font-medium">
                     Sign up
                   </button>

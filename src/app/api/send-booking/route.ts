@@ -113,7 +113,7 @@ const getAdminEmailHtml = (data: BookingEmailData) => `
   </div>
 `;
 
-async function sendWithResend(data: BookingEmailData, resend: any, adminEmail: string) {
+async function sendWithResend(data: BookingEmailData, resend: { emails: { send: (params: { from: string; to: string; replyTo: string; subject: string; html: string }) => Promise<{ error?: { message: string }; data?: unknown }> } }, adminEmail: string) {
   if (!resend) {
     throw new Error('Resend is not configured');
   }
@@ -134,7 +134,7 @@ async function sendWithResend(data: BookingEmailData, resend: any, adminEmail: s
   return adminResult.data;
 }
 
-async function sendWithSMTP(data: BookingEmailData, smtpTransporter: any, adminEmail: string) {
+async function sendWithSMTP(data: BookingEmailData, smtpTransporter: { sendMail: (params: { from: string; to: string; replyTo: string; subject: string; html: string }) => Promise<unknown> }, adminEmail: string) {
   if (!smtpTransporter) {
     throw new Error('SMTP is not configured');
   }
@@ -172,7 +172,7 @@ export async function POST(request: NextRequest) {
     const bookingReference = body.bookingReference || `BOOKING-${Date.now().toString(36).toUpperCase()}${Math.random().toString(36).substring(2, 5).toUpperCase()}`;
 
     // Save booking to database
-    const booking = await prisma.booking.create({
+    await prisma.booking.create({
       data: {
         bookingReference,
         tourId: body.tourId,
@@ -197,9 +197,9 @@ export async function POST(request: NextRequest) {
 
     // Send email based on provider
     let result;
-    if (emailProvider === 'resend') {
-      result = await sendWithResend(emailData, resend, adminEmail);
-    } else if (emailProvider === 'smtp') {
+    if (emailProvider === 'resend' && resend) {
+      result = await sendWithResend(emailData, resend as { emails: { send: (params: { from: string; to: string; replyTo: string; subject: string; html: string }) => Promise<{ error?: { message: string }; data?: unknown }> } }, adminEmail);
+    } else if (emailProvider === 'smtp' && smtpTransporter) {
       result = await sendWithSMTP(emailData, smtpTransporter, adminEmail);
     } else {
       throw new Error(`Unknown email provider: ${emailProvider}`);
@@ -210,7 +210,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ 
       success: true, 
       data: {
-        ...result,
+        result,
         bookingReference
       },
       provider: emailProvider 

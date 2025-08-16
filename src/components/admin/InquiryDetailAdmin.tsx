@@ -32,10 +32,9 @@ interface Inquiry {
 
 interface InquiryDetailAdminProps {
   inquiry: Inquiry;
-  admin: any;
 }
 
-export default function InquiryDetailAdmin({ inquiry, admin }: InquiryDetailAdminProps) {
+export default function InquiryDetailAdmin({ inquiry }: InquiryDetailAdminProps) {
   const router = useRouter();
   const [status, setStatus] = useState(inquiry.status);
   const [isUpdating, setIsUpdating] = useState(false);

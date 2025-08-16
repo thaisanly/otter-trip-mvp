@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import {
   ArrowLeftIcon,
@@ -35,7 +36,7 @@ interface Expert {
   languages: string[];
   expertise: string[];
   certifications?: string[];
-  availability?: any;
+  availability?: Record<string, { available: boolean; start: string; end: string }>;
   bio?: string;
   experience?: string;
   createdAt: string;
@@ -68,7 +69,6 @@ interface ExpertFormData {
 }
 
 interface ExpertFormProps {
-  admin: any;
   mode: 'create' | 'edit';
   expert?: Expert;
 }
@@ -83,7 +83,7 @@ const defaultAvailability = {
   sunday: { available: false, start: '09:00', end: '17:00' },
 };
 
-export default function ExpertForm({ admin, mode, expert }: ExpertFormProps) {
+export default function ExpertForm({ mode, expert }: ExpertFormProps) {
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -91,7 +91,7 @@ export default function ExpertForm({ admin, mode, expert }: ExpertFormProps) {
   const [jsonData, setJsonData] = useState<string>('');
   const [jsonError, setJsonError] = useState<string>('');
   const [showPreview, setShowPreview] = useState(false);
-  const [previewData, setPreviewData] = useState<any>(null);
+  const [previewData, setPreviewData] = useState<Expert | null>(null);
   
   const [formData, setFormData] = useState<ExpertFormData>({
     name: '',
@@ -125,7 +125,7 @@ export default function ExpertForm({ admin, mode, expert }: ExpertFormProps) {
         bio: expert.bio || '',
         experience: expert.experience || '',
         rating: expert.rating,
-        availability: expert.availability || defaultAvailability,
+        availability: (expert.availability as typeof defaultAvailability) || defaultAvailability,
       });
     }
   }, [mode, expert]);
@@ -201,7 +201,7 @@ export default function ExpertForm({ admin, mode, expert }: ExpertFormProps) {
   };
 
   // Validate JSON structure
-  const validateJson = (jsonString: string): { valid: boolean; data?: any; error?: string } => {
+  const validateJson = (jsonString: string): { valid: boolean; data?: Expert; error?: string } => {
     try {
       const data = JSON.parse(jsonString);
       
@@ -257,7 +257,7 @@ export default function ExpertForm({ admin, mode, expert }: ExpertFormProps) {
       }
       
       return { valid: true, data };
-    } catch (e) {
+    } catch {
       return { valid: false, error: 'Invalid JSON format' };
     }
   };
@@ -309,7 +309,7 @@ export default function ExpertForm({ admin, mode, expert }: ExpertFormProps) {
     try {
       new URL(string);
       return true;
-    } catch (_) {
+    } catch {
       return false;
     }
   };
@@ -401,7 +401,7 @@ export default function ExpertForm({ admin, mode, expert }: ExpertFormProps) {
   };
 
   // Handle form input changes
-  const handleInputChange = (field: keyof ExpertFormData, value: string | number | any) => {
+  const handleInputChange = (field: keyof ExpertFormData, value: string | number | Record<string, { available: boolean; start: string; end: string }>) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     // Clear error when user starts typing
     if (errors[field]) {
@@ -426,7 +426,7 @@ export default function ExpertForm({ admin, mode, expert }: ExpertFormProps) {
   const handlePreview = () => {
     const validation = validateJson(jsonData);
     if (validation.valid) {
-      setPreviewData(validation.data);
+      setPreviewData(validation.data ?? null);
       setShowPreview(true);
       setJsonError('');
     } else {
@@ -435,7 +435,7 @@ export default function ExpertForm({ admin, mode, expert }: ExpertFormProps) {
   };
 
   // Handle availability change
-  const handleAvailabilityChange = (day: string, field: string, value: any) => {
+  const handleAvailabilityChange = (day: string, field: string, value: string | boolean) => {
     setFormData(prev => ({
       ...prev,
       availability: {
@@ -973,14 +973,15 @@ export default function ExpertForm({ admin, mode, expert }: ExpertFormProps) {
                   {previewData.image && (
                     <div className="mt-6">
                       <h4 className="font-medium text-gray-900 mb-2">Profile Image</h4>
-                      <img
-                        src={previewData.image}
-                        alt="Profile preview"
-                        className="w-32 h-32 object-cover rounded-lg"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTI4IiBoZWlnaHQ9IjEyOCIgdmlld0JveD0iMCAwIDEyOCAxMjgiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxMjgiIGhlaWdodD0iMTI4IiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik02NCA5NkM3Ny4yNTQ4IDk2IDg4IDg1LjI1NDggODggNzJDODggNTguNzQ1MiA3Ny4yNTQ4IDQ4IDY0IDQ4QzUwLjc0NTIgNDggNDAgNTguNzQ1MiA0MCA3MkM0MCA4NS4yNTQ4IDUwLjc0NTIgOTYgNjQgOTZaIiBmaWxsPSIjRDFENUU5Ii8+Cjwvc3ZnPgo=';
-                        }}
-                      />
+                      <div className="relative w-32 h-32">
+                        <Image
+                          src={previewData.image}
+                          alt="Profile preview"
+                          fill
+                          className="object-cover rounded-lg"
+                          unoptimized
+                        />
+                      </div>
                     </div>
                   )}
                 </div>

@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { MenuIcon, XIcon, ChevronDownIcon } from 'lucide-react';
 
@@ -49,7 +50,14 @@ const Header = () => {
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex items-center space-x-2">
-          <img src="/image.png" alt="OtterTrip" className="h-10 md:h-12" />
+          <Image 
+            src="/image.png" 
+            alt="OtterTrip" 
+            width={166} 
+            height={48} 
+            className="h-10 md:h-12 object-contain" 
+            priority={true}
+          />
         </Link>
 
         {/* Desktop Navigation - Right aligned */}

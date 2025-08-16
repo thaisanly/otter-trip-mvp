@@ -1,8 +1,9 @@
 'use client'
 
 import React from 'react';
-import { Link } from 'next/link';
-import { MapPinIcon, StarIcon } from 'lucide-react';
+import Link from 'next/link';
+import Image from 'next/image';
+import { MapPinIcon } from 'lucide-react';
 import Rating from './Rating';
 type TourLeaderCardProps = {
   id: string;
@@ -28,7 +29,6 @@ const TourLeaderCard = ({
   reviewCount,
   specialties,
   personality = [],
-  languages,
   price,
   availability,
   userPreferences = [],
@@ -46,7 +46,7 @@ const TourLeaderCard = ({
       <div className="bg-white rounded-xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md hover:translate-y-[-4px]">
         <div className="relative">
           <div className="aspect-[3/2]">
-            <img src={image} alt={name} className="w-full h-full object-cover" />
+            <Image src={image} alt={name} width={400} height={267} className="w-full h-full object-cover" />
           </div>
           {showMatchScore && matchPercentage > 0 && (
             <div className="absolute top-3 right-3 bg-white rounded-full shadow-md p-1.5">
@@ -70,7 +70,7 @@ const TourLeaderCard = ({
                 {location}
               </div>
             </div>
-            <Rating value={rating} reviewCount={reviewCount} size="sm" />
+            <Rating value={rating} count={reviewCount} size="sm" />
           </div>
           <div className="mb-3">
             <div className="flex flex-wrap gap-1 mb-2">
