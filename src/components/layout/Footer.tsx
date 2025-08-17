@@ -104,7 +104,7 @@ const Footer = () => {
                 alt="OtterTrip" 
                 width={166} 
                 height={48} 
-                className="h-10 w-auto object-contain object-left" 
+                className="h-10 object-contain object-left" 
                 priority={true}
               />
             </div>
