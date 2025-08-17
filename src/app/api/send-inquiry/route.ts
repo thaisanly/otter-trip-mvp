@@ -1,32 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-
-// Lazy load email libraries
-async function getEmailProvider() {
-  const emailProvider = process.env.EMAIL_PROVIDER || 'smtp';
-  const adminEmail = process.env.ADMIN_EMAIL || 'contact@ottertrip.com';
-  
-  let resend = null;
-  let smtpTransporter = null;
-  
-  if (emailProvider === 'resend') {
-    const { Resend } = await import('resend');
-    resend = new Resend(process.env.RESEND_API_KEY);
-  } else if (emailProvider === 'smtp') {
-    const nodemailer = await import('nodemailer');
-    smtpTransporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST || 'localhost',
-      port: parseInt(process.env.SMTP_PORT || '1025'),
-      secure: process.env.SMTP_SECURE === 'true',
-      auth: process.env.SMTP_USER && process.env.SMTP_PASS ? {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
-      } : undefined,
-    });
-  }
-  
-  return { emailProvider, adminEmail, resend, smtpTransporter };
-}
+import { getEmailProvider, sendWithResend, sendWithSMTP } from '@/lib/email';
 
 // Email templates
 const getAdminEmailHtml = (data: { expertName: string; userName: string; userEmail: string; phone?: string; preferredDate?: string; tripDuration?: string; message?: string }) => `
@@ -62,44 +36,29 @@ const getAdminEmailHtml = (data: { expertName: string; userName: string; userEma
   </div>
 `;
 
-async function sendWithResend(data: { expertName: string; userName: string; userEmail: string; phone?: string; preferredDate?: string; tripDuration?: string; message?: string }, resend: { emails: { send: (params: { from: string; to: string; replyTo: string; subject: string; html: string }) => Promise<{ error?: { message: string }; data?: unknown }> } }, adminEmail: string) {
-  if (!resend) {
-    throw new Error('Resend is not configured');
-  }
-
-  // Send email to admin only
-  const adminResult = await resend.emails.send({
-    from: 'Otter Trip <noreply@ottertrip.com>',
+async function sendInquiryEmail(data: { expertName: string; userName: string; userEmail: string; phone?: string; preferredDate?: string; tripDuration?: string; message?: string }) {
+  const { emailProvider, adminEmail, adminEmailCC, resend, smtpTransporter } = await getEmailProvider();
+  const subject = `[${data.expertName}] New Inquiry from ${data.userName} - Otter Trip`;
+  const html = getAdminEmailHtml(data);
+  
+  const emailParams = {
+    from: emailProvider === 'resend' 
+      ? 'Otter Trip <noreply@ottertrip.com>'
+      : `Otter Trip <${process.env.SMTP_FROM || 'noreply@ottertrip.com'}>`,
     to: adminEmail,
+    cc: adminEmailCC.length > 0 ? adminEmailCC : undefined,
     replyTo: data.userEmail,
-    subject: `[${data.expertName}] New Inquiry from ${data.userName} - Otter Trip`,
-    html: getAdminEmailHtml(data),
-  });
+    subject,
+    html
+  };
 
-  if (adminResult.error) {
-    throw new Error(adminResult.error.message);
+  if (emailProvider === 'resend' && resend) {
+    return await sendWithResend(resend, emailParams);
+  } else if (emailProvider === 'smtp' && smtpTransporter) {
+    return await sendWithSMTP(smtpTransporter, emailParams);
+  } else {
+    throw new Error(`Unknown email provider: ${emailProvider}`);
   }
-
-  return adminResult.data;
-}
-
-async function sendWithSMTP(data: { expertName: string; userName: string; userEmail: string; phone?: string; preferredDate?: string; tripDuration?: string; message?: string }, smtpTransporter: { sendMail: (params: { from: string; to: string; replyTo: string; subject: string; html: string }) => Promise<unknown> }, adminEmail: string) {
-  if (!smtpTransporter) {
-    throw new Error('SMTP is not configured');
-  }
-
-  const fromEmail = process.env.SMTP_FROM || 'noreply@ottertrip.com';
-
-  // Send email to admin only
-  await smtpTransporter.sendMail({
-    from: `Otter Trip <${fromEmail}>`,
-    to: adminEmail,
-    replyTo: data.userEmail,
-    subject: `[${data.expertName}] New Inquiry from ${data.userName} - Otter Trip`,
-    html: getAdminEmailHtml(data),
-  });
-
-  return { id: 'smtp-sent', success: true };
 }
 
 export async function POST(request: NextRequest) {
@@ -123,9 +82,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get email provider configuration
-    const { emailProvider, adminEmail, resend, smtpTransporter } = await getEmailProvider();
-
     // Save inquiry to database
     await prisma.inquiry.create({
       data: {
@@ -140,15 +96,9 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Send email based on provider
-    let result;
-    if (emailProvider === 'resend' && resend) {
-      result = await sendWithResend(body, resend as { emails: { send: (params: { from: string; to: string; replyTo: string; subject: string; html: string }) => Promise<{ error?: { message: string }; data?: unknown }> } }, adminEmail);
-    } else if (emailProvider === 'smtp' && smtpTransporter) {
-      result = await sendWithSMTP(body, smtpTransporter, adminEmail);
-    } else {
-      throw new Error(`Unknown email provider: ${emailProvider}`);
-    }
+    // Send email
+    const result = await sendInquiryEmail(body);
+    const { emailProvider } = await getEmailProvider();
 
     console.log(`Email sent successfully via ${emailProvider}:`, result);
 

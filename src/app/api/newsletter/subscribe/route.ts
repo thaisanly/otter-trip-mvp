@@ -1,21 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 import crypto from 'crypto';
-import nodemailer from 'nodemailer';
 import { env } from '@/lib/env';
+import { sendEmail } from '@/lib/email';
 
 const prisma = new PrismaClient();
-
-// Create email transporter
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST || 'smtp.gmail.com',
-  port: parseInt(process.env.SMTP_PORT || '587'),
-  secure: false,
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASSWORD,
-  },
-});
 
 export async function POST(request: NextRequest) {
   try {
@@ -47,8 +36,7 @@ export async function POST(request: NextRequest) {
       const confirmationUrl = `${env.APP_BASE_URL}/newsletter/confirm/${confirmationToken}`;
       
       // Send confirmation email
-      await transporter.sendMail({
-        from: process.env.SMTP_FROM || 'noreply@ottertrip.com',
+      await sendEmail({
         to: email,
         subject: 'Confirm Your Newsletter Subscription - Otter Trip',
         html: `
@@ -85,8 +73,7 @@ export async function POST(request: NextRequest) {
     const confirmationUrl = `${env.APP_BASE_URL}/newsletter/confirm/${confirmationToken}`;
     
     // Send confirmation email
-    await transporter.sendMail({
-      from: process.env.SMTP_FROM || 'noreply@ottertrip.com',
+    await sendEmail({
       to: email,
       subject: 'Confirm Your Newsletter Subscription - Otter Trip',
       html: `

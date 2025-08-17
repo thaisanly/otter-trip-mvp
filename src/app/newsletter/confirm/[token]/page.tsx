@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
@@ -54,7 +54,9 @@ export default function NewsletterConfirmationPage() {
           {status === 'loading' && (
             <div className="text-center">
               <Loader2 className="h-12 w-12 animate-spin text-blue-600 mx-auto mb-4" />
-              <h2 className="text-2xl font-bold text-gray-800 mb-2">Confirming Your Subscription</h2>
+              <h2 className="text-2xl font-bold text-gray-800 mb-2">
+                Confirming Your Subscription
+              </h2>
               <p className="text-gray-600">Please wait while we verify your email...</p>
             </div>
           )}
@@ -66,7 +68,8 @@ export default function NewsletterConfirmationPage() {
               <p className="text-gray-600 mb-2">{message}</p>
               {email && (
                 <p className="text-sm text-gray-500 mb-6">
-                  You&apos;ll receive our newsletter at <span className="font-semibold">{email}</span>
+                  You&apos;ll receive our newsletter at{' '}
+                  <span className="font-semibold">{email}</span>
                 </p>
               )}
               <div className="space-y-3">
@@ -77,7 +80,7 @@ export default function NewsletterConfirmationPage() {
                   Return to Homepage
                 </Link>
                 <Link
-                  href="/explore"
+                  href="/explore/adventure"
                   className="block w-full border border-gray-300 text-gray-700 py-3 px-6 rounded-lg hover:bg-gray-50 transition-colors"
                 >
                   Explore Tours
