@@ -520,6 +520,7 @@ export interface Booking {
   tourId: string;
   tourTitle: string;
   location?: string;
+  tourLocation?: string; // Actual tour location from tours table
   selectedDate: string;
   participants: number;
   pricePerPerson: number;

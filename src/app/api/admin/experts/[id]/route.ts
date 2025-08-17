@@ -13,6 +13,15 @@ export async function PUT(
 
     const data = await request.json();
 
+    // Validate and convert hourlyRate to string integer
+    const hourlyRateValue = parseInt(data.hourlyRate);
+    if (isNaN(hourlyRateValue) || hourlyRateValue < 0) {
+      return NextResponse.json(
+        { error: 'Invalid hourly rate. Must be a positive integer.' },
+        { status: 400 }
+      );
+    }
+
     const expert = await prisma.expert.update({
       where: { id },
       data: {
@@ -23,7 +32,7 @@ export async function PUT(
         location: data.location,
         rating: data.rating,
         reviewCount: data.reviewCount,
-        hourlyRate: data.hourlyRate,
+        hourlyRate: String(hourlyRateValue), // Convert to string integer
         languages: data.languages,
         expertise: data.expertise,
         certifications: data.certifications,

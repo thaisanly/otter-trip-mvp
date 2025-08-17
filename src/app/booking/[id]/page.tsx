@@ -872,10 +872,10 @@ const BookingFlow = () => {
                 {/* Action Button */}
                 <div className="flex justify-center">
                   <button
-                    onClick={() => router.push('/explore/adventure')}
+                    onClick={() => router.push('/')}
                     className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-8 rounded-lg"
                   >
-                    Explore Adventures
+                    Explore More Tours
                   </button>
                 </div>
               </div>

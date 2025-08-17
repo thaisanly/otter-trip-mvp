@@ -143,8 +143,8 @@ const InvitationCodeModal: React.FC<InvitationCodeModalProps> = ({
             <strong>Need an invitation code?</strong>
             <p className="mt-1">
               Contact your travel agent or email{' '}
-              <a href="mailto:support@ottertrip.com" className="text-blue-600 hover:underline">
-                support@ottertrip.com
+              <a href="mailto:hi@ottertrip.com" className="text-blue-600 hover:underline">
+                hi@ottertrip.com
               </a>{' '}
               to request access to our consultation services.
             </p>

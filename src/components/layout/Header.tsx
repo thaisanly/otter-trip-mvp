@@ -4,12 +4,11 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { MenuIcon, XIcon, ChevronDownIcon } from 'lucide-react';
+import { MenuIcon, XIcon } from 'lucide-react';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [isExploreOpen, setIsExploreOpen] = useState(false);
   const pathname = usePathname();
 
   useEffect(() => {
@@ -24,18 +23,13 @@ const Header = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Close explore dropdown when route changes
+  // Close mobile menu when route changes
   useEffect(() => {
-    setIsExploreOpen(false);
     setIsMenuOpen(false);
   }, [pathname]);
 
   const isActive = (path: string) => {
     return pathname === path;
-  };
-
-  const isExploreActive = () => {
-    return pathname.startsWith('/explore/');
   };
 
   const isMeetExpertsActive = () => {
@@ -75,47 +69,6 @@ const Header = () => {
             >
               Meet Experts
             </Link>
-            <div className="relative">
-              <button
-                className={`flex items-center text-sm font-medium ${isExploreActive() ? 'text-blue-600' : 'text-gray-700 hover:text-blue-600'} transition-colors`}
-                onClick={() => setIsExploreOpen(!isExploreOpen)}
-              >
-                Explore
-                <ChevronDownIcon size={16} className="ml-1" />
-              </button>
-              {isExploreOpen && (
-                <div className="absolute top-full right-0 mt-1 w-56 bg-white rounded-lg shadow-lg p-2 border border-gray-100 z-50">
-                  <Link
-                    href="/explore/adventure"
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-md"
-                    onClick={() => setIsExploreOpen(false)}
-                  >
-                    Adventure
-                  </Link>
-                  <Link
-                    href="/explore/cultural"
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-md"
-                    onClick={() => setIsExploreOpen(false)}
-                  >
-                    Cultural
-                  </Link>
-                  <Link
-                    href="/explore/relaxation"
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-md"
-                    onClick={() => setIsExploreOpen(false)}
-                  >
-                    Relaxation
-                  </Link>
-                  <Link
-                    href="/explore/food"
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-md"
-                    onClick={() => setIsExploreOpen(false)}
-                  >
-                    Food & Cuisine
-                  </Link>
-                </div>
-              )}
-            </div>
           </nav>
         </div>
 
@@ -143,51 +96,6 @@ const Header = () => {
             >
               Meet Experts
             </Link>
-            <div className="py-2">
-              <button
-                className="flex items-center justify-between w-full text-left text-gray-700"
-                onClick={() => setIsExploreOpen(!isExploreOpen)}
-              >
-                <span
-                  className={isExploreActive() || isExploreOpen ? 'text-blue-600 font-medium' : ''}
-                >
-                  Explore
-                </span>
-                <ChevronDownIcon size={16} className={isExploreOpen ? 'text-blue-600' : ''} />
-              </button>
-              {isExploreOpen && (
-                <div className="mt-2 pl-4 border-l-2 border-gray-100 space-y-2">
-                  <Link
-                    href="/explore/adventure"
-                    className="block py-1 text-gray-700 hover:text-blue-600"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    Adventure
-                  </Link>
-                  <Link
-                    href="/explore/cultural"
-                    className="block py-1 text-gray-700 hover:text-blue-600"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    Cultural
-                  </Link>
-                  <Link
-                    href="/explore/relaxation"
-                    className="block py-1 text-gray-700 hover:text-blue-600"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    Relaxation
-                  </Link>
-                  <Link
-                    href="/explore/food"
-                    className="block py-1 text-gray-700 hover:text-blue-600"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    Food & Cuisine
-                  </Link>
-                </div>
-              )}
-            </div>
           </nav>
         </div>
       )}

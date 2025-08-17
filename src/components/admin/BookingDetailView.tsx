@@ -124,7 +124,26 @@ export default function BookingDetailView({ bookingReference }: BookingDetailVie
 
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
+    // Handle the date string properly - it might be in various formats
+    const date = new Date(dateString);
+    
+    // Check if the date is valid
+    if (isNaN(date.getTime())) {
+      // Try to parse it as a simple date string if it's not a valid date
+      // Handle formats like "2024-12-25" or "December 25, 2024"
+      const parsedDate = new Date(dateString.replace(/(\d{4})-(\d{2})-(\d{2})/, '$1/$2/$3'));
+      if (!isNaN(parsedDate.getTime())) {
+        return parsedDate.toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        });
+      }
+      // If still invalid, return the original string
+      return dateString;
+    }
+    
+    return date.toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
       day: 'numeric'
@@ -216,10 +235,16 @@ export default function BookingDetailView({ bookingReference }: BookingDetailVie
                   <h3 className="text-lg font-medium text-gray-900 mb-2">
                     {booking.tourTitle}
                   </h3>
-                  {booking.location && (
+                  {booking.location && booking.location !== 'Various Locations' && (
                     <div className="flex items-center text-gray-600 mb-2">
                       <MapPin className="w-4 h-4 mr-2" />
                       {booking.location}
+                    </div>
+                  )}
+                  {booking.location === 'Various Locations' && (
+                    <div className="flex items-center text-gray-500 mb-2">
+                      <MapPin className="w-4 h-4 mr-2" />
+                      <span className="italic">Multiple destinations</span>
                     </div>
                   )}
                 </div>
@@ -319,7 +344,10 @@ export default function BookingDetailView({ bookingReference }: BookingDetailVie
                   View Tour Details
                 </Link>
                 
-                {booking.status === 'confirmed' && new Date(booking.selectedDate) > new Date() && (
+                {booking.status === 'confirmed' && (() => {
+                  const tourDate = new Date(booking.selectedDate);
+                  return !isNaN(tourDate.getTime()) && tourDate > new Date();
+                })() && (
                   <button className="w-full px-4 py-2 text-center bg-red-600 text-white text-sm font-medium rounded-md hover:bg-red-700 transition-colors">
                     Cancel Booking
                   </button>
@@ -350,7 +378,10 @@ export default function BookingDetailView({ bookingReference }: BookingDetailVie
                   </div>
                 )}
                 
-                {new Date(booking.selectedDate) > new Date() && (
+                {(() => {
+                  const tourDate = new Date(booking.selectedDate);
+                  return !isNaN(tourDate.getTime()) && tourDate > new Date();
+                })() && (
                   <div className="flex items-start">
                     <div className="w-2 h-2 bg-gray-300 rounded-full mt-2 mr-3"></div>
                     <div>

@@ -762,8 +762,8 @@ export default function ExpertDetailAdmin({ expert }: ExpertDetailAdminProps) {
                                   ))}
                                 </div>
                                 <div className="flex justify-between items-center mb-3">
-                                  <div className="text-gray-900 font-bold">{previewData.hourlyRate}</div>
-                                  <span className="text-xs text-gray-500">per consultation</span>
+                                  <div className="text-gray-900 font-bold">${previewData.hourlyRate}/hour</div>
+                                  <span className="text-xs text-gray-500">consultation fee</span>
                                 </div>
                                 <button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors">
                                   Book Consultation

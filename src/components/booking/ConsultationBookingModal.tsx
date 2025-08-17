@@ -139,29 +139,36 @@ const ConsultationBookingModal: React.FC<ConsultationBookingModalProps> = ({
   };
   const handleContinue = async () => {
     if (step === 1) {
-      // Basic format validation
-      if (enteredInvitationCode.trim() === '') {
+      // Basic validation
+      const trimmedCode = enteredInvitationCode.trim();
+      if (trimmedCode === '') {
         setValidationState('format-error');
         setErrorMessage('Please enter an invitation code');
         return;
       }
 
-      // Check format (example: OT-XXXX-XXXX)
-      const codePattern = /^OT-[A-Z0-9]{4}-[A-Z0-9]{4}$/;
-      if (!codePattern.test(enteredInvitationCode)) {
+      // Check length limit (50 characters max)
+      if (trimmedCode.length > 50) {
         setValidationState('format-error');
-        setErrorMessage('Invalid code format. Expected: OT-XXXX-XXXX');
+        setErrorMessage('Invitation code must be 50 characters or less');
         return;
       }
 
-      // Simulate API validation
+      // Call API to validate the code
       setValidationState('loading');
 
-      // For demo purposes, check against known valid codes
-      setTimeout(() => {
-        // Accept specific codes as valid (including those in database)
-        const validCodes = ['OT-1234-ABCD', 'OT-TEST-CODE', 'OT-7482-ZZOO', 'OT-5607-JMXO'];
-        if (validCodes.includes(enteredInvitationCode)) {
+      try {
+        const response = await fetch('/api/consultation-codes/validate', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ code: enteredInvitationCode.trim() }),
+        });
+
+        const result = await response.json();
+
+        if (result.valid) {
           setValidationState('success');
           // Wait a moment to show success state before proceeding
           setTimeout(() => {
@@ -170,9 +177,13 @@ const ConsultationBookingModal: React.FC<ConsultationBookingModalProps> = ({
           }, 800);
         } else {
           setValidationState('error');
-          setErrorMessage('Invalid invitation code. Please check and try again.');
+          setErrorMessage(result.error || 'Invalid invitation code. Please check and try again.');
         }
-      }, 1500);
+      } catch (error) {
+        console.error('Error validating code:', error);
+        setValidationState('error');
+        setErrorMessage('Unable to validate code. Please try again.');
+      }
     } else if (step === 3) {
       // Process booking
       setIsLoading(true);
@@ -313,12 +324,15 @@ const ConsultationBookingModal: React.FC<ConsultationBookingModalProps> = ({
     );
   };
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.toUpperCase();
-    setEnteredInvitationCode(value);
-    // Reset validation state when typing
-    if (validationState !== 'idle' && validationState !== 'loading') {
-      setValidationState('idle');
-      setErrorMessage('');
+    const value = e.target.value;
+    // Enforce 50 character limit
+    if (value.length <= 50) {
+      setEnteredInvitationCode(value);
+      // Reset validation state when typing
+      if (validationState !== 'idle' && validationState !== 'loading') {
+        setValidationState('idle');
+        setErrorMessage('');
+      }
     }
   };
 
@@ -341,7 +355,8 @@ const ConsultationBookingModal: React.FC<ConsultationBookingModalProps> = ({
             value={enteredInvitationCode}
             onChange={handleInputChange}
             onKeyDown={handleKeyDown}
-            placeholder="e.g., OT-1234-ABCD"
+            placeholder="OT-1234-ABCD"
+            maxLength={50}
             className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 transition-colors ${
               validationState === 'success'
                 ? 'border-green-500 focus:ring-green-200'
@@ -388,6 +403,7 @@ const ConsultationBookingModal: React.FC<ConsultationBookingModalProps> = ({
             <HelpCircleIcon size={16} className="mr-1 mt-0.5 flex-shrink-0" />
             <span>
               Your invitation code can be found in your email invitation or from your travel agent.
+              Maximum 50 characters.
             </span>
           </div>
         )}
@@ -397,8 +413,8 @@ const ConsultationBookingModal: React.FC<ConsultationBookingModalProps> = ({
             <strong>Need an invitation code?</strong>
             <p className="mt-1">
               Contact your travel agent or email{' '}
-              <a href="mailto:support@ottertrip.com" className="text-blue-600 hover:underline">
-                support@ottertrip.com
+              <a href="mailto:hi@ottertrip.com" className="text-blue-600 hover:underline">
+                hi@ottertrip.com
               </a>{' '}
               to request access to our consultation services.
             </p>
@@ -564,7 +580,7 @@ const ConsultationBookingModal: React.FC<ConsultationBookingModalProps> = ({
                 onChange={(e) => setMessage(e.target.value)}
                 rows={3}
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Any specific topics you'd like to discuss?"
+                placeholder="Kindly let us know your preferred destination, number of travelers, and preferred departure date."
               />
               <MessageCircleIcon size={16} className="absolute left-3 top-3 text-gray-400" />
             </div>

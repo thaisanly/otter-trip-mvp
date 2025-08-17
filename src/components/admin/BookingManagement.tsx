@@ -79,6 +79,7 @@ export default function BookingManagement(): React.ReactElement {
           booking.bookingReference.toLowerCase().includes(query) ||
           booking.tourTitle.toLowerCase().includes(query) ||
           booking.location?.toLowerCase().includes(query) ||
+          booking.tourLocation?.toLowerCase().includes(query) ||
           booking.leadTraveler.firstName.toLowerCase().includes(query) ||
           booking.leadTraveler.lastName.toLowerCase().includes(query) ||
           booking.leadTraveler.email.toLowerCase().includes(query)
@@ -120,10 +121,39 @@ export default function BookingManagement(): React.ReactElement {
     if (!dateString) return 'Not set';
     
     try {
-      const date = new Date(dateString);
-      // Check if date is valid
+      // First, try parsing as is
+      let date = new Date(dateString);
+      
+      // If invalid, try different formats
       if (isNaN(date.getTime())) {
-        return 'Invalid date';
+        // Try replacing dashes with slashes for better compatibility
+        const normalizedDate = dateString.replace(/-/g, '/');
+        date = new Date(normalizedDate);
+        
+        // If still invalid, try parsing as ISO string
+        if (isNaN(date.getTime())) {
+          // Handle formats like "2024-12-25" or "25/12/2024"
+          const parts = dateString.split(/[-/]/);
+          if (parts.length === 3) {
+            // Assume YYYY-MM-DD or DD/MM/YYYY format
+            if (parts[0].length === 4) {
+              // YYYY-MM-DD format
+              date = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+            } else if (parts[2].length === 4) {
+              // DD/MM/YYYY format
+              date = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
+            }
+          }
+        }
+      }
+      
+      // Final check if date is valid
+      if (isNaN(date.getTime())) {
+        // If it's already a formatted string, return it as is
+        if (dateString.match(/\w+ \d+, \d{4}/)) {
+          return dateString;
+        }
+        return dateString; // Return original string if we can't parse it
       }
       
       return date.toLocaleDateString('en-US', {
@@ -133,7 +163,7 @@ export default function BookingManagement(): React.ReactElement {
       });
     } catch (error) {
       console.error('Error formatting date:', error, 'for dateString:', dateString);
-      return 'Invalid date';
+      return dateString; // Return original string on error
     }
   };
 
@@ -328,10 +358,10 @@ export default function BookingManagement(): React.ReactElement {
                       <div className="text-sm font-medium text-gray-900">
                         {booking.tourTitle}
                       </div>
-                      {booking.location && (
+                      {(booking.tourLocation || booking.location) && (
                         <div className="flex items-center text-xs text-gray-500 mt-1">
                           <MapPinIcon className="w-3 h-3 mr-1" />
-                          {booking.location}
+                          {booking.tourLocation || booking.location}
                         </div>
                       )}
                     </td>

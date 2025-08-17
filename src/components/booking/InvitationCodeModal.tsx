@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import React, { useEffect, useState, useRef } from 'react';
 import {
@@ -28,9 +28,11 @@ const InvitationCodeModal: React.FC<InvitationCodeModalProps> = ({
   // Auto-focus input field when modal opens
   useEffect(() => {
     if (isOpen && inputRef.current) {
-      setTimeout(() => {
+      // Use requestAnimationFrame for better timing
+      requestAnimationFrame(() => {
         inputRef.current?.focus();
-      }, 100);
+        inputRef.current?.select(); // Also select the text if any
+      });
     }
   }, [isOpen]);
   // Reset state when modal closes
@@ -99,7 +101,13 @@ const InvitationCodeModal: React.FC<InvitationCodeModalProps> = ({
             onChange={handleInputChange}
             onKeyDown={handleKeyDown}
             placeholder="e.g., OT-1234-ABCD"
-            className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 transition-colors ${validationState === 'success' ? 'border-green-500 focus:ring-green-200' : validationState === 'error' || validationState === 'format-error' ? 'border-red-500 focus:ring-red-200' : 'border-gray-300 focus:ring-blue-200 focus:border-blue-500'}`}
+            className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 transition-colors ${
+              validationState === 'success'
+                ? 'border-green-500 focus:ring-green-200'
+                : validationState === 'error' || validationState === 'format-error'
+                ? 'border-red-500 focus:ring-red-200'
+                : 'border-gray-300 focus:ring-blue-200 focus:border-blue-500'
+            }`}
             disabled={validationState === 'loading' || validationState === 'success'}
           />
           {/* Status icons */}
@@ -145,8 +153,8 @@ const InvitationCodeModal: React.FC<InvitationCodeModalProps> = ({
             <strong>Need an invitation code?</strong>
             <p className="mt-1">
               Contact your travel agent or email{' '}
-              <a href="mailto:support@ottertrip.com" className="text-blue-600 hover:underline">
-                support@ottertrip.com
+              <a href="mailto:hi@ottertrip.com" className="text-blue-600 hover:underline">
+                hi@ottertrip.com
               </a>{' '}
               to request access to our consultation services.
             </p>
@@ -162,7 +170,11 @@ const InvitationCodeModal: React.FC<InvitationCodeModalProps> = ({
           <button
             onClick={validateCode}
             disabled={validationState === 'loading' || validationState === 'success'}
-            className={`px-5 py-2 rounded-lg text-white font-medium transition-colors ${validationState === 'loading' || validationState === 'success' ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}`}
+            className={`px-5 py-2 rounded-lg text-white font-medium transition-colors ${
+              validationState === 'loading' || validationState === 'success'
+                ? 'bg-blue-400 cursor-not-allowed'
+                : 'bg-blue-600 hover:bg-blue-700'
+            }`}
           >
             {validationState === 'loading' ? (
               <span className="flex items-center">

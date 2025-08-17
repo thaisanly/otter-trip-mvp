@@ -5,14 +5,11 @@ import Link from 'next/link';
 import Image from 'next/image';
 import {
   FacebookIcon,
-  TwitterIcon,
   InstagramIcon,
-  YoutubeIcon,
-  MapPinIcon,
-  PhoneIcon,
   MailIcon,
   ChevronRightIcon,
 } from 'lucide-react';
+import { FaTiktok } from 'react-icons/fa';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -112,21 +109,19 @@ const Footer = () => {
               />
             </div>
             <p className="text-gray-400 mb-6">
-              Connecting travelers with expert local guides for authentic and personalized travel
+              Pick the pro<br />
+              Connecting travelers with experts for authentic and personalized travel
               experiences around the world.
             </p>
             <div className="flex space-x-4">
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">
+              <a href="https://www.facebook.com/profile.php?id=61577746934785#" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors">
                 <FacebookIcon size={20} />
               </a>
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">
-                <TwitterIcon size={20} />
-              </a>
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">
+              <a href="https://www.facebook.com/profile.php?id=61577746934785#" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors">
                 <InstagramIcon size={20} />
               </a>
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">
-                <YoutubeIcon size={20} />
+              <a href="https://www.tiktok.com/@otter_trip" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors">
+                <FaTiktok size={18} />
               </a>
             </div>
           </div>
@@ -160,17 +155,9 @@ const Footer = () => {
           <div>
             <h3 className="font-bold text-lg mb-4">Contact Us</h3>
             <ul className="space-y-4">
-              <li className="flex items-start">
-                <MapPinIcon size={20} className="text-blue-500 mr-3 mt-1 flex-shrink-0" />
-                <span className="text-gray-400">123 Travel Street, Kuala Lumpur, Malaysia</span>
-              </li>
-              <li className="flex items-center">
-                <PhoneIcon size={20} className="text-blue-500 mr-3 flex-shrink-0" />
-                <span className="text-gray-400">+60 3 1234 5678</span>
-              </li>
               <li className="flex items-center">
                 <MailIcon size={20} className="text-blue-500 mr-3 flex-shrink-0" />
-                <span className="text-gray-400">hello@ottertrip.com</span>
+                <span className="text-gray-400">hi@ottertrip.com</span>
               </li>
             </ul>
           </div>

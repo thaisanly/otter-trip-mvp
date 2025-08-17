@@ -74,8 +74,22 @@ export async function GET(request: Request) {
           { status: 404 }
         );
       }
+
+      // Fetch tour details to get the actual location and dates
+      const tour = await prisma.tour.findUnique({
+        where: { id: booking.tourId }
+      });
+
+      // Merge tour location if booking location is empty or generic
+      const bookingWithTourData = {
+        ...booking,
+        location: booking.location && booking.location !== 'Various Locations' 
+          ? booking.location 
+          : (tour?.location || booking.location),
+        tourDates: tour?.dates || []
+      };
       
-      return NextResponse.json({ success: true, booking });
+      return NextResponse.json({ success: true, booking: bookingWithTourData });
     } else {
       // Get all bookings with filtering and sorting
       const status = searchParams.get('status');
@@ -122,9 +136,24 @@ export async function GET(request: Request) {
         take: limit
       });
       
+      // Fetch tour details for each booking to get actual locations
+      const bookingsWithTourData = await Promise.all(
+        bookings.map(async (booking) => {
+          const tour = await prisma.tour.findUnique({
+            where: { id: booking.tourId },
+            select: { location: true }
+          });
+          
+          return {
+            ...booking,
+            tourLocation: tour?.location || booking.location
+          };
+        })
+      );
+      
       return NextResponse.json({ 
         success: true, 
-        bookings,
+        bookings: bookingsWithTourData,
         total,
         page,
         limit,

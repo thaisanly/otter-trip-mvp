@@ -32,7 +32,7 @@ interface Expert {
   location: string;
   rating: number;
   reviewCount: number;
-  hourlyRate: string;
+  hourlyRate: number;
   languages: string[];
   expertise: string[];
   certifications?: string[];
@@ -118,7 +118,7 @@ export default function ExpertForm({ mode, expert }: ExpertFormProps) {
         image: expert.image,
         banner: expert.banner || '',
         location: expert.location,
-        hourlyRate: expert.hourlyRate,
+        hourlyRate: expert.hourlyRate.toString(),
         languages: expert.languages?.join(', ') || '',
         expertise: expert.expertise?.join(', ') || '',
         certifications: expert.certifications?.join(', ') || '',
@@ -138,7 +138,7 @@ export default function ExpertForm({ mode, expert }: ExpertFormProps) {
       image: formData.image,
       banner: formData.banner || undefined,
       location: formData.location,
-      hourlyRate: formData.hourlyRate,
+      hourlyRate: parseInt(formData.hourlyRate.replace(/[^0-9]/g, '')) || 0,
       languages: formData.languages.split(',').map(lang => lang.trim()).filter(lang => lang),
       expertise: formData.expertise.split(',').map(exp => exp.trim()).filter(exp => exp),
       certifications: formData.certifications ? 
@@ -159,7 +159,7 @@ export default function ExpertForm({ mode, expert }: ExpertFormProps) {
       image: "https://example.com/profile.jpg",
       banner: "https://example.com/banner.jpg",
       location: "Bali, Indonesia",
-      hourlyRate: "$150/hour",
+      hourlyRate: 150,
       rating: 5.0,
       languages: ["English", "Indonesian", "Spanish"],
       expertise: ["Adventure Travel", "Cultural Tours", "Eco-Tourism"],
@@ -218,8 +218,8 @@ export default function ExpertForm({ mode, expert }: ExpertFormProps) {
       if (!data.location || typeof data.location !== 'string') {
         return { valid: false, error: 'Location is required and must be a string' };
       }
-      if (!data.hourlyRate || typeof data.hourlyRate !== 'string') {
-        return { valid: false, error: 'Hourly rate is required and must be a string' };
+      if (!data.hourlyRate || typeof data.hourlyRate !== 'number') {
+        return { valid: false, error: 'Hourly rate is required and must be a number' };
       }
       
       // Validate arrays
@@ -286,6 +286,8 @@ export default function ExpertForm({ mode, expert }: ExpertFormProps) {
 
     if (!formData.hourlyRate.trim()) {
       newErrors.hourlyRate = 'Hourly rate is required';
+    } else if (isNaN(parseInt(formData.hourlyRate.replace(/[^0-9]/g, '')))) {
+      newErrors.hourlyRate = 'Hourly rate must be a valid number';
     }
 
     if (!formData.languages.trim()) {
@@ -341,7 +343,7 @@ export default function ExpertForm({ mode, expert }: ExpertFormProps) {
         image: formData.image.trim(),
         banner: formData.banner.trim() || null,
         location: formData.location.trim(),
-        hourlyRate: formData.hourlyRate.trim(),
+        hourlyRate: parseInt(formData.hourlyRate.replace(/[^0-9]/g, '')) || 0,
         languages: formData.languages.split(',').map(lang => lang.trim()).filter(lang => lang),
         expertise: formData.expertise.split(',').map(exp => exp.trim()).filter(exp => exp),
         certifications: formData.certifications ? 
@@ -556,7 +558,7 @@ export default function ExpertForm({ mode, expert }: ExpertFormProps) {
   "image": "https://example.com/profile.jpg",
   "banner": "https://example.com/banner.jpg",
   "location": "Bali, Indonesia",
-  "hourlyRate": "$150/hour",
+  "hourlyRate": 150,
   "rating": 5.0,
   "languages": [
     "English",
@@ -706,7 +708,7 @@ export default function ExpertForm({ mode, expert }: ExpertFormProps) {
                     className={`w-full px-3 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500 ${
                       errors.hourlyRate ? 'border-red-300' : 'border-gray-300'
                     }`}
-                    placeholder="$150/hour"
+                    placeholder="150"
                   />
                   {errors.hourlyRate && (
                     <p className="mt-1 text-sm text-red-600">{errors.hourlyRate}</p>
@@ -949,7 +951,7 @@ export default function ExpertForm({ mode, expert }: ExpertFormProps) {
                         <p><span className="font-medium">Name:</span> {previewData.name}</p>
                         <p><span className="font-medium">Title:</span> {previewData.title}</p>
                         <p><span className="font-medium">Location:</span> {previewData.location}</p>
-                        <p><span className="font-medium">Hourly Rate:</span> {previewData.hourlyRate}</p>
+                        <p><span className="font-medium">Hourly Rate:</span> ${previewData.hourlyRate}/hour</p>
                         <p><span className="font-medium">Rating:</span> {previewData.rating}/5</p>
                       </div>
                     </div>

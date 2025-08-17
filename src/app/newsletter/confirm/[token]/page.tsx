@@ -80,7 +80,7 @@ export default function NewsletterConfirmationPage() {
                   Return to Homepage
                 </Link>
                 <Link
-                  href="/explore/adventure"
+                  href="/"
                   className="block w-full border border-gray-300 text-gray-700 py-3 px-6 rounded-lg hover:bg-gray-50 transition-colors"
                 >
                   Explore Tours
@@ -103,8 +103,8 @@ export default function NewsletterConfirmationPage() {
                 </Link>
                 <p className="text-sm text-gray-500">
                   If you continue to have issues, please contact{' '}
-                  <a href="mailto:support@ottertrip.com" className="text-blue-600 hover:underline">
-                    support@ottertrip.com
+                  <a href="mailto:hi@ottertrip.com" className="text-blue-600 hover:underline">
+                    hi@ottertrip.com
                   </a>
                 </p>
               </div>

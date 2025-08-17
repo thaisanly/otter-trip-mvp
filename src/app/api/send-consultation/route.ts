@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { validateConsultationCodeFormat } from '@/utils/codeGenerator';
+import { validateConsultationCode, incrementCodeUsage } from '@/lib/consultationCode';
 import { z } from 'zod';
 import { env } from '@/lib/env';
 import { getEmailProvider, sendWithResend, sendWithSMTP } from '@/lib/email';
@@ -195,67 +195,20 @@ export async function POST(request: NextRequest) {
     const data = validationResult.data;
     
     // Validate consultation code if provided
+    let validatedCode = null;
     if (data.invitationCode) {
-      // Check format
-      if (!validateConsultationCodeFormat(data.invitationCode)) {
+      // Validate the code using shared function (case-insensitive)
+      const validationResult = await validateConsultationCode(data.invitationCode);
+      
+      if (!validationResult.valid) {
         return NextResponse.json(
-          { error: 'Invalid consultation code format' },
+          { error: validationResult.error },
           { status: 400 }
         );
       }
       
-      // Check if code exists and is valid in database
-      const consultationCode = await prisma.consultationCode.findUnique({
-        where: { code: data.invitationCode }
-      });
-      
-      if (!consultationCode) {
-        return NextResponse.json(
-          { error: 'Consultation code not found' },
-          { status: 400 }
-        );
-      }
-      
-      if (consultationCode.status !== 'active') {
-        return NextResponse.json(
-          { error: `Consultation code is ${consultationCode.status}` },
-          { status: 400 }
-        );
-      }
-      
-      // Check if code has expired
-      if (consultationCode.expiresAt && consultationCode.expiresAt < new Date()) {
-        // Update status to expired
-        await prisma.consultationCode.update({
-          where: { id: consultationCode.id },
-          data: { status: 'expired' }
-        });
-        
-        return NextResponse.json(
-          { error: 'Consultation code has expired' },
-          { status: 400 }
-        );
-      }
-      
-      // Check if code has reached max uses
-      if (consultationCode.maxUses && consultationCode.usedCount >= consultationCode.maxUses) {
-        // Update status to expired
-        await prisma.consultationCode.update({
-          where: { id: consultationCode.id },
-          data: { status: 'expired' }
-        });
-        
-        return NextResponse.json(
-          { error: 'Consultation code has reached maximum usage limit' },
-          { status: 400 }
-        );
-      }
-      
-      // Code is valid - increment usage count
-      await prisma.consultationCode.update({
-        where: { id: consultationCode.id },
-        data: { usedCount: consultationCode.usedCount + 1 }
-      });
+      // Store the validated code for later use
+      validatedCode = validationResult.code;
     }
 
     // Save consultation booking to database
@@ -274,6 +227,11 @@ export async function POST(request: NextRequest) {
         status: 'pending',
       },
     });
+
+    // Increment usage count AFTER successful booking creation
+    if (validatedCode) {
+      await incrementCodeUsage(validatedCode.id);
+    }
 
     // Generate booking reference using database ID
     const bookingReference = `OT-${consultationBooking.id.slice(-9).toUpperCase()}`;

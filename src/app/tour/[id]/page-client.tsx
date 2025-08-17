@@ -155,7 +155,7 @@ const TourDetail: React.FC<TourDetailProps> = ({ tour, similarTours }) => {
                     <span>{item}</span>
                   ) : (
                     <Link
-                      href={index === 0 ? '/' : index === 1 ? '/explore/adventure' : '#'}
+                      href={index === 0 ? '/' : index === 1 ? '/' : '#'}
                       className="hover:text-blue-200"
                     >
                       {item}

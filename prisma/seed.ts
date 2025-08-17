@@ -66,10 +66,141 @@ function generateSocialMediaLinks(expertName: string) {
   return socialMedia;
 }
 
-// Generate YouTube travel videos for experts based on their location and languages
+// Function to generate thumbnail URL from video URL
+function generateThumbnailFromVideoUrl(videoUrl: string): string {
+  // For TikTok videos, generate a placeholder thumbnail
+  if (videoUrl.includes('tiktok.com')) {
+    // Extract video ID from TikTok URL
+    const videoIdMatch = videoUrl.match(/video\/(\d+)/);
+    const videoId = videoIdMatch ? videoIdMatch[1] : 'default';
+    // Return a consistent Unsplash image based on video ID (deterministic)
+    const images = [
+      'https://images.unsplash.com/photo-1527004013197-933c4bb611b3?w=400&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=400&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1530789253388-582c481c54b0?w=400&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=400&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=400&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1507608616759-54f48f0af0ee?w=400&h=600&fit=crop'
+    ];
+    const index = parseInt(videoId.slice(-1)) % images.length;
+    return images[index];
+  }
+  
+  // For YouTube videos, generate thumbnail from video ID
+  if (videoUrl.includes('youtube.com') || videoUrl.includes('youtu.be')) {
+    const videoIdMatch = videoUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/);
+    const videoId = videoIdMatch ? videoIdMatch[1] : 'dQw4w9WgXcQ';
+    return `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+  }
+  
+  // For Instagram, use a placeholder
+  if (videoUrl.includes('instagram.com')) {
+    return 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=400&h=600&fit=crop';
+  }
+  
+  // Default fallback thumbnail
+  return 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=400&h=600&fit=crop';
+}
+
+// Generate travel videos for experts including TikTok, YouTube, and Instagram
 function generateLatestVideos(expertName: string, location: string, languages: string[]) {
-  // Return empty array - no videos for now
-  return [];
+  // Real TikTok videos from @otter_trip channel
+  const otterTripTikToks = [
+    {
+      id: 'ottertrip1',
+      title: `Discover ${location} with Otter Trip! 🦦✈️`,
+      url: 'https://www.tiktok.com/@otter_trip/video/7432918009641880874',
+      duration: '0:47'
+    },
+    {
+      id: 'ottertrip2',
+      title: `Your next adventure in ${location} awaits! 🌍`,
+      url: 'https://www.tiktok.com/@otter_trip/video/7433280401748077865',
+      duration: '0:52'
+    },
+    {
+      id: 'ottertrip3',
+      title: `Travel smarter with Otter Trip to ${location} 🦦`,
+      url: 'https://www.tiktok.com/@otter_trip/video/7433642793774329113',
+      duration: '0:38'
+    },
+    {
+      id: 'ottertrip4',
+      title: `Expert tips for ${location} travel 🎒`,
+      url: 'https://www.tiktok.com/@otter_trip/video/7434005185804758281',
+      duration: '0:43'
+    },
+    {
+      id: 'ottertrip5',
+      title: `${location} hidden gems you need to see! 💎`,
+      url: 'https://www.tiktok.com/@otter_trip/video/7434367577860132105',
+      duration: '0:55'
+    }
+  ];
+  
+  const videoTemplates = [
+    // Mix of Otter Trip TikToks and other videos
+    ...otterTripTikToks,
+    // YouTube videos
+    {
+      id: 'youtube1',
+      title: `Complete ${location} Travel Guide - Everything You Need to Know`,
+      url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+      duration: '12:34'
+    },
+    {
+      id: 'youtube2',
+      title: `Top 10 Things to Do in ${location}`,
+      url: 'https://www.youtube.com/watch?v=oHg5SJYRHA0',
+      duration: '8:15'
+    },
+    // Instagram Reels
+    {
+      id: 'instagram1',
+      title: `${location} sunset spots you can't miss! 🌅`,
+      url: 'https://www.instagram.com/reel/Cs1234567890/',
+      duration: '0:30'
+    },
+    {
+      id: 'instagram2',
+      title: `Best photo spots in ${location} 📸`,
+      url: 'https://www.instagram.com/reel/Cs0987654321/',
+      duration: '0:45'
+    }
+  ];
+  
+  // Randomly select 3-5 videos, with 60% chance to include at least one Otter Trip video
+  const numVideos = Math.floor(Math.random() * 3) + 3; // 3-5 videos
+  let selectedVideos: typeof videoTemplates = [];
+  
+  // 60% chance to include at least one Otter Trip TikTok video
+  if (Math.random() < 0.6) {
+    // Select 1-2 Otter Trip videos
+    const numOtterVideos = Math.random() < 0.5 ? 1 : 2;
+    const shuffledOtterVideos = otterTripTikToks.sort(() => 0.5 - Math.random());
+    selectedVideos.push(...shuffledOtterVideos.slice(0, numOtterVideos));
+    
+    // Fill remaining slots with other videos
+    const remainingSlots = numVideos - selectedVideos.length;
+    const otherVideos = videoTemplates.filter(v => !v.id.startsWith('ottertrip'));
+    const shuffledOthers = otherVideos.sort(() => 0.5 - Math.random());
+    selectedVideos.push(...shuffledOthers.slice(0, remainingSlots));
+  } else {
+    // Select randomly from all videos
+    selectedVideos = videoTemplates.sort(() => 0.5 - Math.random()).slice(0, numVideos);
+  }
+  
+  // Update IDs to be unique per expert and auto-generate thumbnails
+  return selectedVideos.map((video, index) => ({
+    id: `${expertName.toLowerCase().replace(/\s/g, '_')}_video_${index + 1}`,
+    title: (!video.id.startsWith('ottertrip') && Math.random() > 0.5) 
+      ? video.title.replace(location, `${location} with ${expertName.split(' ')[0]}`)
+      : video.title,
+    url: video.url,
+    thumbnail: generateThumbnailFromVideoUrl(video.url),
+    duration: video.duration
+  }));
 }
 
 // Generate featured tours for experts
@@ -638,7 +769,7 @@ async function main() {
         location: expert.location,
         rating: expert.rating,
         reviewCount: expert.reviews || 0,
-        hourlyRate: expert.consultationPrice || '$50/hour',
+        hourlyRate: String(parseInt((expert.consultationPrice || '$50').replace(/[^0-9]/g, '')) || 50), // Convert to string integer (e.g., "$250" -> "250")
         languages: (expert.languages || []) as any,
         expertise: (expert.specialties || []) as any,
         certifications: [] as any, // Experts don't have certifications in mock data

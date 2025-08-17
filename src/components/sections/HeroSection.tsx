@@ -25,39 +25,10 @@ const HeroSection = () => {
             Pick the Pro for Your Next Adventure
           </h1>
           <p className="text-xl md:text-2xl mb-8 text-blue-100">
-            Connect with expert local guides who will transform your travel experience
+            Connect with experts who will transform your travel experience
           </p>
         </div>
         <SearchBar className="max-w-5xl mx-auto" />
-        <div className="mt-12 flex flex-wrap justify-center gap-4">
-          <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 flex items-center">
-            <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center mr-4">
-              <span className="text-2xl">🧭</span>
-            </div>
-            <div>
-              <h3 className="font-semibold">2,500+ Verified Guides</h3>
-              <p className="text-sm text-blue-100">Across 120+ countries</p>
-            </div>
-          </div>
-          <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 flex items-center">
-            <div className="w-12 h-12 bg-green-600 rounded-full flex items-center justify-center mr-4">
-              <span className="text-2xl">🛡️</span>
-            </div>
-            <div>
-              <h3 className="font-semibold">100% Secure Booking</h3>
-              <p className="text-sm text-blue-100">With payment protection</p>
-            </div>
-          </div>
-          <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 flex items-center">
-            <div className="w-12 h-12 bg-orange-600 rounded-full flex items-center justify-center mr-4">
-              <span className="text-2xl">⭐</span>
-            </div>
-            <div>
-              <h3 className="font-semibold">25,000+ Reviews</h3>
-              <p className="text-sm text-blue-100">From happy travelers</p>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );

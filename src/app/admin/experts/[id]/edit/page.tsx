@@ -28,7 +28,7 @@ export default async function EditExpertPage({ params }: { params: Promise<{ id:
     location: expert.location,
     rating: expert.rating,
     reviewCount: expert.reviewCount,
-    hourlyRate: expert.hourlyRate,
+    hourlyRate: parseInt(expert.hourlyRate), // Parse string to number for form
     languages: expert.languages as string[],
     expertise: expert.expertise as string[],
     certifications: expert.certifications as string[] | undefined,
