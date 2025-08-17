@@ -1,7 +1,8 @@
-'use client'
+'use client';
 
 import React from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import SearchBar from '../ui/SearchBar';
 
 const HeroSection = () => {
@@ -27,6 +28,12 @@ const HeroSection = () => {
           <p className="text-xl md:text-2xl mb-8 text-blue-100">
             Connect with experts who will transform your travel experience
           </p>
+          <Link
+            href="/meet-experts"
+            className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-8 rounded-lg"
+          >
+            Meet the Experts
+          </Link>
         </div>
         <SearchBar className="max-w-5xl mx-auto" />
       </div>
