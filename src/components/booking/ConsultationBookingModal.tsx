@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import React, { useEffect, useState, Fragment } from 'react';
 import {
@@ -50,7 +50,10 @@ const ConsultationBookingModal: React.FC<ConsultationBookingModalProps> = ({
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [bookingReference, setBookingReference] = useState('');
-  const [availabilityData, setAvailabilityData] = useState<Record<string, { available: boolean; start: string; end: string }> | null>(null);
+  const [availabilityData, setAvailabilityData] = useState<Record<
+    string,
+    { available: boolean; slots: string[] }
+  > | null>(null);
   const [isLoadingAvailability, setIsLoadingAvailability] = useState(false);
   // Form state
   const [name, setName] = useState('');
@@ -62,7 +65,7 @@ const ConsultationBookingModal: React.FC<ConsultationBookingModalProps> = ({
     'idle' | 'loading' | 'success' | 'error' | 'format-error'
   >('idle');
   const [errorMessage, setErrorMessage] = useState('');
-  
+
   // Reset state when modal opens or closes
   useEffect(() => {
     if (isOpen) {
@@ -81,10 +84,10 @@ const ConsultationBookingModal: React.FC<ConsultationBookingModalProps> = ({
     }
   }, [isOpen, invitationCode]);
 
-  // Fetch availability data when needed
+  // Fetch availability data when moving to step 2
   useEffect(() => {
     const fetchAvailability = async () => {
-      if (step === 2 && expertId && !availabilityData) {
+      if (step === 2 && expertId) {
         setIsLoadingAvailability(true);
         try {
           const response = await fetch(`/api/experts/${expertId}/availability`);
@@ -92,10 +95,14 @@ const ConsultationBookingModal: React.FC<ConsultationBookingModalProps> = ({
             const data = await response.json();
             setAvailabilityData(data);
           } else {
-            console.error('Failed to fetch availability data');
+            console.error('Failed to fetch availability data', response.status);
+            // Set empty data to prevent infinite loading
+            setAvailabilityData({});
           }
         } catch (error) {
           console.error('Error fetching availability:', error);
+          // Set empty data to prevent infinite loading
+          setAvailabilityData({});
         } finally {
           setIsLoadingAvailability(false);
         }
@@ -103,25 +110,25 @@ const ConsultationBookingModal: React.FC<ConsultationBookingModalProps> = ({
     };
 
     fetchAvailability();
-  }, [step, expertId, availabilityData]);
+  }, [step, expertId]); // Removed availabilityData from dependencies to ensure it fetches when step changes
 
   // Get available dates from API data
-  const availableDates: AvailableDate[] = availabilityData 
+  const availableDates: AvailableDate[] = availabilityData
     ? Object.entries(availabilityData)
-        .filter(([, value]) => value.available)
+        .filter(([, value]) => value.available && value.slots && value.slots.length > 0)
         .map(([date, value]) => ({
           date,
-          timeSlots: [{
-            id: '1',
-            time: `${value.start} - ${value.end}`,
-            available: true
-          }]
+          timeSlots: value.slots.map((slot, index) => ({
+            id: `${date}-${index}`,
+            time: slot,
+            available: true,
+          })),
         }))
     : [];
-  
+
   // Get time slots for the selected date
-  const timeSlots: TimeSlot[] = selectedDate 
-    ? (availableDates.find((d: AvailableDate) => d.date === selectedDate)?.timeSlots || [])
+  const timeSlots: TimeSlot[] = selectedDate
+    ? availableDates.find((d: AvailableDate) => d.date === selectedDate)?.timeSlots || []
     : [];
   const handleDateSelect = (date: string) => {
     setSelectedDate(date);
@@ -138,7 +145,7 @@ const ConsultationBookingModal: React.FC<ConsultationBookingModalProps> = ({
         setErrorMessage('Please enter an invitation code');
         return;
       }
-      
+
       // Check format (example: OT-XXXX-XXXX)
       const codePattern = /^OT-[A-Z0-9]{4}-[A-Z0-9]{4}$/;
       if (!codePattern.test(enteredInvitationCode)) {
@@ -146,10 +153,10 @@ const ConsultationBookingModal: React.FC<ConsultationBookingModalProps> = ({
         setErrorMessage('Invalid code format. Expected: OT-XXXX-XXXX');
         return;
       }
-      
+
       // Simulate API validation
       setValidationState('loading');
-      
+
       // For demo purposes, check against known valid codes
       setTimeout(() => {
         // Accept specific codes as valid (including those in database)
@@ -169,7 +176,7 @@ const ConsultationBookingModal: React.FC<ConsultationBookingModalProps> = ({
     } else if (step === 3) {
       // Process booking
       setIsLoading(true);
-      
+
       try {
         // Send booking confirmation email to admin only
         const response = await fetch('/api/send-consultation', {
@@ -193,7 +200,7 @@ const ConsultationBookingModal: React.FC<ConsultationBookingModalProps> = ({
         });
 
         const result = await response.json();
-        
+
         if (!response.ok) {
           // Check if it's a code validation error
           if (result.error && result.error.toLowerCase().includes('code')) {
@@ -205,12 +212,12 @@ const ConsultationBookingModal: React.FC<ConsultationBookingModalProps> = ({
           }
           throw new Error(result.error || 'Failed to send booking confirmation');
         }
-        
+
         setIsLoading(false);
         setStep(4);
         setBookingReference(result.data.bookingReference); // Use booking reference from API
         setStep(4);
-        
+
         // Clear form data after successful booking (but keep date/time for confirmation display)
         setTimeout(() => {
           setName('');
@@ -233,7 +240,7 @@ const ConsultationBookingModal: React.FC<ConsultationBookingModalProps> = ({
         setStep(4);
         setBookingReference('OT-ERROR');
         setStep(4);
-        
+
         // Clear form data even on error (but keep date/time for confirmation display)
         setTimeout(() => {
           setName('');
@@ -263,7 +270,17 @@ const ConsultationBookingModal: React.FC<ConsultationBookingModalProps> = ({
   const getSelectedTimeFormatted = () => {
     if (!selectedTimeSlot) return '';
     const slot = timeSlots.find((slot) => slot.id === selectedTimeSlot);
-    return slot ? slot.time : '';
+    if (!slot) return '';
+
+    // Format the time to show as "X:00 AM/PM - Y:00 AM/PM" (1 hour slot)
+    const hour = parseInt(slot.time.split(':')[0]);
+    const period = hour >= 12 ? 'PM' : 'AM';
+    const displayHour = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour;
+    const nextHour = hour + 1;
+    const nextPeriod = nextHour >= 12 ? 'PM' : 'AM';
+    const nextDisplayHour = nextHour > 12 ? nextHour - 12 : nextHour === 0 ? 12 : nextHour;
+
+    return `${displayHour}:00 ${period} - ${nextDisplayHour}:00 ${nextPeriod}`;
   };
   const isNextDisabled = () => {
     if (step === 1) return validationState === 'loading' || validationState === 'success';
@@ -277,7 +294,13 @@ const ConsultationBookingModal: React.FC<ConsultationBookingModalProps> = ({
         {[1, 2, 3].map((stepNumber) => (
           <Fragment key={stepNumber}>
             <div
-              className={`w-8 h-8 rounded-full flex items-center justify-center ${stepNumber === step ? 'bg-blue-600 text-white' : stepNumber < step ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-600'}`}
+              className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                stepNumber === step
+                  ? 'bg-blue-600 text-white'
+                  : stepNumber < step
+                  ? 'bg-green-500 text-white'
+                  : 'bg-gray-200 text-gray-600'
+              }`}
             >
               {stepNumber < step ? <CheckIcon size={16} /> : stepNumber}
             </div>
@@ -311,7 +334,7 @@ const ConsultationBookingModal: React.FC<ConsultationBookingModalProps> = ({
         <p className="text-gray-600">
           Please enter your invitation code to book a consultation with {expertName}.
         </p>
-        
+
         <div className="relative">
           <input
             type="text"
@@ -320,15 +343,15 @@ const ConsultationBookingModal: React.FC<ConsultationBookingModalProps> = ({
             onKeyDown={handleKeyDown}
             placeholder="e.g., OT-1234-ABCD"
             className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 transition-colors ${
-              validationState === 'success' 
-                ? 'border-green-500 focus:ring-green-200' 
-                : validationState === 'error' || validationState === 'format-error' 
-                ? 'border-red-500 focus:ring-red-200' 
+              validationState === 'success'
+                ? 'border-green-500 focus:ring-green-200'
+                : validationState === 'error' || validationState === 'format-error'
+                ? 'border-red-500 focus:ring-red-200'
                 : 'border-gray-300 focus:ring-blue-200 focus:border-blue-500'
             }`}
             disabled={validationState === 'loading' || validationState === 'success'}
           />
-          
+
           {/* Status icons */}
           {validationState === 'success' && (
             <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-green-500">
@@ -346,7 +369,7 @@ const ConsultationBookingModal: React.FC<ConsultationBookingModalProps> = ({
             </div>
           )}
         </div>
-        
+
         {/* Validation messages */}
         {(validationState === 'error' || validationState === 'format-error') && (
           <div className="text-red-500 text-sm flex items-start">
@@ -368,7 +391,7 @@ const ConsultationBookingModal: React.FC<ConsultationBookingModalProps> = ({
             </span>
           </div>
         )}
-        
+
         <div className="bg-blue-50 p-4 rounded-lg">
           <div className="text-sm text-blue-800">
             <strong>Need an invitation code?</strong>
@@ -412,35 +435,61 @@ const ConsultationBookingModal: React.FC<ConsultationBookingModalProps> = ({
               key={date.date}
               onClick={() => handleDateSelect(date.date)}
               disabled={false}
-              className={`flex flex-col items-center px-4 py-3 rounded-lg min-w-[80px] transition-colors ${selectedDate === date.date ? 'bg-blue-600 text-white' : 'bg-white border border-gray-200 hover:border-blue-500 text-gray-800'}`}
+              className={`flex flex-col items-center px-4 py-3 rounded-lg min-w-[80px] transition-colors ${
+                selectedDate === date.date
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-white border border-gray-200 hover:border-blue-500 text-gray-800'
+              }`}
             >
-              <span className="text-xs">{new Date(date.date).toLocaleDateString('en-US', { weekday: 'short' })}</span>
+              <span className="text-xs">
+                {new Date(date.date).toLocaleDateString('en-US', { weekday: 'short' })}
+              </span>
               <span className="text-lg font-bold">{new Date(date.date).getDate()}</span>
-              <span className="text-xs">{new Date(date.date).toLocaleDateString('en-US', { month: 'short' })}</span>
+              <span className="text-xs">
+                {new Date(date.date).toLocaleDateString('en-US', { month: 'short' })}
+              </span>
             </button>
           ))}
         </div>
-        
+
         <h3 className="text-lg font-medium text-gray-900 mb-4">Select Time</h3>
         {selectedDate ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
-            {timeSlots.map((slot) => (
-              <button
-                key={slot.id}
-                onClick={() => slot.available && handleTimeSlotSelect(slot.id)}
-                disabled={!slot.available}
-                className={`py-3 px-4 rounded-lg text-center transition-colors ${selectedTimeSlot === slot.id ? 'bg-blue-600 text-white' : slot.available ? 'bg-white border border-gray-200 hover:border-blue-500 text-gray-800' : 'bg-gray-100 text-gray-400 cursor-not-allowed'}`}
-              >
-                <div className="flex items-center justify-center">
-                  <ClockIcon size={14} className="mr-1" />
-                  <span>{slot.time}</span>
-                  {!slot.available && (
-                    <span className="ml-2 text-xs">(Booked)</span>
-                  )}
-                </div>
-              </button>
-            ))}
-          </div>
+          timeSlots.length > 0 ? (
+            <div className="grid grid-cols-3 md:grid-cols-4 gap-3 mb-6">
+              {timeSlots.map((slot) => {
+                // Format time to show hour with AM/PM
+                const hour = parseInt(slot.time.split(':')[0]);
+                const period = hour >= 12 ? 'PM' : 'AM';
+                const displayHour = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour;
+                const formattedTime = `${displayHour}:00 ${period}`;
+
+                return (
+                  <button
+                    key={slot.id}
+                    onClick={() => slot.available && handleTimeSlotSelect(slot.id)}
+                    disabled={!slot.available}
+                    className={`py-3 px-4 rounded-lg text-center transition-colors ${
+                      selectedTimeSlot === slot.id
+                        ? 'bg-blue-600 text-white'
+                        : slot.available
+                        ? 'bg-white border border-gray-200 hover:border-blue-500 text-gray-800'
+                        : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                    }`}
+                  >
+                    <div className="flex items-center justify-center">
+                      <ClockIcon size={14} className="mr-1" />
+                      <span className="text-sm font-medium">{formattedTime}</span>
+                      {!slot.available && <span className="ml-2 text-xs">(Booked)</span>}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="text-center py-8 text-gray-500">
+              No available time slots for this date. Please select another date.
+            </div>
+          )
         ) : (
           <div className="text-center py-8 text-gray-500">
             Please select a date to view available time slots
@@ -631,7 +680,11 @@ const ConsultationBookingModal: React.FC<ConsultationBookingModalProps> = ({
             <button
               onClick={handleContinue}
               disabled={isNextDisabled() || isLoading}
-              className={`px-5 py-2 rounded-lg text-white font-medium transition-colors flex items-center ${isNextDisabled() || isLoading ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}`}
+              className={`px-5 py-2 rounded-lg text-white font-medium transition-colors flex items-center ${
+                isNextDisabled() || isLoading
+                  ? 'bg-blue-400 cursor-not-allowed'
+                  : 'bg-blue-600 hover:bg-blue-700'
+              }`}
             >
               {isLoading ? (
                 <>

@@ -53,7 +53,7 @@ interface Expert {
   languages: string[];
   expertise: string[];
   certifications?: string[];
-  availability?: Record<string, { available: boolean; start: string; end: string }>;
+  availability?: Record<string, { available: boolean; slots: string[] }>;
   bio?: string;
   experience?: string;
   featuredTours?: string[];
@@ -88,13 +88,13 @@ interface ExpertDetailAdminProps {
 }
 
 const defaultAvailability = {
-  monday: { available: true, start: '09:00', end: '17:00' },
-  tuesday: { available: true, start: '09:00', end: '17:00' },
-  wednesday: { available: true, start: '09:00', end: '17:00' },
-  thursday: { available: true, start: '09:00', end: '17:00' },
-  friday: { available: true, start: '09:00', end: '17:00' },
-  saturday: { available: false, start: '09:00', end: '17:00' },
-  sunday: { available: false, start: '09:00', end: '17:00' },
+  sunday: { available: false, slots: [] },
+  monday: { available: true, slots: ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00'] },
+  tuesday: { available: true, slots: ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00'] },
+  wednesday: { available: true, slots: ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00'] },
+  thursday: { available: true, slots: ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00'] },
+  friday: { available: true, slots: ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00'] },
+  saturday: { available: false, slots: [] },
 };
 
 export default function ExpertDetailAdmin({ expert }: ExpertDetailAdminProps) {
@@ -412,20 +412,70 @@ export default function ExpertDetailAdmin({ expert }: ExpertDetailAdminProps) {
     }));
   };
 
-  const handleAvailabilityChange = (day: string, field: string, value: string | boolean) => {
-    setFormData(prev => ({
-      ...prev,
-      availability: {
-        ...prev.availability,
-        [day]: {
-          ...prev.availability[day as keyof typeof prev.availability],
-          [field]: value,
+  const handleAvailabilityChange = (day: string, field: string, value: string | boolean | string[]) => {
+    if (field === 'slots') {
+      // Handle slots array directly
+      setFormData(prev => ({
+        ...prev,
+        availability: {
+          ...prev.availability,
+          [day]: {
+            ...prev.availability[day as keyof typeof prev.availability],
+            slots: value as string[],
+          },
         },
-      },
-    }));
+      }));
+    } else if (field === 'available') {
+      // When toggling availability, reset slots if disabling
+      setFormData(prev => ({
+        ...prev,
+        availability: {
+          ...prev.availability,
+          [day]: {
+            ...prev.availability[day as keyof typeof prev.availability],
+            available: value as boolean,
+            slots: value ? prev.availability[day as keyof typeof prev.availability].slots : [],
+          },
+        },
+      }));
+    } else if (field === 'startTime' || field === 'endTime') {
+      // Generate slots based on start and end time
+      setFormData(prev => {
+        const currentDay = prev.availability[day as keyof typeof prev.availability];
+        const startTime = field === 'startTime' ? value as string : currentDay.slots[0] || '09:00';
+        const endTime = field === 'endTime' ? value as string : (() => {
+          if (currentDay.slots.length > 0) {
+            const lastSlot = currentDay.slots[currentDay.slots.length - 1];
+            const hour = parseInt(lastSlot.split(':')[0]) + 1;
+            return `${hour.toString().padStart(2, '0')}:00`;
+          }
+          return '17:00';
+        })();
+        
+        // Generate hourly slots between start and end time
+        const slots: string[] = [];
+        const startHour = parseInt(startTime.split(':')[0]);
+        const endHour = parseInt(endTime.split(':')[0]);
+        
+        for (let hour = startHour; hour < endHour; hour++) {
+          slots.push(`${hour.toString().padStart(2, '0')}:00`);
+        }
+        
+        return {
+          ...prev,
+          availability: {
+            ...prev.availability,
+            [day]: {
+              ...prev.availability[day as keyof typeof prev.availability],
+              slots,
+            },
+          },
+        };
+      });
+    }
   };
 
-  const weekDays = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+  const weekDays = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -602,13 +652,13 @@ export default function ExpertDetailAdmin({ expert }: ExpertDetailAdminProps) {
   "experience": "Over 15 years in travel industry...",
   
   "availability": {
-    "monday": { "available": true, "start": "09:00", "end": "17:00" },
-    "tuesday": { "available": true, "start": "09:00", "end": "17:00" },
-    "wednesday": { "available": true, "start": "09:00", "end": "17:00" },
-    "thursday": { "available": true, "start": "09:00", "end": "17:00" },
-    "friday": { "available": true, "start": "09:00", "end": "17:00" },
-    "saturday": { "available": false, "start": "09:00", "end": "17:00" },
-    "sunday": { "available": false, "start": "09:00", "end": "17:00" }
+    "sunday": { "available": false, "slots": [] },
+    "monday": { "available": true, "slots": ["09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00"] },
+    "tuesday": { "available": true, "slots": ["09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00"] },
+    "wednesday": { "available": true, "slots": ["09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00"] },
+    "thursday": { "available": true, "slots": ["09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00"] },
+    "friday": { "available": true, "slots": ["09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00"] },
+    "saturday": { "available": false, "slots": [] }
   },
   
   "featuredTours": [
@@ -744,14 +794,24 @@ export default function ExpertDetailAdmin({ expert }: ExpertDetailAdminProps) {
                                 <div>
                                   <h5 className="text-xs font-semibold text-gray-600 uppercase mb-1">Availability</h5>
                                   <div className="grid grid-cols-2 gap-2 text-xs">
-                                    {Object.entries(previewData.availability).slice(0, 5).map(([day, times]) => (
-                                      <div key={day} className="flex justify-between">
-                                        <span className="capitalize">{day}:</span>
-                                        <span className="text-gray-600">
-                                          {times.available ? `${times.start}-${times.end}` : 'Unavailable'}
-                                        </span>
-                                      </div>
-                                    ))}
+                                    {weekDays.slice(0, 5).map((day) => {
+                                      const times = previewData.availability?.[day as keyof typeof previewData.availability];
+                                      if (!times) return null;
+                                      return (
+                                        <div key={day} className="flex justify-between">
+                                          <span className="capitalize">{day}:</span>
+                                          <span className="text-gray-600">
+                                            {times.available && times.slots && times.slots.length > 0 
+                                              ? `${times.slots[0]}-${(() => {
+                                                  const lastSlot = times.slots[times.slots.length - 1];
+                                                  const hour = parseInt(lastSlot.split(':')[0]) + 1;
+                                                  return `${hour.toString().padStart(2, '0')}:00`;
+                                                })()}`
+                                              : 'Unavailable'}
+                                          </span>
+                                        </div>
+                                      );
+                                    })}
                                   </div>
                                 </div>
                               )}
@@ -1595,16 +1655,27 @@ export default function ExpertDetailAdmin({ expert }: ExpertDetailAdminProps) {
                       <span className="text-sm font-medium text-gray-700 capitalize w-20">{day}</span>
                       <input
                         type="time"
-                        value={formData.availability[day as keyof typeof formData.availability].start}
-                        onChange={(e) => handleAvailabilityChange(day, 'start', e.target.value)}
+                        value={(() => {
+                          const slots = formData.availability[day as keyof typeof formData.availability].slots;
+                          return slots && slots.length > 0 ? slots[0] : '09:00';
+                        })()}
+                        onChange={(e) => handleAvailabilityChange(day, 'startTime', e.target.value)}
                         disabled={!formData.availability[day as keyof typeof formData.availability].available}
                         className="px-2 py-1 border border-gray-300 rounded text-xs disabled:bg-gray-100"
                       />
                       <span className="text-gray-500 text-xs">to</span>
                       <input
                         type="time"
-                        value={formData.availability[day as keyof typeof formData.availability].end}
-                        onChange={(e) => handleAvailabilityChange(day, 'end', e.target.value)}
+                        value={(() => {
+                          const slots = formData.availability[day as keyof typeof formData.availability].slots;
+                          if (slots && slots.length > 0) {
+                            const lastSlot = slots[slots.length - 1];
+                            const hour = parseInt(lastSlot.split(':')[0]) + 1;
+                            return `${hour.toString().padStart(2, '0')}:00`;
+                          }
+                          return '17:00';
+                        })()}
+                        onChange={(e) => handleAvailabilityChange(day, 'endTime', e.target.value)}
                         disabled={!formData.availability[day as keyof typeof formData.availability].available}
                         className="px-2 py-1 border border-gray-300 rounded text-xs disabled:bg-gray-100"
                       />
@@ -1621,31 +1692,42 @@ export default function ExpertDetailAdmin({ expert }: ExpertDetailAdminProps) {
                   Availability Schedule
                 </h3>
                 <div className="space-y-3">
-                  {Object.entries(expert.availability).map(([day, times]) => (
-                    <div key={day} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                      <div className="flex items-center">
-                        <div className={`w-3 h-3 rounded-full mr-3 ${
-                          times.available ? 'bg-green-400' : 'bg-gray-300'
-                        }`}></div>
-                        <span className="font-medium text-gray-700 capitalize w-24">{day}</span>
-                      </div>
-                      <div className="flex items-center">
-                        {times.available ? (
-                          <>
+                  {weekDays.map((day) => {
+                    const times = expert.availability?.[day as keyof typeof expert.availability];
+                    if (!times) return null;
+                    return (
+                      <div key={day} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div className="flex items-center">
+                          <div className={`w-3 h-3 rounded-full mr-3 ${
+                            times.available ? 'bg-green-400' : 'bg-gray-300'
+                          }`}></div>
+                          <span className="font-medium text-gray-700 capitalize w-24">{day}</span>
+                        </div>
+                        <div className="flex items-center">
+                          {times.available && times.slots && times.slots.length > 0 ? (
+                          <div className="flex items-center">
                             <span className="text-sm text-gray-600 bg-white px-2 py-1 rounded border">
-                              {times.start}
+                              {times.slots[0]}
                             </span>
                             <span className="mx-2 text-gray-400">—</span>
                             <span className="text-sm text-gray-600 bg-white px-2 py-1 rounded border">
-                              {times.end}
+                              {(() => {
+                                const lastSlot = times.slots[times.slots.length - 1];
+                                const hour = parseInt(lastSlot.split(':')[0]) + 1;
+                                return `${hour.toString().padStart(2, '0')}:00`;
+                              })()}
                             </span>
-                          </>
+                            <span className="ml-3 text-xs text-gray-500">
+                              ({times.slots.length} hours)
+                            </span>
+                          </div>
                         ) : (
                           <span className="text-sm text-gray-500 italic">Unavailable</span>
                         )}
                       </div>
                     </div>
-                  ))}
+                    );
+                  })}
                 </div>
                 <div className="mt-4 pt-4 border-t border-gray-200">
                   <div className="flex items-center text-xs text-gray-500">

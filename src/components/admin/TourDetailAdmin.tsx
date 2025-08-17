@@ -938,7 +938,7 @@ export default function TourDetailAdmin({ tour }: TourDetailAdminProps) {
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
             <div className="relative h-96">
               {isEditing && editMode === 'form' ? (
-                <div className="p-6 h-full flex flex-col">
+                <div className="p-6 h-full">
                   <label className="block text-sm font-medium text-gray-700 mb-2">Hero Image URL</label>
                   <input
                     type="url"
@@ -947,7 +947,7 @@ export default function TourDetailAdmin({ tour }: TourDetailAdminProps) {
                     className="w-full px-3 py-2 border border-gray-300 rounded-md mb-4"
                     placeholder="https://example.com/image.jpg"
                   />
-                  <div className="relative flex-1 w-full aspect-video">
+                  <div className="relative w-full h-48">
                     <Image
                       src={formData.heroImage}
                       alt={formData.title}
@@ -1160,7 +1160,7 @@ export default function TourDetailAdmin({ tour }: TourDetailAdminProps) {
                               </div>
                               <div className="lg:col-span-1">
                                 <label className="block text-sm font-medium text-gray-700 mb-1">Preview</label>
-                                <div className="aspect-video w-full">
+                                <div className="relative w-full h-24">
                                   {image.trim() ? (
                                     <Image
                                       src={image.trim()}
@@ -1170,7 +1170,7 @@ export default function TourDetailAdmin({ tour }: TourDetailAdminProps) {
                                       unoptimized
                                     />
                                   ) : (
-                                    <div className="w-full h-full bg-gray-100 rounded-md border border-gray-200 flex items-center justify-center">
+                                    <div className="absolute inset-0 bg-gray-100 rounded-md border border-gray-200 flex items-center justify-center">
                                       <ImageIcon className="w-8 h-8 text-gray-400" />
                                     </div>
                                   )}

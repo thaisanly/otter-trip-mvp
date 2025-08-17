@@ -251,6 +251,64 @@ function generateTourCompleteCount() {
   return Math.floor(Math.random() * 176) + 25; // 25-200 completed tours
 }
 
+// Generate expert weekly availability (recurring schedule)
+function generateExpertAvailability() {
+  // Days of the week (0 = Sunday, 1 = Monday, etc.)
+  const daysOfWeek = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+  const availability: Record<string, { available: boolean; slots: string[] }> = {};
+  
+  // Generate random working patterns
+  const workPatterns = [
+    { start: 9, end: 17 },  // Standard 9-5
+    { start: 8, end: 16 },  // Early bird 8-4
+    { start: 10, end: 18 }, // Late starter 10-6
+    { start: 11, end: 19 }, // Afternoon focused 11-7
+    { start: 9, end: 13 },  // Morning only
+    { start: 14, end: 20 }, // Afternoon/evening only
+  ];
+  
+  // Randomly select a work pattern for this expert
+  const pattern = workPatterns[Math.floor(Math.random() * workPatterns.length)];
+  
+  daysOfWeek.forEach((day, index) => {
+    // Skip weekends for most experts (80% chance)
+    const isWeekend = index === 0 || index === 6;
+    const worksWeekends = Math.random() < 0.2;
+    
+    if (!isWeekend || worksWeekends) {
+      // Randomly make some weekdays unavailable (10% chance - day off)
+      const isDayOff = Math.random() < 0.1;
+      
+      if (!isDayOff) {
+        const slots: string[] = [];
+        
+        // Generate hourly slots based on working hours
+        for (let hour = pattern.start; hour < pattern.end; hour++) {
+          const timeStr = `${hour.toString().padStart(2, '0')}:00`;
+          slots.push(timeStr);
+        }
+        
+        availability[day] = {
+          available: true,
+          slots: slots
+        };
+      } else {
+        availability[day] = {
+          available: false,
+          slots: []
+        };
+      }
+    } else {
+      availability[day] = {
+        available: false,
+        slots: []
+      };
+    }
+  });
+  
+  return availability;
+}
+
 // Generate location-specific YouTube video and images for tours
 function generateTourMediaByLocation(location: string) {
   const locationMedia = {
@@ -584,7 +642,7 @@ async function main() {
         languages: (expert.languages || []) as any,
         expertise: (expert.specialties || []) as any,
         certifications: [] as any, // Experts don't have certifications in mock data
-        availability: null as any, // No availability in mock data
+        availability: generateExpertAvailability() as any, // Generate random availability with hourly slots
         bio: generateExpertBio(expert.name, expert.location, expert.specialties || []),
         experience: expert.experience ? `${expert.experience} years` : null,
         socialMedia: generateSocialMediaLinks(expert.name) as any,

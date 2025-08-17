@@ -40,7 +40,7 @@ export default async function ExpertDetailPage({ params }: { params: Promise<{ i
     languages: expert.languages as string[],
     expertise: expert.expertise as string[],
     certifications: expert.certifications as string[] | undefined,
-    availability: expert.availability as Record<string, { available: boolean; start: string; end: string }> | undefined,
+    availability: expert.availability as Record<string, { available: boolean; slots: string[] }> | undefined,
     bio: expert.bio ?? undefined,
     experience: expert.experience ?? undefined,
     featuredTours: expert.featuredTours as string[] | undefined,
