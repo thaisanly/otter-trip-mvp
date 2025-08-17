@@ -1,48 +1,72 @@
-'use client'
+'use client';
 
-import { useRouter } from 'next/navigation';
-import TourLeaderShowcase from '../components/sections/TourLeaderShowcase';
-import TravelPersonalityQuiz from '../components/sections/TravelPersonalityQuiz';
-import HowItWorks from '../components/sections/HowItWorks';
+import dynamic from 'next/dynamic';
+import { Suspense } from 'react';
+import HeroSection from '../components/sections/HeroSection';
+import CallToAction from '../components/sections/CallToAction';
+
+// Lazy load non-critical components
+const TravelPersonalityQuiz = dynamic(
+  () => import('../components/sections/TravelPersonalityQuiz'),
+  { 
+    loading: () => <QuizSkeleton />,
+    ssr: false 
+  }
+);
+
+const HowItWorks = dynamic(
+  () => import('../components/sections/HowItWorks'),
+  { 
+    loading: () => <SectionSkeleton />
+  }
+);
+
+// Loading skeletons
+function QuizSkeleton() {
+  return (
+    <div className="bg-blue-50 py-16">
+      <div className="container mx-auto px-4">
+        <div className="max-w-5xl mx-auto">
+          <div className="bg-white rounded-2xl shadow-xl h-[520px] animate-pulse">
+            <div className="h-full bg-gray-200 rounded-2xl"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function SectionSkeleton() {
+  return (
+    <div className="bg-white py-16">
+      <div className="container mx-auto px-4">
+        <div className="h-[332px] bg-gray-200 rounded-xl animate-pulse"></div>
+      </div>
+    </div>
+  );
+}
 
 const Home = () => {
-  const router = useRouter();
-
   return (
     <div>
-      {/* Tour Leader Showcase (replaces HeroSection) */}
-      <TourLeaderShowcase />
+      {/* Hero Section - Server rendered for fast initial paint */}
+      <HeroSection />
 
-      {/* Travel Personality Quiz */}
-      <TravelPersonalityQuiz />
+      {/* Travel Personality Quiz - Lazy loaded */}
+      <Suspense fallback={<QuizSkeleton />}>
+        <TravelPersonalityQuiz />
+      </Suspense>
       
-      {/* How It Works Section */}
-      <HowItWorks />
+      {/* How It Works Section - Lazy loaded */}
+      <Suspense fallback={<SectionSkeleton />}>
+        <HowItWorks />
+      </Suspense>
       
       {/* Vibe Matching Section */}
       {/* <VibeMatchingSection /> */}
       
-      {/* Call to Action */}
-      <div className="bg-blue-50 py-16">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold text-gray-900 mb-6">
-            Ready to Connect with Your Perfect Guide?
-          </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8">
-            Join thousands of travelers who have discovered meaningful experiences with guides who
-            match their personality.
-          </p>
-          <button
-            onClick={() => {
-              router.push('/meet-experts');
-              window.scrollTo(0, 0);
-            }}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-8 rounded-lg"
-          >
-            Start Your Journey
-          </button>
-        </div>
-      </div>
+      {/* Call to Action - Server rendered */}
+      <CallToAction />
     </div>
   );
 };

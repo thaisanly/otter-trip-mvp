@@ -257,11 +257,12 @@ const TravelPersonalityQuiz = () => {
                 </div>
                 <div className="hidden md:block relative">
                   <Image
-                    src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
+                    src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=70"
                     alt="Travel personalities"
                     className="w-full h-full object-cover"
                     fill
                     sizes="(max-width: 768px) 0vw, 50vw"
+                    loading="lazy"
                   />
                   <div className="absolute inset-0 bg-gradient-to-r from-white/50 to-transparent"></div>
                 </div>
