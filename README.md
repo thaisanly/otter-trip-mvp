@@ -5,24 +5,28 @@ A Next.js application connecting travelers with expert local guides for authenti
 ## Getting Started
 
 ### Prerequisites
-- Node.js 18+ 
+
+- Node.js 18+
 - npm or yarn
 - Docker (optional, for email testing with Mailpit)
 
 ### Installation
 
 1. Clone the repository:
+
 ```bash
 git clone https://github.com/thaisanly/otter-trip-mvp.git
 cd otter-trip-mvp
 ```
 
 2. Install dependencies:
+
 ```bash
 npm install
 ```
 
 3. Copy environment variables:
+
 ```bash
 cp .env.example .env.local
 ```
@@ -30,6 +34,7 @@ cp .env.example .env.local
 4. Configure your environment variables (see Email Configuration below)
 
 5. Run the development server:
+
 ```bash
 npm run dev
 ```
@@ -77,10 +82,12 @@ Mailpit is a lightweight SMTP testing tool that captures all emails sent during 
 #### Setup Mailpit
 
 **Option 1: Run directly on host machine** (if already installed):
+
 - Ensure Mailpit is running on port 1025 (SMTP) and 8025 (Web UI)
 - Access Mailpit UI at http://localhost:8025
 
 **Option 2: Using Docker**:
+
 ```bash
 docker run -d \
   --name mailpit \
@@ -92,18 +99,21 @@ docker run -d \
 #### Configuration for Different Environments
 
 **Local Development (outside Docker)**:
+
 ```env
 SMTP_HOST=localhost
 SMTP_PORT=1025
 ```
 
 **Local Development (inside Docker)**:
+
 ```env
 SMTP_HOST=host.docker.internal
 SMTP_PORT=1025
 ```
 
 **Production with Resend**:
+
 ```env
 EMAIL_PROVIDER=resend
 RESEND_API_KEY=re_your_actual_api_key
@@ -111,6 +121,7 @@ ADMIN_EMAIL=your-admin@example.com
 ```
 
 **Production with SMTP (e.g., SendGrid, AWS SES)**:
+
 ```env
 EMAIL_PROVIDER=smtp
 SMTP_HOST=smtp.sendgrid.net
@@ -126,6 +137,7 @@ SMTP_FROM=noreply@yourdomain.com
 1. Ensure Mailpit is running on your host machine (port 1025)
 
 2. Start the development server:
+
 ```bash
 npm run dev
 ```
@@ -139,20 +151,23 @@ npm run dev
 ## Docker Deployment
 
 ### Development
+
 ```bash
-docker-compose up --build
+docker compose up --build
 ```
 
 ### Production
 
 Deploy the entire stack:
+
 ```bash
-docker-compose -f docker-compose.production.yml up --build
+docker compose -f docker-compose.prod.yml up --build
 ```
 
 Deploy only the app (without database):
+
 ```bash
-docker compose -f docker-compose.production.yml up app -d --build
+docker compose -f docker-compose.prod.yml up app -d --build
 ```
 
 ## Project Structure
@@ -193,16 +208,19 @@ docker compose -f docker-compose.production.yml up app -d --build
 ## Troubleshooting
 
 ### Emails not sending in development
+
 - Ensure Mailpit is running: `docker ps | grep mailpit`
 - Check the SMTP_HOST setting (use `host.docker.internal` if app is in Docker)
 - Check console logs for error messages
 
 ### Emails not sending in production
+
 - Verify your Resend API key is correct
 - Check that the sender domain is verified in Resend
 - Review API response in server logs
 
 ### Connection refused errors
+
 - If running outside Docker, use `SMTP_HOST=localhost`
 - If running inside Docker, use `SMTP_HOST=host.docker.internal`
 - Ensure Mailpit is running on port 1025
