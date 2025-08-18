@@ -1,25 +1,20 @@
-'use client'
+'use client';
 
 import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import {
-  FacebookIcon,
-  InstagramIcon,
-  MailIcon,
-  ChevronRightIcon,
-} from 'lucide-react';
+import { FacebookIcon, InstagramIcon, MailIcon, ChevronRightIcon } from 'lucide-react';
 import { FaTiktok } from 'react-icons/fa';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   const handleNewsletterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!email) {
       setMessage({ type: 'error', text: 'Please enter your email address' });
       return;
@@ -76,7 +71,7 @@ const Footer = () => {
                     disabled={isLoading}
                     className="flex-grow px-4 py-3 rounded-l-lg text-gray-900 focus:outline-none disabled:opacity-50"
                   />
-                  <button 
+                  <button
                     type="submit"
                     disabled={isLoading}
                     className="bg-blue-600 hover:bg-blue-700 px-4 py-3 rounded-r-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
@@ -85,7 +80,11 @@ const Footer = () => {
                   </button>
                 </div>
                 {message && (
-                  <p className={`text-sm ${message.type === 'success' ? 'text-green-400' : 'text-red-400'}`}>
+                  <p
+                    className={`text-sm ${
+                      message.type === 'success' ? 'text-green-400' : 'text-red-400'
+                    }`}
+                  >
                     {message.text}
                   </p>
                 )}
@@ -99,28 +98,44 @@ const Footer = () => {
           {/* Company info */}
           <div>
             <div className="mb-6">
-              <Image 
-                src="/image.png" 
-                alt="OtterTrip" 
-                width={166} 
-                height={48} 
-                className="h-10 object-contain object-left" 
+              <Image
+                src="/image.png"
+                alt="OtterTrip"
+                width={166}
+                height={48}
+                className="h-10 object-contain object-left"
                 priority={true}
               />
             </div>
             <p className="text-gray-400 mb-6">
-              Pick the pro<br />
-              Connecting travelers with experts for authentic and personalized travel
-              experiences around the world.
+              Pick the pro
+              <br />
+              Connecting travelers with experts for authentic and personalized travel experiences
+              around the world.
             </p>
             <div className="flex space-x-4">
-              <a href="https://www.facebook.com/profile.php?id=61577746934785#" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors">
+              <a
+                href="https://www.facebook.com/profile.php?id=61577746934785#"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-400 hover:text-white transition-colors"
+              >
                 <FacebookIcon size={20} />
               </a>
-              <a href="https://www.facebook.com/profile.php?id=61577746934785#" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors">
+              <a
+                href="https://www.facebook.com/profile.php?id=61577746934785#"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-400 hover:text-white transition-colors"
+              >
                 <InstagramIcon size={20} />
               </a>
-              <a href="https://www.tiktok.com/@otter_trip" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors">
+              <a
+                href="https://www.tiktok.com/@otter_trip"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-400 hover:text-white transition-colors"
+              >
                 <FaTiktok size={18} />
               </a>
             </div>
@@ -132,7 +147,7 @@ const Footer = () => {
             <ul className="space-y-3">
               <li>
                 <Link
-                  href="/about"
+                  href="#"
                   className="text-gray-400 hover:text-white transition-colors flex items-center"
                 >
                   <ChevronRightIcon size={16} className="mr-2" />
@@ -141,7 +156,7 @@ const Footer = () => {
               </li>
               <li>
                 <Link
-                  href="/faq"
+                  href="#"
                   className="text-gray-400 hover:text-white transition-colors flex items-center"
                 >
                   <ChevronRightIcon size={16} className="mr-2" />
@@ -169,16 +184,16 @@ const Footer = () => {
             © {currentYear} OtterTrip. All rights reserved.
           </div>
           <div className="flex flex-wrap justify-center gap-4 text-sm">
-            <Link href="/terms" className="text-gray-400 hover:text-white transition-colors">
+            <Link href="#" className="text-gray-400 hover:text-white transition-colors">
               Terms & Conditions
             </Link>
-            <Link href="/privacy" className="text-gray-400 hover:text-white transition-colors">
+            <Link href="#" className="text-gray-400 hover:text-white transition-colors">
               Privacy Policy
             </Link>
-            <Link href="/cookies" className="text-gray-400 hover:text-white transition-colors">
+            <Link href="#" className="text-gray-400 hover:text-white transition-colors">
               Cookie Policy
             </Link>
-            <Link href="/sitemap" className="text-gray-400 hover:text-white transition-colors">
+            <Link href="#" className="text-gray-400 hover:text-white transition-colors">
               Sitemap
             </Link>
           </div>

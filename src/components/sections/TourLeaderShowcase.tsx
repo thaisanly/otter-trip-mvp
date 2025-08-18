@@ -9,7 +9,7 @@ const TourLeaderShowcase = () => {
       {/* Background Image with Overlay */}
       <div className="absolute inset-0 z-0">
         <Image
-          src="https://images.unsplash.com/photo-1506197603052-3cc9c3a201bd?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80"
+          src="/images/hero-travel-adventure.jpg"
           alt="Travel adventure"
           className="w-full h-full object-cover"
           fill

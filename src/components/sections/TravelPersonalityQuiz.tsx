@@ -257,7 +257,7 @@ const TravelPersonalityQuiz = () => {
                 </div>
                 <div className="hidden md:block relative">
                   <Image
-                    src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
+                    src="/images/travel-personalities.jpg"
                     alt="Travel personalities"
                     className="w-full h-full object-cover"
                     fill
