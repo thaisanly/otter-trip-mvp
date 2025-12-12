@@ -1,0 +1,69 @@
+name: Test
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+    branches: [master, main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    env:
+      DATABASE_URL: postgresql://test:test@localhost:5432/test
+      JWT_SECRET: test-secret-key-at-least-32-characters-long-for-testing
+      EMAIL_PROVIDER: smtp
+      ADMIN_EMAIL: admin@test.com
+      SMTP_HOST: localhost
+      SMTP_PORT: "1025"
+      SMTP_FROM: noreply@test.com
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'yarn'
+
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache yarn dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ${{ steps.yarn-cache-dir-path.outputs.dir }}
+            node_modules
+          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile --prefer-offline
+
+      - name: Run tests with coverage
+        run: yarn test:coverage
+
+      - name: Upload coverage reports
+        uses: codecov/codecov-action@v4
+        if: always()
+        with:
+          files: ./coverage/lcov.info
+          fail_ci_if_error: false
+          verbose: true
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Check coverage thresholds
+        run: |
+          COVERAGE=$(cat coverage/coverage-summary.json 2>/dev/null | jq -r '.total.statements.pct' || echo "0")
+          echo "Statement coverage: ${COVERAGE}%"
+          if (( $(echo "$COVERAGE < 80" | bc -l) )); then
+            echo "Coverage is below 80% threshold"
+            exit 1
+          fi

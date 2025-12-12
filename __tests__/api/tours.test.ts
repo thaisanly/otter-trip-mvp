@@ -5,22 +5,12 @@ jest.mock('@/lib/prisma', () => ({
   prisma: {
     tour: {
       findUnique: jest.fn(),
-      findMany: jest.fn()
-    }
-  }
+      findMany: jest.fn(),
+    },
+  },
 }));
 
 const mockPrisma = prisma as jest.Mocked<typeof prisma>;
-
-// Helper to create mock NextRequest
-function createMockRequest(url: string) {
-  const urlObj = new URL(url);
-  return {
-    nextUrl: {
-      searchParams: urlObj.searchParams
-    }
-  };
-}
 
 describe('Tours API', () => {
   beforeEach(() => {
@@ -52,8 +42,8 @@ describe('Tours API', () => {
           reviews: [],
           categories: ['cultural'],
           tourLeaderId: 'leader-1',
-          tourLeader: { id: 'leader-1', name: 'John', image: '/john.jpg', rating: 4.9 }
-        }
+          tourLeader: { id: 'leader-1', name: 'John', image: '/john.jpg', rating: 4.9 },
+        },
       ];
 
       (mockPrisma.tour.findMany as jest.Mock).mockResolvedValue(mockTours);
@@ -71,12 +61,14 @@ describe('Tours API', () => {
         imageUrl: mockTours[0].heroImage,
         categories: mockTours[0].categories,
         tourLeaderId: mockTours[0].tourLeaderId,
-        tourLeader: mockTours[0].tourLeader ? {
-          id: mockTours[0].tourLeader.id,
-          name: mockTours[0].tourLeader.name,
-          image: mockTours[0].tourLeader.image,
-          rating: mockTours[0].tourLeader.rating
-        } : undefined
+        tourLeader: mockTours[0].tourLeader
+          ? {
+              id: mockTours[0].tourLeader.id,
+              name: mockTours[0].tourLeader.name,
+              image: mockTours[0].tourLeader.image,
+              rating: mockTours[0].tourLeader.rating,
+            }
+          : undefined,
       };
 
       expect(transformedTour.id).toBe('tour-1');
@@ -90,7 +82,7 @@ describe('Tours API', () => {
         { input: '$500', expected: 500 },
         { input: '$1,245', expected: 1245 },
         { input: '999', expected: 999 },
-        { input: '$0', expected: 0 }
+        { input: '$0', expected: 0 },
       ];
 
       priceTests.forEach(({ input, expected }) => {
@@ -104,13 +96,15 @@ describe('Tours API', () => {
         id: 'tour-2',
         title: 'Solo Tour',
         tourLeaderId: null,
-        tourLeader: null
+        tourLeader: null,
       };
 
-      const tourLeader = mockTour.tourLeader ? {
-        id: mockTour.tourLeader.id,
-        name: mockTour.tourLeader.name
-      } : undefined;
+      const tourLeader = mockTour.tourLeader
+        ? {
+            id: mockTour.tourLeader.id,
+            name: mockTour.tourLeader.name,
+          }
+        : undefined;
 
       expect(tourLeader).toBeUndefined();
     });
@@ -126,7 +120,7 @@ describe('Tours API', () => {
         additionalInfo: [],
         dates: [],
         reviews: [],
-        categories: []
+        categories: [],
       };
 
       expect(Array.isArray(mockTour.overview) ? mockTour.overview : []).toEqual([]);
@@ -141,26 +135,23 @@ describe('Tours API', () => {
       await mockPrisma.tour.findMany({
         where: {
           categories: {
-            array_contains: ['cultural']
-          }
+            array_contains: ['cultural'],
+          },
         },
         include: {
-          tourLeader: true
+          tourLeader: true,
         },
-        orderBy: [
-          { rating: 'desc' },
-          { totalJoined: 'desc' }
-        ],
-        take: 100
+        orderBy: [{ rating: 'desc' }, { totalJoined: 'desc' }],
+        take: 100,
       });
 
       expect(mockPrisma.tour.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: {
             categories: {
-              array_contains: ['cultural']
-            }
-          }
+              array_contains: ['cultural'],
+            },
+          },
         })
       );
     });
@@ -168,19 +159,19 @@ describe('Tours API', () => {
     it('should call findUnique for single tour lookup', async () => {
       const mockTour = {
         id: 'tour-uuid-123',
-        title: 'Single Tour'
+        title: 'Single Tour',
       };
 
       (mockPrisma.tour.findUnique as jest.Mock).mockResolvedValue(mockTour);
 
       await mockPrisma.tour.findUnique({
         where: { id: 'tour-uuid-123' },
-        include: { tourLeader: true }
+        include: { tourLeader: true },
       });
 
       expect(mockPrisma.tour.findUnique).toHaveBeenCalledWith({
         where: { id: 'tour-uuid-123' },
-        include: { tourLeader: true }
+        include: { tourLeader: true },
       });
     });
 
@@ -188,7 +179,7 @@ describe('Tours API', () => {
       (mockPrisma.tour.findUnique as jest.Mock).mockResolvedValue(null);
 
       const result = await mockPrisma.tour.findUnique({
-        where: { id: 'non-existent-id' }
+        where: { id: 'non-existent-id' },
       });
 
       expect(result).toBeNull();
@@ -204,12 +195,12 @@ describe('Tours API', () => {
       (mockPrisma.tour.findMany as jest.Mock).mockResolvedValue([]);
 
       await mockPrisma.tour.findMany({
-        take: 10
+        take: 10,
       });
 
       expect(mockPrisma.tour.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
-          take: 10
+          take: 10,
         })
       );
     });

@@ -24,13 +24,14 @@ const config = {
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   collectCoverageFrom: [
-    'src/**/*.{ts,tsx}',
+    'src/**/*.ts',
     '!src/**/*.d.ts',
     '!src/types/**/*',
-    '!src/app/**/*.tsx'
+    '!src/app/**/*',
+    '!src/mock/**/*'
   ],
   coverageDirectory: 'coverage',
-  coverageReporters: ['text', 'lcov', 'html'],
+  coverageReporters: ['text', 'lcov', 'html', 'json-summary'],
   testPathIgnorePatterns: ['/node_modules/', '/.next/'],
   verbose: true
 };
